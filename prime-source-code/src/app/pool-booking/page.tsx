@@ -1,10 +1,9 @@
 "use client";
 
 import PoolTimeSlots, { type Slot } from "@/components/PoolTimeSlots";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { FaStarOfLife, FaCrown } from "react-icons/fa6";
-import DatePicker from "@/components/DatePicker";
 import { apiCall, ENDPOINTS } from "@/utils/api";
 
 type PlanId = "solo" | "duo" | "session" | "group";
@@ -89,6 +88,17 @@ export default function PoolBookingPage() {
   const selectedPlan = PLANS.find((p) => p.id === selectedPool) ?? null;
   const bookingTotal =
     (selectedPlan?.price ?? 0) + (addons.sauna ? 500 : 0) + (addons.jacuzzi ? 500 : 0);
+
+  // Next 14 selectable days as chips (value is an ISO yyyy-mm-dd string).
+  const dateOptions = useMemo(() => {
+    const base = new Date();
+    return Array.from({ length: 14 }, (_, i) => {
+      const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i);
+      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const dow = i === 0 ? "Today" : d.toLocaleDateString("en-IN", { weekday: "short" });
+      return { iso, dow, dnum: d.getDate() };
+    });
+  }, []);
 
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
@@ -305,147 +315,84 @@ export default function PoolBookingPage() {
               })}
             </div>
 
-            {/* Date & Time */}
-            <div>
-              <h3 className="text-2xl md:text-3xl lg:text-[32px] font-normal leading-[1.2] mb-5 md:mb-6">
-                Select Date &amp; Time
-              </h3>
-              <div className="bg-[#e3fdff] border border-[#77f4ff] rounded-[24px] md:rounded-[30px] px-5 sm:px-8 lg:px-10 py-6 md:py-8 flex flex-col gap-6 md:gap-8">
-          {/* Date */}
-          <div>
-            <p className="text-lg md:text-[20px] capitalize text-black mb-2 md:mb-3">
-              Date
-            </p>
-            <DatePicker onDateChange={setSelectedDate} />
-          </div>
-          {/* Time Slots */}
-          <div>
-            <p className="text-lg md:text-[20px] capitalize text-black mb-1 md:mb-2">
-              Available Slots
-            </p>
-            <p className="text-sm text-black/60 mb-3 md:mb-4">
-              {selectedPlan
-                ? "Only 2 pools are available — a slot may already be booked. We’ll confirm your pool at booking."
-                : "Select a plan above to see time slots for its duration."}
-            </p>
-            <PoolTimeSlots
-              durationMinutes={selectedPlan?.durationMinutes ?? 90}
-              onSlotChange={setSelectedSlot}
-            />
-          </div>
+            {/* Add-ons — individual services, one toggle each */}
+            <div className="flex flex-col gap-3">
+              <div className="bg-white border border-black/10 rounded-[20px] px-4 py-3.5 flex items-center justify-between gap-4 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <span className="w-11 h-11 rounded-xl bg-[#9EF6FD] flex items-center justify-center flex-none">
+                    <img src="/ICONS/Jacuzzi.png" alt="" className="w-6 h-6 object-contain" />
+                  </span>
+                  <div>
+                    <p className="font-semibold leading-tight text-black">Jacuzzi</p>
+                    <p className="text-sm text-black/55">Individual service · +₹500</p>
+                  </div>
+                </div>
+                <button type="button" role="switch" aria-checked={addons.jacuzzi} aria-label="Add Jacuzzi" onClick={() => setAddons((a) => ({ ...a, jacuzzi: !a.jacuzzi }))} className={`relative w-[52px] h-[30px] rounded-full flex-none transition-colors ${addons.jacuzzi ? "bg-black" : "bg-gray-300"}`}>
+                  <span className={`absolute top-[3px] w-6 h-6 rounded-full bg-white shadow transition-all ${addons.jacuzzi ? "left-[25px]" : "left-[3px]"}`} />
+                </button>
+              </div>
+              <div className="bg-white border border-black/10 rounded-[20px] px-4 py-3.5 flex items-center justify-between gap-4 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <span className="w-11 h-11 rounded-xl bg-[#9EF6FD] flex items-center justify-center flex-none">
+                    <img src="/ICONS/Sauna_Bath.png" alt="" className="w-6 h-6 object-contain" />
+                  </span>
+                  <div>
+                    <p className="font-semibold leading-tight text-black">Sauna Bath</p>
+                    <p className="text-sm text-black/55">Individual service · +₹500</p>
+                  </div>
+                </div>
+                <button type="button" role="switch" aria-checked={addons.sauna} aria-label="Add Sauna Bath" onClick={() => setAddons((a) => ({ ...a, sauna: !a.sauna }))} className={`relative w-[52px] h-[30px] rounded-full flex-none transition-colors ${addons.sauna ? "bg-black" : "bg-gray-300"}`}>
+                  <span className={`absolute top-[3px] w-6 h-6 rounded-full bg-white shadow transition-all ${addons.sauna ? "left-[25px]" : "left-[3px]"}`} />
+                </button>
               </div>
             </div>
 
-            {/* Add-ons */}
-            <div>
-              <h3 className="text-2xl md:text-3xl lg:text-[32px] font-normal leading-[1.2] mb-5 md:mb-6">
-                Enhance Your Experience
-              </h3>
-              <div className="flex flex-col gap-4">
-          {/* Row 1: Sauna Bath + Jacuzzi */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Sauna Bath */}
-            <div className="bg-[#e3fdff] rounded-[24px] md:rounded-[30px] flex items-stretch p-3 md:p-4 min-h-[120px] md:min-h-[162px]">
-              <div className="bg-white rounded-[14px] flex items-center justify-center flex-shrink-0 w-[90px] md:w-[130px] min-h-[90px] md:min-h-[130px]">
-                <img
-                  src="/ICONS/Sauna_Bath.png"
-                  alt="Sauna"
-                  className="w-[50px] h-[50px] md:w-[70px] md:h-[70px] object-contain"
-                />
-              </div>
-              <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between pl-4 pr-2 py-1 gap-2 md:gap-3">
-                <div>
-                  <p className="text-[18px] md:text-[20px] lg:text-[22px] font-medium leading-[1.2] text-black">
-                    Sauna Bath
-                  </p>
-                  <p className="text-[13px] md:text-[15px] capitalize text-black/70 leading-[1.3] mt-1 pr-2">
-                    10 Mins
-                  </p>
-                  <p className="text-[18px] md:text-[20px] font-medium text-black mt-2">
-                    &#x20B9; 500
-                  </p>
-                </div>
-                <div className="flex-shrink-0 sm:self-center mt-2 sm:mt-0">
+            {/* Date & time */}
+            <div className="bg-[#e3fdff] border border-[#77f4ff] rounded-[24px] md:rounded-[30px] px-5 sm:px-8 py-6 md:py-7">
+              <h3 className="text-xl md:text-2xl font-semibold mb-1">Choose date &amp; time</h3>
+              <p className="text-sm text-black/60 mb-5">
+                Only 2 pools are available — each slot takes up to 2 bookings (one per pool). We&rsquo;ll confirm your pool at booking.
+              </p>
+
+              <p className="text-sm font-semibold mb-3">Date</p>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {dateOptions.map((o) => (
                   <button
-                    onClick={() => setAddons((a) => ({ ...a, sauna: !a.sauna }))}
-                    className={`text-sm md:text-[18px] font-medium capitalize rounded-full px-5 md:px-6 py-2 md:py-2.5 transition-colors active:scale-95 ${
-                      addons.sauna
-                        ? "bg-black/20 text-black border border-black/40"
-                        : "bg-black text-white hover:bg-black/80"
-                    }`}
+                    key={o.iso}
+                    type="button"
+                    onClick={() => setSelectedDate(o.iso)}
+                    aria-pressed={selectedDate === o.iso}
+                    className={`flex-none min-w-[62px] text-center rounded-[14px] px-3 py-2 border transition-colors ${selectedDate === o.iso ? "bg-black text-white border-black" : "bg-white border-black/15 hover:border-black/40"}`}
                   >
-                    {addons.sauna ? "Remove" : "Add"}
+                    <span className={`block text-[11px] uppercase tracking-wide ${selectedDate === o.iso ? "text-white/80" : "text-black/50"}`}>{o.dow}</span>
+                    <span className="block text-lg font-bold">{o.dnum}</span>
                   </button>
-                </div>
+                ))}
               </div>
-            </div>
 
-            {/* Jacuzzi */}
-            <div className="bg-[#e3fdff] rounded-[24px] md:rounded-[30px] flex items-stretch p-3 md:p-4 min-h-[120px] md:min-h-[162px]">
-              <div className="bg-white rounded-[14px] flex items-center justify-center flex-shrink-0 w-[90px] md:w-[130px] min-h-[90px] md:min-h-[130px]">
-                <img
-                  src="/ICONS/Jacuzzi.png"
-                  alt="Jacuzzi"
-                  className="w-[50px] h-[50px] md:w-[70px] md:h-[70px] object-contain"
-                />
-              </div>
-              <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between pl-4 pr-2 py-1 gap-2 md:gap-3">
-                <div>
-                  <p className="text-[18px] md:text-[20px] lg:text-[22px] font-medium leading-[1.2] text-black">
-                    Jacuzzi
-                  </p>
-                  <p className="text-[13px] md:text-[15px] capitalize text-black/70 leading-[1.3] mt-1 pr-2">
-                    20 Min
-                  </p>
-                  <p className="text-[18px] md:text-[20px] font-medium text-black mt-2">
-                    &#x20B9; 500
-                  </p>
-                </div>
-                <div className="flex-shrink-0 sm:self-center mt-2 sm:mt-0">
-                  <button
-                    onClick={() => setAddons((a) => ({ ...a, jacuzzi: !a.jacuzzi }))}
-                    className={`text-sm md:text-[18px] font-medium capitalize rounded-full px-5 md:px-6 py-2 md:py-2.5 transition-colors active:scale-95 ${
-                      addons.jacuzzi
-                        ? "bg-black/20 text-black border border-black/40"
-                        : "bg-black text-white hover:bg-black/80"
-                    }`}
-                  >
-                    {addons.jacuzzi ? "Remove" : "Add"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Row 2: Poolside Dining (full width) */}
-          <div className="bg-[#e3fdff] rounded-[24px] md:rounded-[30px] flex items-stretch p-3 md:p-4 min-h-[120px] md:min-h-[162px]">
-            <div className="bg-white rounded-[14px] flex items-center justify-center flex-shrink-0 w-[90px] md:w-[130px] min-h-[90px] md:min-h-[130px]">
-              <img
-                src="/ICONS/Dining.png"
-                alt="Dining"
-                className="w-[50px] h-[50px] md:w-[70px] md:h-[70px] object-contain"
+              <p className="text-sm font-semibold mt-6 mb-1">Available times</p>
+              <p className="text-xs text-black/55 mb-3">
+                {selectedPlan ? "Times reflect your plan's session length." : "Select a plan above to see time slots for its duration."}
+              </p>
+              <PoolTimeSlots
+                durationMinutes={selectedPlan?.durationMinutes ?? 90}
+                onSlotChange={setSelectedSlot}
               />
             </div>
-            <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between pl-4 pr-2 py-1 gap-2 md:gap-3">
-              <div>
-                <p className="text-[18px] md:text-[20px] lg:text-[22px] font-medium leading-[1.2] text-black">
-                  Poolside Dining
-                </p>
-                <p className="text-[13px] md:text-[15px] capitalize text-black/70 leading-[1.3] mt-1">
-                  Add A Curated Dining Experience
-                </p>
+
+            {/* Key policies */}
+            <div className="grid sm:grid-cols-3 gap-3">
+              <div className="bg-[#e3fdff] border border-black/5 rounded-[16px] p-4 flex gap-3">
+                <span className="text-lg">⏱</span>
+                <div><p className="font-semibold text-sm text-black">Overtime ₹500 / 10 min</p><p className="text-xs text-black/60">After your slot ends</p></div>
               </div>
-                <div className="flex-shrink-0 sm:self-center mt-2 sm:mt-0">
-                  <button
-                    disabled
-                    aria-disabled="true"
-                    className="bg-black/40 text-white text-sm md:text-[18px] font-medium capitalize rounded-full px-5 md:px-6 py-2 md:py-2.5 cursor-not-allowed opacity-60 transition-colors whitespace-nowrap"
-                  >
-                    Coming Soon
-                  </button>
-                </div>
-            </div>
-          </div>
+              <div className="bg-[#e3fdff] border border-black/5 rounded-[16px] p-4 flex gap-3">
+                <span className="text-lg">🚫</span>
+                <div><p className="font-semibold text-sm text-black">No refunds</p><p className="text-xs text-black/60">Private booking — non-cancellable</p></div>
+              </div>
+              <div className="bg-[#e3fdff] border border-black/5 rounded-[16px] p-4 flex gap-3">
+                <span className="text-lg">👶</span>
+                <div><p className="font-semibold text-sm text-black">Kids supervised</p><p className="text-xs text-black/60">Under 12 with an adult · under 3 not allowed</p></div>
               </div>
             </div>
           </div>
