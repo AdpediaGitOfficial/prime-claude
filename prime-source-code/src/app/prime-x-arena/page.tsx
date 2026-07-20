@@ -1,80 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import {
   MotionDiv,
   MotionH2,
   MotionP,
 } from "@/components/MotionWrappers";
 import Image from "next/image";
-import {
-  FiMonitor,
-  FiTarget,
-  FiCrosshair,
-  FiActivity,
-  FiLifeBuoy,
-  FiShield,
-  FiNavigation,
-} from "react-icons/fi";
 
 const PrimexArenaPage = () => {
-  // State for selections
-  // const [selectedZone, setSelectedZone] = useState<string>("race");
-  // const [selectedTime, setSelectedTime] = useState<string>("10:00 AM - 11:00 AM");
-
-  // Features
-  // const features = [
-  //   {
-  //     id: "bowling",
-  //     title: "Bowling Alley",
-  //     desc: "Premium lanes with dedicated seating and vibrant atmosphere for the perfect strike.",
-  //     icon: <FiLifeBuoy size={32} />,
-  //   },
-  //   {
-  //     id: "cricket",
-  //     title: "Cricket Pitch",
-  //     desc: "Equipped with an automatic bowling machine. Pick and choose preset bowlers, speed, or spin.",
-  //     icon: <FiActivity size={32} />,
-  //   },
-  //   {
-  //     id: "race",
-  //     title: "Race Grid F1 Simulator",
-  //     desc: "Experience the adrenaline of driving professional circuits in our dynamic racing simulators.",
-  //     icon: <FiCrosshair size={32} />,
-  //   },
-  //   {
-  //     id: "flight",
-  //     title: "Flight Simulator",
-  //     desc: "Take control of the cockpit and fly to your destination with realistic controls and physics.",
-  //     icon: <FiNavigation size={32} />,
-  //   },
-  //   {
-  //     id: "ps5",
-  //     title: "PS5 Zone",
-  //     desc: "A dedicated console gaming area featuring the latest next-gen titles to mingle and play.",
-  //     icon: <FiMonitor size={32} />,
-  //   },
-  //   {
-  //     id: "shooting",
-  //     title: "Shooting Range",
-  //     desc: "Test your precision and accuracy in our secure, auto-retrieval target shooting range.",
-  //     icon: <FiTarget size={32} />,
-  //   },
-  // ];
-
-  // const timeSlots = [
-  //   "10:00 AM - 11:00 AM",
-  //   "11:00 AM - 12:00 PM",
-  //   "12:00 PM - 01:00 PM",
-  //   "01:00 PM - 02:00 PM",
-  //   "02:00 PM - 03:00 PM",
-  //   "03:00 PM - 04:00 PM",
-  //   "04:00 PM - 05:00 PM",
-  //   "05:00 PM - 06:00 PM",
-  //   "06:00 PM - 07:00 PM",
-  //   "07:00 PM - 08:00 PM",
-  //   "08:00 PM - 09:00 PM",
-  //   "09:00 PM - 10:00 PM",
-  // ];
 
   return (
     <>

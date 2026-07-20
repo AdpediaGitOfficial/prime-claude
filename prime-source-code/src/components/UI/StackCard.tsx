@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 
 export default function StackCard() {
   return (
-    <section className="pyt16 lg:pt-24 px-5 lg:px-8">
+    <section className="lg:pt-24 px-5 lg:px-8">
  
       <MotionH2
         className="text-3xl font-normal leading-[1.2] text-center mb-5"
@@ -33,7 +33,6 @@ export default function StackCard() {
                 {
                   img: "/ASSETS/regal.jpeg",
                   logo: "/Service-logo/final-out-06.png",
-                  // title: "Retail & Corporate",
                   text: "An event space ideal for corporate meetings, celebrations and gatherings.",
                   gradient: "linear-gradient(130.7deg, rgba(0,0,0,0) 50.5%, rgba(0,0,0,0.357) 60.5%, rgba(0,0,0,0.8) 93.1%)",
                   logoWidth: 220,
@@ -42,7 +41,6 @@ export default function StackCard() {
                 {
                   img: "/ASSETS/gym.webp",
                   logo: "/Service-logo/final-out-03.png",
-                  // title: "Fitness & Sports",
                   text: "Your comeback starts here.",
                   gradient: "linear-gradient(43.5deg, rgba(0,0,0,0.8) 6.5%, rgba(0,0,0,0.49) 24.6%, rgba(0,0,0,0) 40.5%)",
                   logoWidth: 220,
@@ -51,8 +49,6 @@ export default function StackCard() {
                 {
                   img: "/ASSETS/megllow.jpeg",
                   logo: "/LOGO/final-out-10.webp",
-                  // title: "Prime X Arena",
-                  // text: "A multi-purpose arena for sports, events and entertainment.",
                   gradient: "linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.7) 85%)",
                   logoWidth: 300,
                   align: "right",
@@ -60,8 +56,6 @@ export default function StackCard() {
                 {
                   img: "/ASSETS/coffee.jpeg",
                   logo: "/Service-logo/final-out-05.png",
-                  // title: "Café & Dining",
-                  // text: "Casual dining and artisanal coffee for every moment.",
                   gradient: "linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.6) 90%)",
                   logoWidth: 250,
                   align: "left",
@@ -69,8 +63,6 @@ export default function StackCard() {
                 {
                   img: "/ASSETS/pharma.jpeg",
                   logo: "/Service-logo/final-out-08.png",
-                  // title: "Prime Pharma",
-                  // text: "On-site pharmacy and wellness support for residents and visitors.",
                   gradient: "linear-gradient(200deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.7) 92%)",
                   logoWidth: 250,
                   align: "right",
@@ -78,8 +70,6 @@ export default function StackCard() {
                 {
                   img: "/ASSETS/edutech.jpeg",
                   logo: "/Service-logo/final-out-04.png",
-                  // title: "Study Centre",
-                  // text: "Professional training and educational programs for growth.",
                   gradient: "linear-gradient(140deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.65) 88%)",
                   logoWidth: 250,
                   align: "left",
