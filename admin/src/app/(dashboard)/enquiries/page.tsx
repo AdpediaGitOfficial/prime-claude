@@ -1,0 +1,75 @@
+"use client";
+
+import ResourceTable, { type ResourceConfig, type RowRecord } from "@/components/ResourceTable";
+import { dateTime } from "@/lib/format";
+
+const s = (row: RowRecord, key: string) => (row[key] == null || row[key] === "" ? "—" : String(row[key]));
+
+const nameContact = (r: RowRecord) => (
+  <>
+    <div className="who">{s(r, "fullName")}</div>
+    <div className="sub-txt">{s(r, "phone")} · {s(r, "email")}</div>
+  </>
+);
+const received = (r: RowRecord) => <span className="sub-txt">{dateTime(String(r.createdAt))}</span>;
+
+const RESOURCES: ResourceConfig[] = [
+  {
+    key: "vendor",
+    label: "Vendor",
+    path: "/api/admin/vendor-invites",
+    kind: "lead",
+    searchPlaceholder: "Search name, brand, vendor type…",
+    columns: [
+      { header: "Name", cell: nameContact },
+      { header: "Brand", cell: (r) => s(r, "organisationName") },
+      { header: "Interest", cell: (r) => {
+          const counters = Array.isArray(r.counters) ? (r.counters as string[]) : [];
+          return <>{s(r, "vendorType")}<div className="sub-txt">{counters.length ? counters.join(", ") : "—"}{r.preferredDuration ? ` · ${r.preferredDuration}` : ""}</div></>;
+        } },
+      { header: "Received", cell: received },
+    ],
+  },
+  {
+    key: "course",
+    label: "Course",
+    path: "/api/admin/course-registrations",
+    kind: "lead",
+    searchPlaceholder: "Search name, course, phone…",
+    columns: [
+      { header: "Name", cell: nameContact },
+      { header: "Course", cell: (r) => s(r, "course") },
+      { header: "Received", cell: received },
+    ],
+  },
+  {
+    key: "gym",
+    label: "Gym",
+    path: "/api/admin/gym-memberships",
+    kind: "lead",
+    searchPlaceholder: "Search name, phone, email…",
+    columns: [
+      { header: "Name", cell: nameContact },
+      { header: "Age", cell: (r) => s(r, "age") },
+      { header: "Message", cell: (r) => s(r, "message") },
+      { header: "Received", cell: received },
+    ],
+  },
+  {
+    key: "contact",
+    label: "Contact",
+    path: "/api/admin/contact-enquiries",
+    kind: "lead",
+    searchPlaceholder: "Search name, subject, email…",
+    columns: [
+      { header: "Name", cell: nameContact },
+      { header: "Subject", cell: (r) => s(r, "subject") },
+      { header: "Message", cell: (r) => <span className="sub-txt">{s(r, "message")}</span> },
+      { header: "Received", cell: received },
+    ],
+  },
+];
+
+export default function EnquiriesPage() {
+  return <ResourceTable resources={RESOURCES} />;
+}
