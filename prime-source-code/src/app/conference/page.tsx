@@ -144,6 +144,11 @@ export default function ConferencePage() {
   const firstDay = new Date(year, month, 1).getDay();
 
   const monthName = currentMonth.toLocaleString("default", { month: "long" });
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const slotLabel = (slot: string | null) =>
+    slot === "morning" ? "Morning · 9 AM – 1 PM" : slot === "evening" ? "Evening · 2 – 6 PM" : null;
 
   // Generate grid array (null for empty prefix slots, numbers for actual days)
   const calendarDays = [];
@@ -318,273 +323,243 @@ export default function ConferencePage() {
         </div>
       </section>
 
-      {/* ═══ BOOKING TIME SLOTS (Section 5 - Odd - Full width background) ═══ */}
-      <section className="w-full bg-[#e3e9e8]">
-        <div className="site-container py-12 md:py-16">
-          <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2] text-center mb-3">Booking Time Slots</h2>
-          <p className="text-base md:text-xl text-center text-black/70 mb-8 md:mb-12">Choose your preferred time slot for the event</p>
-
-          <div className="flex flex-col md:flex-row justify-center items-center gap-5 md:gap-8">
-            {/* Morning Slot Card */}
-            <div
-              onClick={() => setSelectedSlot("morning")}
-              className={`bg-white rounded-[24px] md:rounded-[30px] p-3 md:p-4 flex items-center gap-4 md:gap-6 w-full max-w-[450px] cursor-pointer transition-all border-2 ${
-                selectedSlot === "morning"
-                  ? "border-[#00372f] shadow-md"
-                  : "border-transparent shadow-sm hover:shadow-md"
-              }`}
-            >
-              <div className="bg-[#e3e9e8] rounded-[16px] md:rounded-[20px] w-[90px] h-[90px] md:w-[120px] md:h-[120px] flex items-center justify-center flex-shrink-0">
-                <FiSun className="text-[#00372f] w-10 h-10 md:w-12 md:h-12" strokeWidth={1.5} />
-              </div>
-              <div className="flex flex-col gap-1 pr-2">
-                <div className="flex items-center gap-3">
-                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${selectedSlot === "morning" ? "border-[#00372f]" : "border-gray-400"}`}>
-                    {selectedSlot === "morning" && <div className="w-2.5 h-2.5 bg-[#00372f] rounded-full"></div>}
-                  </div>
-                  <p className="text-xl md:text-2xl font-medium text-black">Morning Slot</p>
-                </div>
-                <div className="pl-8">
-                  <p className="text-sm md:text-base text-black whitespace-nowrap leading-[1.4]">9:00 AM – 1:00 PM</p>
-                  <p className="text-sm md:text-base text-black/60 leading-[1.4]">(4 hours)</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Evening Slot Card */}
-            <div
-              onClick={() => setSelectedSlot("evening")}
-              className={`bg-white rounded-[24px] md:rounded-[30px] p-3 md:p-4 flex items-center gap-4 md:gap-6 w-full max-w-[450px] cursor-pointer transition-all border-2 ${
-                selectedSlot === "evening"
-                  ? "border-[#00372f] shadow-md"
-                  : "border-transparent shadow-sm hover:shadow-md"
-              }`}
-            >
-              <div className="bg-[#e3e9e8] rounded-[16px] md:rounded-[20px] w-[90px] h-[90px] md:w-[120px] md:h-[120px] flex items-center justify-center flex-shrink-0">
-                <FiSunrise className="text-[#00372f] w-10 h-10 md:w-12 md:h-12" strokeWidth={1.5} />
-              </div>
-              <div className="flex flex-col gap-1 pr-2">
-                <div className="flex items-center gap-3">
-                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${selectedSlot === "evening" ? "border-[#00372f]" : "border-gray-400"}`}>
-                    {selectedSlot === "evening" && <div className="w-2.5 h-2.5 bg-[#00372f] rounded-full"></div>}
-                  </div>
-                  <p className="text-xl md:text-2xl font-medium text-black">Evening Slot</p>
-                </div>
-                <div className="pl-8">
-                  <p className="text-sm md:text-base text-black whitespace-nowrap leading-[1.4]">2:00 PM – 6:00 PM</p>
-                  <p className="text-sm md:text-base text-black/60 leading-[1.4]">(4 hours)</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ AVAILABILITY CALENDAR (Section 6 - Even - 120px Padding) ═══ */}
+      {/* ═══ BOOK THE HALL (unified booking) ═══ */}
       <section className="site-container !py-16 md:!py-24 lg:!py-[120px]">
-        <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2] text-center mb-3">Availability Calendar</h2>
-        <p className="text-base md:text-xl text-center text-black/70 mb-8 md:mb-12">Select your preferred date to check availability</p>
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2] mb-3">Book the Hall</h2>
+          <p className="text-base md:text-xl text-black/70 max-w-2xl mx-auto">
+            Pick a date and slot, add your event details, and send a request — the team confirms availability.
+          </p>
+        </div>
 
-        <div className="max-w-[500px] mx-auto flex flex-col items-center">
-          
-          {/* Month Nav Pill */}
-          <div className="inline-flex items-center justify-center gap-6 md:gap-10 mb-8 md:mb-12 bg-[#e8ecec] rounded-[30px] px-6 py-3 border border-gray-200/50">
-            <button type="button" aria-label="Previous month" onClick={prevMonth} className="text-[#00372f] hover:text-gray-500 transition-colors p-1 active:scale-95">
-              <svg className="w-3 h-4" fill="none" viewBox="0 0 8 14" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 1L1 7l6 6" /></svg>
-            </button>
-            <span className="text-lg md:text-[22px] font-medium capitalize select-none min-w-[140px] text-center text-black" style={{ fontFamily: "'Euclid Circular A',Poppins,sans-serif" }}>
-              {monthName} {year}
-            </span>
-            <button type="button" aria-label="Next month" onClick={nextMonth} className="text-[#00372f] hover:text-gray-500 transition-colors p-1 active:scale-95">
-              <svg className="w-3 h-4" fill="none" viewBox="0 0 8 14" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M1 1l6 6-6 6" /></svg>
-            </button>
-          </div>
+        <div className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-8 items-start">
+          {/* LEFT: steps */}
+          <div className="flex flex-col gap-6">
+            {/* Step 1 — date & slot */}
+            <div className="bg-white border border-black/10 rounded-[24px] md:rounded-[30px] p-5 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-3 mb-1">
+                <span className="flex-none w-7 h-7 rounded-full bg-[#00372f] text-white text-sm font-bold flex items-center justify-center">1</span>
+                <h3 className="text-xl md:text-2xl font-medium">Choose date &amp; time slot</h3>
+              </div>
+              <p className="text-sm text-black/60 mb-6 pl-10">Grey struck-through dates are already booked; faint dates are in the past.</p>
 
-          {/* Calendar Grid */}
-          <div className="w-full mb-10 md:mb-12 px-4 md:px-0">
-            {/* Day Labels */}
-            <div className="grid grid-cols-7 mb-4">
-              {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
-                <div key={i} className="text-center text-sm md:text-[18px] font-medium text-[#909190] py-2 uppercase select-none">{day}</div>
-              ))}
+              {/* Calendar */}
+              <div className="max-w-[440px] mx-auto flex flex-col items-center">
+                <div className="inline-flex items-center justify-center gap-6 md:gap-10 mb-6 bg-[#e8ecec] rounded-[30px] px-6 py-3 border border-gray-200/50">
+                  <button type="button" aria-label="Previous month" onClick={prevMonth} className="text-[#00372f] hover:text-gray-500 transition-colors p-1 active:scale-95">
+                    <svg className="w-3 h-4" fill="none" viewBox="0 0 8 14" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 1L1 7l6 6" /></svg>
+                  </button>
+                  <span className="text-lg md:text-[22px] font-medium capitalize select-none min-w-[150px] text-center text-black">
+                    {monthName} {year}
+                  </span>
+                  <button type="button" aria-label="Next month" onClick={nextMonth} className="text-[#00372f] hover:text-gray-500 transition-colors p-1 active:scale-95">
+                    <svg className="w-3 h-4" fill="none" viewBox="0 0 8 14" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M1 1l6 6-6 6" /></svg>
+                  </button>
+                </div>
+
+                <div className="w-full">
+                  <div className="grid grid-cols-7 mb-3">
+                    {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+                      <div key={i} className="text-center text-xs md:text-sm font-medium text-[#909190] py-1 uppercase select-none">{d}</div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 gap-y-2 text-center">
+                    {calendarDays.map((day, index) => {
+                      if (!day) return <div key={`empty-${index}`}></div>;
+
+                      const dateStr = formatCalendarDate(year, month, day);
+                      const cellDate = new Date(year, month, day);
+                      const isPast = cellDate < todayStart;
+                      const isBooked = !isPast && bookedDateStrings.includes(dateStr);
+                      const isSelected = selectedDateStr === dateStr;
+                      const disabled = isPast || isBooked;
+
+                      let dayClasses = "flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full mx-auto text-base sm:text-lg md:text-[19px] transition-all select-none ";
+                      if (isSelected) dayClasses += "bg-[#6cbd45] text-white font-medium shadow-md cursor-pointer active:scale-95";
+                      else if (isPast) dayClasses += "text-black/30 cursor-not-allowed";
+                      else if (isBooked) dayClasses += "bg-[#d9e1e0] text-black/50 line-through cursor-not-allowed";
+                      else dayClasses += "text-black cursor-pointer hover:bg-[#e3e9e8] active:scale-95";
+
+                      return (
+                        <div key={dateStr} className="flex justify-center items-center">
+                          <button
+                            type="button"
+                            disabled={disabled}
+                            aria-pressed={isSelected}
+                            aria-label={`${day} ${monthName} ${year}${isBooked ? " — already booked" : ""}`}
+                            onClick={() => { if (!disabled) setSelectedDateStr(isSelected ? null : dateStr); }}
+                            className={dayClasses}
+                          >
+                            {day}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center flex-wrap gap-x-6 gap-y-3 mt-6 text-sm">
+                  <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-white border-[1.5px] border-[#00372f] inline-block" /><span className="text-black/70 select-none">Available</span></div>
+                  <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-[#6cbd45] inline-block" /><span className="text-black/70 select-none">Selected</span></div>
+                  <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-[#d9e1e0] inline-block" /><span className="text-black/70 select-none">Booked</span></div>
+                </div>
+              </div>
+
+              {/* Slots */}
+              <div className="grid sm:grid-cols-2 gap-4 mt-8">
+                <button
+                  type="button"
+                  onClick={() => setSelectedSlot("morning")}
+                  aria-pressed={selectedSlot === "morning"}
+                  className={`bg-white rounded-[20px] p-3 md:p-4 flex items-center gap-4 text-left cursor-pointer transition-all border-2 ${selectedSlot === "morning" ? "border-[#00372f] shadow-md" : "border-black/10 hover:shadow-sm"}`}
+                >
+                  <div className="bg-[#e3e9e8] rounded-[16px] w-[60px] h-[60px] flex items-center justify-center flex-shrink-0">
+                    <FiSun className="text-[#00372f] w-7 h-7" strokeWidth={1.5} />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2.5">
+                      <span className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${selectedSlot === "morning" ? "border-[#00372f]" : "border-gray-400"}`}>
+                        {selectedSlot === "morning" && <span className="w-2.5 h-2.5 bg-[#00372f] rounded-full" />}
+                      </span>
+                      <span className="text-lg font-medium text-black">Morning Slot</span>
+                    </div>
+                    <span className="text-sm text-black/60 pl-[30px]">9:00 AM – 1:00 PM · 4 hours</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedSlot("evening")}
+                  aria-pressed={selectedSlot === "evening"}
+                  className={`bg-white rounded-[20px] p-3 md:p-4 flex items-center gap-4 text-left cursor-pointer transition-all border-2 ${selectedSlot === "evening" ? "border-[#00372f] shadow-md" : "border-black/10 hover:shadow-sm"}`}
+                >
+                  <div className="bg-[#e3e9e8] rounded-[16px] w-[60px] h-[60px] flex items-center justify-center flex-shrink-0">
+                    <FiSunrise className="text-[#00372f] w-7 h-7" strokeWidth={1.5} />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2.5">
+                      <span className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${selectedSlot === "evening" ? "border-[#00372f]" : "border-gray-400"}`}>
+                        {selectedSlot === "evening" && <span className="w-2.5 h-2.5 bg-[#00372f] rounded-full" />}
+                      </span>
+                      <span className="text-lg font-medium text-black">Evening Slot</span>
+                    </div>
+                    <span className="text-sm text-black/60 pl-[30px]">2:00 PM – 6:00 PM · 4 hours</span>
+                  </div>
+                </button>
+              </div>
             </div>
 
-            {/* Days Grid */}
-            <div className="grid grid-cols-7 gap-y-3 text-center">
-              {calendarDays.map((day, index) => {
-                if (!day) return <div key={`empty-${index}`}></div>;
+            {/* Step 2 — event details */}
+            <div className="bg-white border border-black/10 rounded-[24px] md:rounded-[30px] p-5 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-3 mb-1">
+                <span className="flex-none w-7 h-7 rounded-full bg-[#00372f] text-white text-sm font-bold flex items-center justify-center">2</span>
+                <h3 className="text-xl md:text-2xl font-medium">Event details</h3>
+              </div>
+              <p className="text-sm text-black/60 mb-6 pl-10">Tell us who&apos;s booking and what you&apos;re planning.</p>
 
-                const dateStr = formatCalendarDate(year, month, day);
-                const isBooked = bookedDateStrings.includes(dateStr);
-                const isSelected = selectedDateStr === dateStr;
-
-                let dayClasses = "flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full mx-auto text-base sm:text-lg md:text-[20px] transition-all select-none ";
-
-                if (isBooked) {
-                  dayClasses += "bg-[#00372f] text-white cursor-not-allowed";
-                } else if (isSelected) {
-                  dayClasses += "bg-[#6cbd45] text-white font-medium shadow-md cursor-pointer";
-                } else {
-                  dayClasses += "text-black cursor-pointer hover:bg-gray-100 active:scale-95";
-                }
-
-                return (
-                  <div key={dateStr} className="flex justify-center items-center">
-                    <div
-                      role="button"
-                      tabIndex={isBooked ? -1 : 0}
-                      aria-pressed={isSelected}
-                      aria-disabled={isBooked}
-                      aria-label={`${day} ${monthName} ${year}${isBooked ? " — already booked" : ""}`}
-                      onClick={() => {
-                        if (!isBooked) setSelectedDateStr(isSelected ? null : dateStr);
-                      }}
-                      onKeyDown={(event) => {
-                        if ((event.key === "Enter" || event.key === " ") && !isBooked) {
-                          event.preventDefault();
-                          setSelectedDateStr(isSelected ? null : dateStr);
-                        }
-                      }}
-                      className={dayClasses}
-                    >
-                      {day}
+              <div className="bg-[#e8ecec] rounded-[24px] p-5 sm:p-8">
+                <form id="hall-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="hall-fullName" className="text-sm md:text-base text-black">Full Name*</label>
+                      <input id="hall-fullName" type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} required placeholder="Enter full name" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="hall-phone" className="text-sm md:text-base text-black">Phone Number*</label>
+                      <input id="hall-phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Enter phone number" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
                     </div>
                   </div>
-                );
-              })}
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="hall-email" className="text-sm md:text-base text-black">Email Address*</label>
+                      <input id="hall-email" type="email" name="email" value={formData.email} onChange={handleInputChange} required placeholder="your@email.com" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="hall-org" className="text-sm md:text-base text-black">Organisation Name*</label>
+                      <input id="hall-org" type="text" name="organisationName" value={formData.organisationName} onChange={handleInputChange} required placeholder="Enter organisation name" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
+                    </div>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="hall-eventType" className="text-sm md:text-base text-black">Event Type*</label>
+                      <div className="relative">
+                        <select id="hall-eventType" name="eventType" value={formData.eventType} onChange={handleInputChange} required className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black/80 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full appearance-none cursor-pointer pr-10">
+                          <option value="" disabled>Select event type</option>
+                          <option>Corporate Meeting</option>
+                          <option>Seminar</option>
+                          <option>Workshop</option>
+                          <option>Training Session</option>
+                          <option>Product Launch</option>
+                          <option>Conference</option>
+                        </select>
+                        <svg className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none w-3 h-4 text-black" viewBox="0 0 13 7" fill="none"><path d="M1 1L6.5 6L12 1" stroke="currentColor" strokeWidth="1.5" /></svg>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="hall-attendance" className="text-sm md:text-base text-black">Expected Attendance*</label>
+                      <input id="hall-attendance" type="number" name="attendance" value={formData.attendance} onChange={handleInputChange} required min="1" max="100" placeholder="e.g. 80" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="hall-req" className="text-sm md:text-base text-black">Additional Requirements</label>
+                    <textarea id="hall-req" name="additionalRequirements" value={formData.additionalRequirements} onChange={handleInputChange} placeholder="Any special requirements (catering, stage setup, AV needs…)" className="bg-white rounded-[14px] px-4 py-3 text-base text-black/80 placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full resize-y min-h-[110px]" />
+                  </div>
+
+                  <label className="flex items-start gap-3 cursor-pointer group pt-2 border-t border-black/10 mt-1">
+                    <input type="checkbox" name="termsAccepted" checked={formData.termsAccepted} onChange={handleInputChange} required className="w-5 h-5 flex-shrink-0 mt-1 rounded border-gray-400 accent-[#00372f] cursor-pointer" />
+                    <span className="flex flex-col gap-1">
+                      <span className="text-base text-black font-medium">I agree to the venue booking terms and conditions*</span>
+                      <span className="text-sm text-black/70 leading-[1.4]">
+                        Venue availability is subject to final confirmation by the management team. Any damage, cancellation charges, or additional service costs are payable as per the booking policy.
+                      </span>
+                    </span>
+                  </label>
+                </form>
+              </div>
             </div>
           </div>
 
-          {/* Legend Pill */}
-          <div className="flex items-center justify-center w-full bg-[#e8ecec] rounded-full min-h-[60px] md:min-h-[70px] px-6 py-4">
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 lg:gap-x-[60px]">
-              <div className="flex items-center gap-2 md:gap-3">
-                <span className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-[#6cbd45] inline-block shadow-sm" />
-                <span className="text-sm md:text-[17px] text-black font-medium select-none">Selected</span>
+          {/* RIGHT: sticky summary */}
+          <aside className="lg:sticky lg:top-24 bg-white border border-black/10 rounded-[24px] overflow-hidden shadow-md">
+            <div className="bg-[#00372f] text-white px-6 py-5">
+              <p className="text-lg font-medium">Booking request</p>
+              <p className="text-sm text-white/70 mt-0.5">Regal at the Promenade · up to 100 guests</p>
+            </div>
+            <div className="px-6 py-5 flex flex-col gap-3.5">
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <span className="text-black/60">Date</span>
+                <span className={`font-medium text-right ${selectedDateStr ? "text-black" : "text-black/50 font-normal"}`}>{selectedDateStr ? formatDisplayDate(selectedDateStr) : "Not selected"}</span>
               </div>
-              <div className="flex items-center gap-2 md:gap-3">
-                <span className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-[#00372f] inline-block shadow-sm" />
-                <span className="text-sm md:text-[17px] text-black font-medium select-none">Booked</span>
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <span className="text-black/60">Time slot</span>
+                <span className={`font-medium text-right ${selectedSlot ? "text-black" : "text-black/50 font-normal"}`}>{slotLabel(selectedSlot) ?? "Not selected"}</span>
               </div>
-              <div className="flex items-center gap-2 md:gap-3">
-                <div className="w-4 h-4 md:w-5 md:h-5 rounded-full border border-black bg-white"></div>
-                <span className="text-sm md:text-[17px] text-black font-medium select-none">Available</span>
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <span className="text-black/60">Event type</span>
+                <span className={`font-medium text-right ${formData.eventType ? "text-black" : "text-black/50 font-normal"}`}>{formData.eventType || "—"}</span>
+              </div>
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <span className="text-black/60">Attendance</span>
+                <span className={`font-medium text-right ${formData.attendance ? "text-black" : "text-black/50 font-normal"}`}>{formData.attendance ? `${formData.attendance} guests` : "—"}</span>
+              </div>
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <span className="text-black/60">Organiser</span>
+                <span className={`font-medium text-right ${formData.organisationName ? "text-black" : "text-black/50 font-normal"}`}>{formData.organisationName || "—"}</span>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ BOOKING ENQUIRY FORM (Section 7 - Odd - Standard Padding) ═══ */}
-      <section className="site-container py-12 md:py-16">
-        <div className="text-center mb-8 md:mb-10">
-          <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2] mb-3 md:mb-4">Booking Enquiry Form</h2>
-          <p className="text-base md:text-xl text-black/70 mb-8">Fill in your details to submit a booking request</p>
-        </div>
-
-        <div className="bg-[#e8ecec] rounded-[24px] md:rounded-[30px] p-6 sm:p-8 lg:p-14 mb-10">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6 md:gap-8">
-            {/* Row 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-              <div className="flex flex-col gap-2 md:gap-3">
-                <label className="capitalize text-base md:text-xl text-black tracking-[-0.02em]">Full Name*</label>
-                <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} required placeholder="Enter full name" className="bg-white rounded-[24px] md:rounded-[33px] h-14 md:h-20 px-5 md:px-8 text-base md:text-lg text-black placeholder-black/40 outline-none w-full" />
-              </div>
-              <div className="flex flex-col gap-2 md:gap-3">
-                <label className="capitalize text-base md:text-xl text-black tracking-[-0.02em]">Phone Number*</label>
-                <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Enter phone number" className="bg-white rounded-[24px] md:rounded-[33px] h-14 md:h-20 px-5 md:px-8 text-base md:text-lg text-black placeholder-black/40 outline-none w-full" />
-              </div>
-            </div>
-
-            {/* Row 2 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-              <div className="flex flex-col gap-2 md:gap-3">
-                <label className="capitalize text-base md:text-xl text-black tracking-[-0.02em]">Email Address*</label>
-                <input type="email" name="email" value={formData.email} onChange={handleInputChange} required placeholder="your@email.com" className="bg-white rounded-[24px] md:rounded-[33px] h-14 md:h-20 px-5 md:px-8 text-base md:text-lg text-black placeholder-black/40 outline-none w-full" />
-              </div>
-              <div className="flex flex-col gap-2 md:gap-3">
-                <label className="capitalize text-base md:text-xl text-black tracking-[-0.02em]">Organisation Name*</label>
-                <input type="text" name="organisationName" value={formData.organisationName} onChange={handleInputChange} required placeholder="Enter organisation name" className="bg-white rounded-[24px] md:rounded-[33px] h-14 md:h-20 px-5 md:px-8 text-base md:text-lg text-black placeholder-black/40 outline-none w-full" />
-              </div>
-            </div>
-
-            {/* Row 3 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-              <div className="flex flex-col gap-2 md:gap-3">
-                <label className="capitalize text-base md:text-xl text-black tracking-[-0.02em]">Event Type*</label>
-                <div className="relative">
-                  <select name="eventType" value={formData.eventType} onChange={handleInputChange} required className="bg-white rounded-[24px] md:rounded-[33px] h-14 md:h-20 px-5 md:px-8 text-base md:text-lg text-black/60 outline-none w-full appearance-none cursor-pointer pr-10">
-                    <option value="" disabled>Select event type</option>
-                    <option>Corporate Meeting</option>
-                    <option>Seminar</option>
-                    <option>Workshop</option>
-                    <option>Training Session</option>
-                    <option>Product Launch</option>
-                    <option>Conference</option>
-                  </select>
-                  <svg className="absolute right-5 md:right-8 top-1/2 -translate-y-1/2 pointer-events-none w-3 h-4 md:h-5 text-black" viewBox="0 0 13 7" fill="none"><path d="M1 1L6.5 6L12 1" stroke="currentColor" strokeWidth="1.5" /></svg>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2 md:gap-3">
-                <label className="capitalize text-base md:text-xl text-black tracking-[-0.02em]">Expected Number of Attendance*</label>
-                <input type="number" name="attendance" value={formData.attendance} onChange={handleInputChange} required min="1" placeholder="100" className="bg-white rounded-[24px] md:rounded-[33px] h-14 md:h-20 px-5 md:px-8 text-base md:text-lg text-black placeholder-black/40 outline-none w-full" />
-              </div>
-            </div>
-
-            {/* Row 4 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-              <div className="flex flex-col gap-2 md:gap-3">
-                <label className="capitalize text-base md:text-xl text-black tracking-[-0.02em]">Date*</label>
-                <div className="relative">
-                  <input type="text" value={selectedDateStr ? formatDisplayDate(selectedDateStr) : "Select a date above"} readOnly className="bg-white rounded-[24px] md:rounded-[33px] h-14 md:h-20 px-5 md:px-8 text-base md:text-lg text-black/60 outline-none w-full appearance-none" />
-                </div>
-              </div>
-              <div className="flex flex-col gap-2 md:gap-3">
-                <label className="capitalize text-base md:text-xl text-black tracking-[-0.02em]">Time Slot</label>
-                <div className="relative">
-                  <input type="text" value={selectedSlot ? `${selectedSlot.charAt(0).toUpperCase() + selectedSlot.slice(1)} Slot` : "Select a slot above"} readOnly className="bg-white rounded-[24px] md:rounded-[33px] h-14 md:h-20 px-5 md:px-8 text-base md:text-lg text-black/60 outline-none w-full appearance-none" />
-                </div>
-              </div>
-            </div>
-
-            {/* Row 5 */}
-            <div className="flex flex-col gap-2 md:gap-3">
-              <label className="capitalize text-base md:text-xl text-black tracking-[-0.02em]">Additional Requirements</label>
-              <div className="bg-white rounded-[24px] md:rounded-[33px] px-5 md:px-8 py-4 md:py-6 w-full min-h-[120px] md:min-h-[175px]">
-                <textarea name="additionalRequirements" value={formData.additionalRequirements} onChange={handleInputChange} placeholder="Any special requirements and needs" className="bg-transparent text-base md:text-lg text-black/80 placeholder-black/40 outline-none w-full resize-none h-full min-h-[80px] md:min-h-[120px]"></textarea>
-              </div>
-            </div>
-
-
-
-            {/* Dividers + Compliance */}
-            <div className="h-px bg-black/20 my-2"></div>
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input type="checkbox" name="termsAccepted" checked={formData.termsAccepted} onChange={handleInputChange} required className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 mt-0.5 rounded border-gray-400 text-black focus:ring-black accent-black cursor-pointer" />
-              <span className="flex flex-col gap-1">
-                <span className="text-base md:text-xl text-black capitalize group-hover:text-black/80 transition-colors" style={{ fontFamily: "'Euclid Circular A',Poppins,sans-serif", fontWeight: 500 }}>
-                  I agree to the venue booking terms and conditions*
-                </span>
-                <span className="text-sm md:text-base text-black/70 leading-[1.4]" style={{ fontFamily: "'Euclid Circular A',Poppins,sans-serif" }}>
-                  Venue availability is subject to final confirmation by the management team.
-                  Any damage, cancellation charges, or additional service costs will be payable as per the booking policy.
-                </span>
-              </span>
-            </label>
-            <div className="h-px bg-black/20 my-2"></div>
-            <p className="text-sm md:text-lg text-black text-center md:text-left">Booking will be confirmed only after admin approved</p>
-
-            {/* Submit */}
-            {(submitMessage || submitError) && (
-              <p className={`text-sm md:text-lg text-center md:text-left ${submitError ? "text-red-600" : "text-[#00372f]"}`}>
-                {submitError || submitMessage}
+            <div className="px-6 pb-4">
+              {(submitMessage || submitError) && (
+                <p className={`mb-3 text-sm ${submitError ? "text-red-600" : "text-[#00372f]"}`}>{submitError || submitMessage}</p>
+              )}
+              <button type="submit" form="hall-form" disabled={isSubmitting} className="w-full bg-[#00372f] text-white rounded-[16px] py-4 font-medium hover:bg-[#00251f] transition-transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                {isSubmitting ? "Sending…" : "Send Booking Request"}
+              </button>
+              <p className="mt-3 text-xs text-black/55 flex gap-2 items-start">
+                <span className="text-[#00372f]">ⓘ</span>
+                Booking is confirmed only after admin approval. No payment is taken online.
               </p>
-            )}
-
-            <button type="submit" disabled={isSubmitting} className="bg-[#00372f] text-white rounded-[24px] md:rounded-[30px] w-full capitalize text-center hover:bg-[#00251f] transition-transform active:scale-95 font-medium h-14 md:h-[70px] text-lg md:text-[24px] mt-2 disabled:cursor-not-allowed disabled:opacity-70">
-              {isSubmitting ? "Sending..." : "Send Booking Request"}
-            </button>
-          </form>
+            </div>
+          </aside>
         </div>
       </section>
 
