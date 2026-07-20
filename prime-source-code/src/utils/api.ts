@@ -34,4 +34,5 @@ export const ENDPOINTS = {
   GYM_MEMBERSHIPS: "/gym-memberships",
   VENDOR_INVITES: "/vendor-invites",
   COURSE_REGISTRATIONS: "/course-registrations",
+  CONTACT_ENQUIRIES: "/contact-enquiries",
 } as const;

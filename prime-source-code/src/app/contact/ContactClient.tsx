@@ -3,6 +3,25 @@
 import Banner from "../../../public/ASSETS/contact-banner-1.webp";
 import { FiMapPin, FiPhone, FiMail, FiClock } from "react-icons/fi";
 import { motion } from "framer-motion";
+import { useState, type ChangeEvent, type FormEvent } from "react";
+import { apiCall, ENDPOINTS } from "@/utils/api";
+import { useFormSubmit } from "@/utils/useFormSubmit";
+
+type ContactForm = {
+  fullName: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+};
+
+const initialFormData: ContactForm = {
+  fullName: "",
+  email: "",
+  phone: "",
+  subject: "",
+  message: "",
+};
 
 const containerVariants = {
   hidden: {},
@@ -15,6 +34,31 @@ const fadeUp = {
 };
 
 export default function ContactClient() {
+  const [formData, setFormData] = useState<ContactForm>(initialFormData);
+  const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
+
+  const handleInputChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = event.target;
+    setFormData((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    runSubmit(
+      async () => {
+        await apiCall(ENDPOINTS.CONTACT_ENQUIRIES, {
+          method: "POST",
+          body: JSON.stringify(formData),
+        });
+        setFormData(initialFormData);
+      },
+      "Message sent — we'll get back to you soon.",
+      "Failed to send message. Please try again."
+    );
+  };
+
   return (
     <div className="bg-white text-black overflow-x-hidden">
       {/* ═══ HERO (Section 1 - Odd) ═══ */}
@@ -225,7 +269,7 @@ export default function ContactClient() {
           variants={fadeUp}
           className="bg-white rounded-[24px] md:rounded-[30px] shadow-[0px_0px_81.6px_0px_rgba(0,0,0,0.1)] p-6 sm:p-8 lg:p-12 xl:p-16"
         >
-          <form className="flex flex-col gap-6 md:gap-8">
+          <form className="flex flex-col gap-6 md:gap-8" onSubmit={handleSubmit}>
             {/* Row 1: Full Name + Email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
               <div className="flex flex-col gap-2 md:gap-3">
@@ -238,6 +282,10 @@ export default function ContactClient() {
                 >
                   <input
                     type="text"
+                    name="fullName"
+                    required
+                    value={formData.fullName}
+                    onChange={handleInputChange}
                     placeholder="Enter full name"
                     className="w-full bg-transparent text-base md:text-lg text-black/80 font-light outline-none placeholder:text-black/40"
                   />
@@ -253,6 +301,10 @@ export default function ContactClient() {
                 >
                   <input
                     type="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleInputChange}
                     placeholder="your@email.com"
                     className="w-full bg-transparent text-base md:text-lg text-black/80 font-light outline-none placeholder:text-black/40"
                   />
@@ -272,6 +324,10 @@ export default function ContactClient() {
                 >
                   <input
                     type="tel"
+                    name="phone"
+                    required
+                    value={formData.phone}
+                    onChange={handleInputChange}
                     placeholder="Enter full phone number"
                     className="w-full bg-transparent text-base md:text-lg text-black/80 font-light outline-none placeholder:text-black/40"
                   />
@@ -287,6 +343,9 @@ export default function ContactClient() {
                 >
                   <input
                     type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
                     placeholder="Enter subject"
                     className="w-full bg-transparent text-base md:text-lg text-black/80 font-light outline-none placeholder:text-black/40"
                   />
@@ -305,18 +364,34 @@ export default function ContactClient() {
               >
                 <textarea
                   rows={4}
+                  name="message"
+                  required
+                  value={formData.message}
+                  onChange={handleInputChange}
                   placeholder="Any special requirements and needs"
                   className="w-full bg-transparent text-base md:text-lg text-black/80 font-light outline-none resize-none placeholder:not-italic placeholder:text-black/40"
                 ></textarea>
               </div>
             </div>
 
+            {submitMessage && (
+              <p className="text-base text-green-700 bg-green-50 rounded-2xl px-5 py-3">
+                {submitMessage}
+              </p>
+            )}
+            {submitError && (
+              <p className="text-base text-red-700 bg-red-50 rounded-2xl px-5 py-3">
+                {submitError}
+              </p>
+            )}
+
             {/* Submit */}
             <button
               type="submit"
-              className="bg-black text-white rounded-[24px] md:rounded-[30px] w-full flex items-center justify-center capitalize font-medium text-lg md:text-2xl leading-[1.2] transition-transform active:scale-95 h-14 md:h-[70px]"
+              disabled={isSubmitting}
+              className="bg-black text-white rounded-[24px] md:rounded-[30px] w-full flex items-center justify-center capitalize font-medium text-lg md:text-2xl leading-[1.2] transition-transform active:scale-95 h-14 md:h-[70px] disabled:opacity-60"
             >
-              Send Message
+              {isSubmitting ? "Sending…" : "Send Message"}
             </button>
           </form>
         </motion.div>
