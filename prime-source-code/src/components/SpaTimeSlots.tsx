@@ -21,7 +21,7 @@ const generateSlots = (startHour24: number, endHour24: number) => {
 const slots = generateSlots(10, 21); // 10:00 to 21:00 hourly
 
 export default function SpaTimeSlots({ onSlotChange }: { onSlotChange?: (time: string) => void }) {
-  const [activeSlot, setActiveSlot] = useState<number>(0);
+  const [activeSlot, setActiveSlot] = useState<number | null>(null);
 
   return (
     <>

@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 body {
-  font-family: "Poppins", sans-serif;
+  /* Use the Instrument Sans font actually loaded in layout.tsx (via next/font).
+     The previous "Poppins" was never imported, so it silently fell back. */
+  font-family: var(--font-instrument-sans), sans-serif;
 }
 
 /* Hide scrollbars utility used by mobile carousels */

@@ -39,7 +39,7 @@ export default function PoolTimeSlots({
   poolType?: "private" | "group" | "single";
   onSlotChange?: (slot: Slot) => void;
 }) {
-  const [activeSlot, setActiveSlot] = useState<number>(0);
+  const [activeSlot, setActiveSlot] = useState<number | null>(null);
 
   const handleSelect = (index: number) => {
     setActiveSlot(index);

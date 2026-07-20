@@ -48,8 +48,11 @@ export default function ConferencePage() {
   const [submitError, setSubmitError] = useState("");
 
   // --- Calendar State & Logic ---
-  // Default to July 2026 (Month is 0-indexed: 6 = July)
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 6, 1)); 
+  // Default to the first day of the current month so the calendar never goes stale.
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
   const [selectedDateStr, setSelectedDateStr] = useState<string | null>(null);
 
   useEffect(() => {

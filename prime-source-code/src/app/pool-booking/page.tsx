@@ -566,7 +566,7 @@ export default function PoolBookingPage() {
         <div className="grid grid-cols-1 md:grid-cols-[5fr_3fr] gap-3 md:gap-4 mb-3 md:mb-4">
           <div className="relative rounded-[16px] md:rounded-[20px] overflow-hidden h-[260px] md:h-[350px] lg:h-[484px]">
             <Image
-              src="/SWIMMINg/swimming_gallery_1.webp"
+              src="/SWIMMING/swimming_gallery_1.webp"
               alt="Gallery 1"
               fill
               className="object-cover"
@@ -574,7 +574,7 @@ export default function PoolBookingPage() {
           </div>
           <div className="relative rounded-[16px] md:rounded-[20px] overflow-hidden h-[260px] md:h-[350px] lg:h-[484px]">
             <Image
-              src="/SWIMMINg/swimming_gallery_2.webp"
+              src="/SWIMMING/swimming_gallery_2.webp"
               alt="Gallery 2"
               fill
               className="object-cover"
@@ -585,7 +585,7 @@ export default function PoolBookingPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <div className="relative rounded-[16px] md:rounded-[20px] overflow-hidden h-[180px] md:h-[250px] lg:h-[300px]">
             <Image
-              src="/SWIMMINg/swimming_gallery_3.webp"
+              src="/SWIMMING/swimming_gallery_3.webp"
               alt="Gallery 3"
               fill
               className="object-cover"
@@ -593,7 +593,7 @@ export default function PoolBookingPage() {
           </div>
           <div className="relative rounded-[16px] md:rounded-[20px] overflow-hidden h-[180px] md:h-[250px] lg:h-[300px]">
             <Image
-              src="/SWIMMINg/swimming_gallery_4.webp"
+              src="/SWIMMING/swimming_gallery_4.webp"
               alt="Gallery 4"
               fill
               className="object-cover"
@@ -601,7 +601,7 @@ export default function PoolBookingPage() {
           </div>
           <div className="relative rounded-[16px] md:rounded-[20px] overflow-hidden h-[180px] md:h-[250px] lg:h-[300px]">
             <Image
-              src="/SWIMMINg/swimming_gallery_5.webp"
+              src="/SWIMMING/swimming_gallery_5.webp"
               alt="Gallery 5"
               fill
               className="object-cover"
@@ -609,7 +609,7 @@ export default function PoolBookingPage() {
           </div>
           <div className="relative rounded-[16px] md:rounded-[20px] overflow-hidden h-[180px] md:h-[250px] lg:h-[300px]">
             <Image
-              src="/SWIMMINg/swimming_gallery_6.webp"
+              src="/SWIMMING/swimming_gallery_6.webp"
               alt="Gallery 6"
               fill
               className="object-cover"
