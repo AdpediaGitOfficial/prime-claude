@@ -109,12 +109,30 @@ export default function PoolBookingPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
+  const scrollToSection = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "center" });
+
   const handleConfirmBooking = () => {
-    if (!selectedPool) return setMessage("Please select a plan.");
-    if (!selectedDate) return setMessage("Please select a date.");
-    if (!selectedSlot) return setMessage("Please select a time slot.");
-    if (!policies.dressCode || !policies.kids || !policies.terms)
-      return setMessage("Please accept all policies and the terms.");
+    if (!selectedPool) {
+      setMessage("Please select a plan.");
+      scrollToSection("pool-plans");
+      return;
+    }
+    if (!selectedDate) {
+      setMessage("Please select a date.");
+      scrollToSection("pool-datetime");
+      return;
+    }
+    if (!selectedSlot) {
+      setMessage("Please select a time slot.");
+      scrollToSection("pool-datetime");
+      return;
+    }
+    if (!policies.dressCode || !policies.kids || !policies.terms) {
+      setMessage("Please accept all policies and the terms.");
+      scrollToSection("pool-policies");
+      return;
+    }
     setMessage(null);
     setShowMobileModal(true);
   };
@@ -243,7 +261,7 @@ export default function PoolBookingPage() {
         <div className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-8 items-start">
           {/* LEFT: booking steps */}
           <div className="flex flex-col gap-10 md:gap-14 min-w-0">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+            <div id="pool-plans" className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
               {PLANS.map((plan) => {
             const isSelected = selectedPool === plan.id;
             const hours = Math.floor(plan.durationMinutes / 60);
@@ -348,7 +366,7 @@ export default function PoolBookingPage() {
             </div>
 
             {/* Date & time */}
-            <div className="bg-[#e3fdff] border border-[#77f4ff] rounded-[24px] md:rounded-[30px] px-5 sm:px-8 py-6 md:py-7">
+            <div id="pool-datetime" className="bg-[#e3fdff] border border-[#77f4ff] rounded-[24px] md:rounded-[30px] px-5 sm:px-8 py-6 md:py-7 scroll-mt-24">
               <h3 className="text-xl md:text-2xl font-semibold mb-1">Choose date &amp; time</h3>
               <p className="text-sm text-black/60 mb-5">
                 Only 2 pools are available — each slot takes up to 2 bookings (one per pool). We&rsquo;ll confirm your pool at booking.
@@ -431,7 +449,7 @@ export default function PoolBookingPage() {
       </section>
 
       {/* ═══ POLICIES & CONFIRMATION (Standard Padding) ═══ */}
-      <section className="site-container">
+      <section id="pool-policies" className="site-container scroll-mt-24">
         <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2] mb-6 md:mb-8">
           Policies &amp; Confirmation
         </h2>
