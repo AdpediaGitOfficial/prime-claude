@@ -405,12 +405,13 @@ export default function GymPage() {
               {/* Row 1: Full Name + Phone Number */}
               <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
                 <div>
-                  <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">
+                  <label htmlFor="gym-fullName" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">
                     full name*
-                  </p>
+                  </label>
                   <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-20">
                     <input
                       type="text"
+                      id="gym-fullName"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
@@ -421,12 +422,13 @@ export default function GymPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">
+                  <label htmlFor="gym-phone" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">
                     phone number*
-                  </p>
+                  </label>
                   <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-20">
                     <input
                       type="tel"
+                      id="gym-phone"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
@@ -441,12 +443,13 @@ export default function GymPage() {
               {/* Row 2: Email + Age */}
               <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
                 <div>
-                  <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">
+                  <label htmlFor="gym-email" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">
                     email address*
-                  </p>
+                  </label>
                   <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-20">
                     <input
                       type="email"
+                      id="gym-email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
@@ -457,12 +460,13 @@ export default function GymPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">
+                  <label htmlFor="gym-age" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">
                     age*
-                  </p>
+                  </label>
                   <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-20">
                     <input
                       type="number"
+                      id="gym-age"
                       name="age"
                       value={formData.age}
                       onChange={handleInputChange}
@@ -477,11 +481,12 @@ export default function GymPage() {
 
               {/* Row 4: Message */}
               <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">
+                <label htmlFor="gym-message" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">
                   message
-                </p>
+                </label>
                 <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-start px-5 md:px-6 py-4 md:py-5 min-h-[100px] sm:min-h-[120px] md:min-h-[159px]">
                   <textarea
+                    id="gym-message"
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}

@@ -218,15 +218,15 @@ export default function SpaPage() {
             {/* Row 1 */}
             <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
               <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Full Name*</p>
+                <label htmlFor="spa-fullName" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">Full Name*</label>
                 <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-[80px]">
-                  <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} required placeholder="Enter full name" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none placeholder:capitalize" />
+                  <input type="text" id="spa-fullName" name="fullName" value={formData.fullName} onChange={handleInputChange} required placeholder="Enter full name" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none placeholder:capitalize" />
                 </div>
               </div>
               <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Email Address*</p>
+                <label htmlFor="spa-email" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">Email Address*</label>
                 <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-[80px]">
-                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} required placeholder="your@email.com" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none" />
+                  <input type="email" id="spa-email" name="email" value={formData.email} onChange={handleInputChange} required placeholder="your@email.com" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none" />
                 </div>
               </div>
             </div>
@@ -234,15 +234,15 @@ export default function SpaPage() {
             {/* Row 2 */}
             <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
               <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Phone Number*</p>
+                <label htmlFor="spa-phone" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">Phone Number*</label>
                 <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-[80px]">
-                  <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Enter full phone number" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none placeholder:capitalize" />
+                  <input type="tel" id="spa-phone" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Enter full phone number" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none placeholder:capitalize" />
                 </div>
               </div>
               <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Selected Service*</p>
+                <label htmlFor="spa-selectedService" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">Selected Service*</label>
                 <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 relative h-14 sm:h-16 md:h-[80px]">
-                  <select name="selectedService" value={formData.selectedService} onChange={handleInputChange} required className="w-full bg-transparent text-base md:text-lg text-black font-light outline-none capitalize appearance-none cursor-pointer pr-8">
+                  <select id="spa-selectedService" name="selectedService" value={formData.selectedService} onChange={handleInputChange} required className="w-full bg-transparent text-base md:text-lg text-black font-light outline-none capitalize appearance-none cursor-pointer pr-8">
                     {spaServices.map((service) => (
                       <option key={service.name}>{service.name}</option>
                     ))}
@@ -257,9 +257,9 @@ export default function SpaPage() {
             {/* Row 3 */}
             <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
               <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Preferred Time*</p>
+                <label htmlFor="spa-preferredTime" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">Preferred Time*</label>
                 <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 relative h-14 sm:h-16 md:h-[80px]">
-                  <select name="preferredTime" value={formData.preferredTime} onChange={handleInputChange} required className="w-full bg-transparent text-base md:text-lg text-black font-light outline-none capitalize appearance-none cursor-pointer pr-8">
+                  <select id="spa-preferredTime" name="preferredTime" value={formData.preferredTime} onChange={handleInputChange} required className="w-full bg-transparent text-base md:text-lg text-black font-light outline-none capitalize appearance-none cursor-pointer pr-8">
                     <option>10:00 am</option>
                     <option>11:00 am</option>
                     <option>12:00 pm</option>
@@ -279,9 +279,9 @@ export default function SpaPage() {
                 </div>
               </div>
               <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Message (Optional)</p>
+                <label htmlFor="spa-message" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">Message (Optional)</label>
                 <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-[80px]">
-                  <input type="text" name="message" value={formData.message} onChange={handleInputChange} placeholder="Tell us about your goals and interest" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none placeholder:capitalize" />
+                  <input type="text" id="spa-message" name="message" value={formData.message} onChange={handleInputChange} placeholder="Tell us about your goals and interest" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none placeholder:capitalize" />
                 </div>
               </div>
             </div>

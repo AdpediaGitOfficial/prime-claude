@@ -389,13 +389,13 @@ export default function ConferencePage() {
           
           {/* Month Nav Pill */}
           <div className="inline-flex items-center justify-center gap-6 md:gap-10 mb-8 md:mb-12 bg-[#e8ecec] rounded-[30px] px-6 py-3 border border-gray-200/50">
-            <button onClick={prevMonth} className="text-[#00372f] hover:text-gray-500 transition-colors p-1 active:scale-95">
+            <button type="button" aria-label="Previous month" onClick={prevMonth} className="text-[#00372f] hover:text-gray-500 transition-colors p-1 active:scale-95">
               <svg className="w-3 h-4" fill="none" viewBox="0 0 8 14" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 1L1 7l6 6" /></svg>
             </button>
             <span className="text-lg md:text-[22px] font-medium capitalize select-none min-w-[140px] text-center text-black" style={{ fontFamily: "'Euclid Circular A',Poppins,sans-serif" }}>
               {monthName} {year}
             </span>
-            <button onClick={nextMonth} className="text-[#00372f] hover:text-gray-500 transition-colors p-1 active:scale-95">
+            <button type="button" aria-label="Next month" onClick={nextMonth} className="text-[#00372f] hover:text-gray-500 transition-colors p-1 active:scale-95">
               <svg className="w-3 h-4" fill="none" viewBox="0 0 8 14" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M1 1l6 6-6 6" /></svg>
             </button>
           </div>
@@ -431,8 +431,19 @@ export default function ConferencePage() {
                 return (
                   <div key={dateStr} className="flex justify-center items-center">
                     <div
+                      role="button"
+                      tabIndex={isBooked ? -1 : 0}
+                      aria-pressed={isSelected}
+                      aria-disabled={isBooked}
+                      aria-label={`${day} ${monthName} ${year}${isBooked ? " — already booked" : ""}`}
                       onClick={() => {
                         if (!isBooked) setSelectedDateStr(isSelected ? null : dateStr);
+                      }}
+                      onKeyDown={(event) => {
+                        if ((event.key === "Enter" || event.key === " ") && !isBooked) {
+                          event.preventDefault();
+                          setSelectedDateStr(isSelected ? null : dateStr);
+                        }
                       }}
                       className={dayClasses}
                     >

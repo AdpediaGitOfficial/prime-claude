@@ -38,6 +38,7 @@ export default function SpaTimeSlots({ onSlotChange }: { onSlotChange?: (time: s
                 <button
                   type="button"
                   key={i}
+                  aria-pressed={activeSlot === i}
                   onClick={() => {
                     setActiveSlot(i);
                     onSlotChange?.(`${slot.time} ${slot.ampm}`);
@@ -59,6 +60,7 @@ export default function SpaTimeSlots({ onSlotChange }: { onSlotChange?: (time: s
                   <button
                     type="button"
                     key={idx}
+                    aria-pressed={activeSlot === idx}
                     onClick={() => {
                       setActiveSlot(idx);
                       onSlotChange?.(`${slot.time} ${slot.ampm}`);
