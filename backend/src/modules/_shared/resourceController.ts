@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import type { ZodTypeAny } from "zod";
 import { prisma } from "../../config/prisma";
 import { AppError } from "../../utils/AppError";
 import { asyncHandler } from "../../utils/asyncHandler";
@@ -13,6 +14,7 @@ type PrismaDelegate = {
   findMany: (args: unknown) => Promise<unknown[]>;
   count: (args: unknown) => Promise<number>;
   findUnique: (args: unknown) => Promise<unknown>;
+  create: (args: unknown) => Promise<unknown>;
   update: (args: unknown) => Promise<unknown>;
   delete: (args: unknown) => Promise<unknown>;
 };
@@ -28,6 +30,10 @@ export interface ResourceConfig {
   sortFields: string[];
   /** Allowed values for the status field (validates PATCH .../status). */
   allowedStatuses: string[];
+  /** When set, enables admin create (POST /) with this body schema. */
+  createSchema?: ZodTypeAny;
+  /** When set, enables admin edit (PUT /:id) with this body schema. */
+  updateSchema?: ZodTypeAny;
 }
 
 /**
@@ -80,6 +86,21 @@ export function createResourceController(config: ResourceConfig) {
     return sendSuccess(res, record, `${config.label} detail`);
   });
 
+  const create = asyncHandler(async (req: Request, res: Response) => {
+    const record = await delegate().create({ data: req.body });
+    return sendSuccess(res, record, `${config.label} created`, 201);
+  });
+
+  const update = asyncHandler(async (req: Request, res: Response) => {
+    const existing = await delegate().findUnique({ where: { id: req.params.id } });
+    if (!existing) throw AppError.notFound(`${config.label} not found`);
+    const record = await delegate().update({
+      where: { id: req.params.id },
+      data: req.body,
+    });
+    return sendSuccess(res, record, `${config.label} updated`);
+  });
+
   const updateStatus = asyncHandler(async (req: Request, res: Response) => {
     const { status } = req.body as { status: string };
     if (!config.allowedStatuses.includes(status)) {
@@ -104,5 +125,5 @@ export function createResourceController(config: ResourceConfig) {
     return sendSuccess(res, { id: req.params.id }, `${config.label} deleted`);
   });
 
-  return { list, getOne, updateStatus, remove };
+  return { list, getOne, create, update, updateStatus, remove };
 }

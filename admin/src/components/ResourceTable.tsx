@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, qs, type PageMeta } from "@/lib/api";
-import { statusClass, titleCase } from "@/lib/format";
+import { dateTime, statusClass, titleCase } from "@/lib/format";
 import { Toast } from "./Toast";
+import { RecordDrawer, CreateModal } from "./RecordPanel";
 
 export type RowRecord = Record<string, unknown>;
 
@@ -13,19 +14,37 @@ export interface Column {
   align?: "right";
 }
 
+export type FieldType = "text" | "email" | "tel" | "number" | "date" | "textarea" | "select";
+
+export interface FieldDef {
+  name: string;
+  label: string;
+  type: FieldType;
+  options?: string[];
+  required?: boolean;
+  /** Comma-separated string ⇄ string[] (e.g. vendor counters). */
+  list?: boolean;
+}
+
 export interface ResourceConfig {
   key: string;
   label: string;
   path: string; // e.g. "/api/admin/pool-bookings"
   kind: "booking" | "lead";
   columns: Column[];
+  /** Fields shown in the detail drawer and the create/edit form. */
+  fields: FieldDef[];
+  /** Enable the "New …" button for walk-in / manual entry. */
+  canCreate?: boolean;
   searchPlaceholder?: string;
 }
 
-const STATUSES: Record<"booking" | "lead", string[]> = {
+export const KIND_STATUSES: Record<"booking" | "lead", string[]> = {
   booking: ["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"],
   lead: ["NEW", "IN_PROGRESS", "RESOLVED", "ARCHIVED"],
 };
+
+const STATUSES = KIND_STATUSES;
 
 const LIMIT = 10;
 
@@ -40,6 +59,9 @@ export default function ResourceTable({ resources }: { resources: ResourceConfig
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
+  const [detailRow, setDetailRow] = useState<RowRecord | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async () => {
@@ -102,6 +124,48 @@ export default function ResourceTable({ resources }: { resources: ResourceConfig
     }
   };
 
+  const exportCsv = async () => {
+    setExporting(true);
+    try {
+      // Fetch every matching row by paging (backend caps limit at 100).
+      const all: RowRecord[] = [];
+      let p = 1;
+      // Safety cap of 100 pages (10k rows).
+      for (; p <= 100; p++) {
+        const query = qs({ page: p, limit: 100, search, status, sortBy: "createdAt", sortDir });
+        const res = await api<RowRecord[]>(`${tab.path}${query}`);
+        all.push(...res.data);
+        if (!res.meta?.hasNext) break;
+      }
+      const cols = [...tab.fields.map((f) => f.name), "status", "createdAt"];
+      const headers = [...tab.fields.map((f) => f.label), "Status", "Received"];
+      const esc = (v: unknown) => {
+        const s = Array.isArray(v) ? (v as string[]).join(" | ") : v == null ? "" : String(v);
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      const lines = [
+        headers.join(","),
+        ...all.map((row) =>
+          cols.map((c) => esc(c === "createdAt" ? dateTime(String(row[c])) : row[c])).join(",")
+        ),
+      ];
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${tab.key}-${tab.label.toLowerCase().replace(/\s+/g, "-")}.csv`;
+      document.body.appendChild(a); // some browsers ignore clicks on detached anchors
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setToast(`Exported ${all.length} rows`);
+    } catch (e) {
+      setToast(e instanceof Error ? e.message : "Export failed");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const colCount = tab.columns.length + 2; // + status + actions
 
   return (
@@ -153,6 +217,12 @@ export default function ResourceTable({ resources }: { resources: ResourceConfig
           <option value="desc">Newest first</option>
           <option value="asc">Oldest first</option>
         </select>
+        <button className="btn-outline" onClick={exportCsv} disabled={exporting} title="Export current filter to CSV">
+          {exporting ? "Exporting…" : "⭳ Export CSV"}
+        </button>
+        {tab.canCreate && (
+          <button className="btn-solid" onClick={() => setCreating(true)}>+ New {tab.label.toLowerCase()}</button>
+        )}
       </div>
 
       <div className="table-wrap">
@@ -193,6 +263,7 @@ export default function ResourceTable({ resources }: { resources: ResourceConfig
                     </td>
                     <td>
                       <div className="row-act" style={{ justifyContent: "flex-end" }}>
+                        <button className="mini" title="View / edit" onClick={() => setDetailRow(row)}>◉</button>
                         <select
                           className="status-select"
                           value={st}
@@ -226,6 +297,28 @@ export default function ResourceTable({ resources }: { resources: ResourceConfig
           <button disabled={!meta?.hasNext} onClick={() => setPage((p) => p + 1)}>›</button>
         </div>
       </div>
+
+      {detailRow && (
+        <RecordDrawer
+          config={tab}
+          row={detailRow}
+          onClose={() => setDetailRow(null)}
+          onSaved={(m) => {
+            setToast(m);
+            void load();
+          }}
+        />
+      )}
+      {creating && (
+        <CreateModal
+          config={tab}
+          onClose={() => setCreating(false)}
+          onSaved={(m) => {
+            setToast(m);
+            void load();
+          }}
+        />
+      )}
 
       <Toast message={toast} onDone={() => setToast("")} />
     </>

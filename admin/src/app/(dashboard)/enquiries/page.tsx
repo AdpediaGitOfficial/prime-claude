@@ -13,6 +13,13 @@ const nameContact = (r: RowRecord) => (
 );
 const received = (r: RowRecord) => <span className="sub-txt">{dateTime(String(r.createdAt))}</span>;
 
+const VENDOR_TYPES = ["Fashion", "Food & Beverage", "Health & Wellness", "Retail Products"];
+const DURATIONS = ["1 Week", "1 Month", "1 Year"];
+const COURSES = [
+  "Tekla Structures – Basic to Advanced",
+  "Structural Steel Design - Basic to Advanced",
+];
+
 const RESOURCES: ResourceConfig[] = [
   {
     key: "vendor",
@@ -29,6 +36,16 @@ const RESOURCES: ResourceConfig[] = [
         } },
       { header: "Received", cell: received },
     ],
+    fields: [
+      { name: "fullName", label: "Full name", type: "text", required: true },
+      { name: "phone", label: "Phone", type: "tel", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "organisationName", label: "Brand / business", type: "text" },
+      { name: "vendorType", label: "Vendor type", type: "select", options: VENDOR_TYPES },
+      { name: "counters", label: "Counters", type: "text", list: true },
+      { name: "preferredDuration", label: "Preferred duration", type: "select", options: DURATIONS },
+      { name: "additionalRequirements", label: "Notes", type: "textarea" },
+    ],
   },
   {
     key: "course",
@@ -40,6 +57,13 @@ const RESOURCES: ResourceConfig[] = [
       { header: "Name", cell: nameContact },
       { header: "Course", cell: (r) => s(r, "course") },
       { header: "Received", cell: received },
+    ],
+    fields: [
+      { name: "fullName", label: "Full name", type: "text", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "phone", label: "Phone", type: "tel", required: true },
+      { name: "course", label: "Course", type: "select", options: COURSES, required: true },
+      { name: "message", label: "Message", type: "textarea" },
     ],
   },
   {
@@ -54,6 +78,13 @@ const RESOURCES: ResourceConfig[] = [
       { header: "Message", cell: (r) => s(r, "message") },
       { header: "Received", cell: received },
     ],
+    fields: [
+      { name: "fullName", label: "Full name", type: "text", required: true },
+      { name: "phone", label: "Phone", type: "tel", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "age", label: "Age", type: "number" },
+      { name: "message", label: "Message", type: "textarea" },
+    ],
   },
   {
     key: "contact",
@@ -66,6 +97,13 @@ const RESOURCES: ResourceConfig[] = [
       { header: "Subject", cell: (r) => s(r, "subject") },
       { header: "Message", cell: (r) => <span className="sub-txt">{s(r, "message")}</span> },
       { header: "Received", cell: received },
+    ],
+    fields: [
+      { name: "fullName", label: "Full name", type: "text", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "phone", label: "Phone", type: "tel" },
+      { name: "subject", label: "Subject", type: "text" },
+      { name: "message", label: "Message", type: "textarea", required: true },
     ],
   },
 ];

@@ -16,6 +16,15 @@ export function buildResourceRouter(config: ResourceConfig): Router {
 
   router.get("/", validate({ query: listQuerySchema }), ctrl.list);
   router.get("/:id", validate({ params: idParamSchema }), ctrl.getOne);
+
+  // Admin create / edit — only when the resource opts in with a schema.
+  if (config.createSchema) {
+    router.post("/", validate({ body: config.createSchema }), ctrl.create);
+  }
+  if (config.updateSchema) {
+    router.put("/:id", validate({ params: idParamSchema, body: config.updateSchema }), ctrl.update);
+  }
+
   router.patch(
     "/:id/status",
     validate({ params: idParamSchema, body: statusBodySchema }),
