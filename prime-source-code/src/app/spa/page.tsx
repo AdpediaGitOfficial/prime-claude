@@ -13,6 +13,7 @@ import Saloon from "../../../public/SPA/spa-card-2.webp"
 import ManicurePedicure from "../../../public/SPA/manicure-pedicure.jpg"
 import { MotionDiv} from "@/components/MotionWrappers";
 import { apiCall, ENDPOINTS } from "@/utils/api";
+import { useFormSubmit } from "@/utils/useFormSubmit";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 
 type SpaBookingForm = {
@@ -48,9 +49,8 @@ const spaServices = [
 
 export default function SpaPage() {
   const [formData, setFormData] = useState<SpaBookingForm>(initialFormData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
-  const [submitError, setSubmitError] = useState("");
+  const { isSubmitting, submitMessage, submitError, setSubmitMessage, setSubmitError, runSubmit } =
+    useFormSubmit();
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -84,7 +84,7 @@ export default function SpaPage() {
     }));
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitError("");
     setSubmitMessage("");
@@ -94,20 +94,17 @@ export default function SpaPage() {
       return;
     }
 
-    try {
-      setIsSubmitting(true);
-      await apiCall(ENDPOINTS.SPA_BOOKINGS, {
-        method: "POST",
-        body: JSON.stringify(formData),
-      });
-
-      setSubmitMessage("Spa booking request sent successfully.");
-      setFormData(initialFormData);
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Failed to send spa booking request.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    runSubmit(
+      async () => {
+        await apiCall(ENDPOINTS.SPA_BOOKINGS, {
+          method: "POST",
+          body: JSON.stringify(formData),
+        });
+        setFormData(initialFormData);
+      },
+      "Spa booking request sent successfully.",
+      "Failed to send spa booking request."
+    );
   };
 
   return (

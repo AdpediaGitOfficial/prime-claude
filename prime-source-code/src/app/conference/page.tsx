@@ -7,6 +7,7 @@ import { MdOutlineChair } from "react-icons/md";
 import { PiStarFourFill } from "react-icons/pi";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { apiCall, ENDPOINTS } from "@/utils/api";
+import { useFormSubmit } from "@/utils/useFormSubmit";
 
 type HallBookingForm = {
   fullName: string;
@@ -43,9 +44,8 @@ export default function ConferencePage() {
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [formData, setFormData] = useState<HallBookingForm>(initialFormData);
   const [bookedDateStrings, setBookedDateStrings] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
-  const [submitError, setSubmitError] = useState("");
+  const { isSubmitting, submitMessage, submitError, setSubmitMessage, setSubmitError, runSubmit } =
+    useFormSubmit();
 
   // --- Calendar State & Logic ---
   // Default to the first day of the current month so the calendar never goes stale.
@@ -117,23 +117,21 @@ export default function ConferencePage() {
       termsAccepted: formData.termsAccepted,
     };
 
-    try {
-      setIsSubmitting(true);
-      const createdBooking = await apiCall(ENDPOINTS.HALL_BOOKINGS, {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
+    runSubmit(
+      async () => {
+        const createdBooking = await apiCall(ENDPOINTS.HALL_BOOKINGS, {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
 
-      setSubmitMessage("Booking request sent successfully.");
-      setBookedDateStrings((current) => Array.from(new Set([...current, createdBooking?.date?.slice(0, 10) || selectedDateStr])));
-      setFormData(initialFormData);
-      setSelectedDateStr(null);
-      setSelectedSlot(null);
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Failed to send booking request.");
-    } finally {
-      setIsSubmitting(false);
-    }
+        setBookedDateStrings((current) => Array.from(new Set([...current, createdBooking?.date?.slice(0, 10) || selectedDateStr])));
+        setFormData(initialFormData);
+        setSelectedDateStr(null);
+        setSelectedSlot(null);
+      },
+      "Booking request sent successfully.",
+      "Failed to send booking request."
+    );
   };
 
   // Calendar Helpers

@@ -9,6 +9,7 @@ import {
 } from "@/components/MotionWrappers";
 import { PiSparkleFill } from "react-icons/pi";
 import { apiCall, ENDPOINTS } from "@/utils/api";
+import { useFormSubmit } from "@/utils/useFormSubmit";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 
 type GymMembershipForm = {
@@ -61,9 +62,7 @@ function CheckIconSm() {
 
 export default function GymPage() {
   const [formData, setFormData] = useState<GymMembershipForm>(initialFormData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
-  const [submitError, setSubmitError] = useState("");
+  const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -76,28 +75,23 @@ export default function GymPage() {
     }));
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitError("");
-    setSubmitMessage("");
 
-    try {
-      setIsSubmitting(true);
-      await apiCall(ENDPOINTS.GYM_MEMBERSHIPS, {
-        method: "POST",
-        body: JSON.stringify({
-          ...formData,
-          age: Number(formData.age),
-        }),
-      });
-
-      setSubmitMessage("Membership request sent successfully.");
-      setFormData(initialFormData);
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Failed to send membership request.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    runSubmit(
+      async () => {
+        await apiCall(ENDPOINTS.GYM_MEMBERSHIPS, {
+          method: "POST",
+          body: JSON.stringify({
+            ...formData,
+            age: Number(formData.age),
+          }),
+        });
+        setFormData(initialFormData);
+      },
+      "Membership request sent successfully.",
+      "Failed to send membership request."
+    );
   };
 
   return (

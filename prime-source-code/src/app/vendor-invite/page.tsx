@@ -4,6 +4,7 @@ import Banner from "../../../public/ASSETS/vendor-main-banner.webp";
 
 import { MotionDiv } from "@/components/MotionWrappers";
 import { apiCall, ENDPOINTS } from "@/utils/api";
+import { useFormSubmit } from "@/utils/useFormSubmit";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 
 type VendorInviteForm = {
@@ -28,9 +29,7 @@ const initialFormData: VendorInviteForm = {
 
 export default function VendorPage() {
   const [formData, setFormData] = useState<VendorInviteForm>(initialFormData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
-  const [submitError, setSubmitError] = useState("");
+  const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -44,25 +43,20 @@ export default function VendorPage() {
     }));
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitError("");
-    setSubmitMessage("");
 
-    try {
-      setIsSubmitting(true);
-      await apiCall(ENDPOINTS.VENDOR_INVITES, {
-        method: "POST",
-        body: JSON.stringify(formData),
-      });
-
-      setSubmitMessage("Vendor invite request sent successfully.");
-      setFormData(initialFormData);
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Failed to send vendor invite request.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    runSubmit(
+      async () => {
+        await apiCall(ENDPOINTS.VENDOR_INVITES, {
+          method: "POST",
+          body: JSON.stringify(formData),
+        });
+        setFormData(initialFormData);
+      },
+      "Vendor invite request sent successfully.",
+      "Failed to send vendor invite request."
+    );
   };
 
   return (
