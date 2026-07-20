@@ -33,4 +33,5 @@ export const ENDPOINTS = {
   SPA_BOOKINGS: "/spa-bookings",
   GYM_MEMBERSHIPS: "/gym-memberships",
   VENDOR_INVITES: "/vendor-invites",
+  COURSE_REGISTRATIONS: "/course-registrations",
 } as const;

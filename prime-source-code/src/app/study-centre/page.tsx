@@ -1,8 +1,56 @@
-import { PiStudent, PiHourglassHigh } from "react-icons/pi";
+"use client";
 
-export const metadata = { title: "Study Centre – Prime Promenade" };
+import { PiStudent, PiHourglassHigh } from "react-icons/pi";
+import { apiCall, ENDPOINTS } from "@/utils/api";
+import { useFormSubmit } from "@/utils/useFormSubmit";
+import { useState, type ChangeEvent, type FormEvent } from "react";
+
+type CourseForm = {
+  fullName: string;
+  email: string;
+  phone: string;
+  course: string;
+  message: string;
+};
+
+const initialForm: CourseForm = { fullName: "", email: "", phone: "", course: "", message: "" };
+
+const TEKLA_COURSE = "Tekla Structures – Basic to Advanced";
+const STEEL_COURSE = "Structural Steel Design - Basic to Advanced";
 
 export default function StudyCentrePage() {
+  const [formData, setFormData] = useState<CourseForm>(initialForm);
+  const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
+
+  const handleInputChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = event.target;
+    setFormData((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleEnroll = (course: string) => {
+    setFormData((current) => ({ ...current, course }));
+    document
+      .getElementById("course-registration")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    runSubmit(
+      async () => {
+        await apiCall(ENDPOINTS.COURSE_REGISTRATIONS, {
+          method: "POST",
+          body: JSON.stringify(formData),
+        });
+        setFormData(initialForm);
+      },
+      "Registration submitted — we’ll get back to you within 24 hours.",
+      "Failed to submit your registration. Please try again."
+    );
+  };
+
   return (
     <div className="bg-white text-black overflow-x-hidden">
       {/* ═══ HERO (Section 1 - Odd) ═══ */}
@@ -174,10 +222,11 @@ export default function StudyCentrePage() {
 
               {/* Buttons */}
               <div className="flex flex-wrap gap-3 md:gap-4 mt-6">
-                <button className="bg-black text-white text-sm md:text-base lg:text-[18px] font-medium capitalize rounded-[24px] md:rounded-[30px] px-8 md:px-12 py-3 md:py-4 hover:bg-[#222] transition-colors flex-1 sm:flex-none">
-                  View Details
-                </button>
-                <button className="bg-black text-white text-sm md:text-base lg:text-[18px] font-medium capitalize rounded-[24px] md:rounded-[30px] px-8 md:px-12 py-3 md:py-4 hover:bg-[#222] transition-colors flex-1 sm:flex-none">
+                <button
+                  type="button"
+                  onClick={() => handleEnroll(TEKLA_COURSE)}
+                  className="bg-black text-white text-sm md:text-base lg:text-[18px] font-medium capitalize rounded-[24px] md:rounded-[30px] px-8 md:px-12 py-3 md:py-4 hover:bg-[#222] transition-colors flex-1 sm:flex-none"
+                >
                   Enroll Now
                 </button>
               </div>
@@ -234,10 +283,11 @@ export default function StudyCentrePage() {
 
               {/* Buttons */}
               <div className="flex flex-wrap gap-3 md:gap-4 mt-6">
-                <button className="bg-black text-white text-sm md:text-base lg:text-[18px] font-medium capitalize rounded-[24px] md:rounded-[30px] px-8 md:px-12 py-3 md:py-4 hover:bg-[#222] transition-colors flex-1 sm:flex-none">
-                  View Details
-                </button>
-                <button className="bg-black text-white text-sm md:text-base lg:text-[18px] font-medium capitalize rounded-[24px] md:rounded-[30px] px-8 md:px-12 py-3 md:py-4 hover:bg-[#222] transition-colors flex-1 sm:flex-none">
+                <button
+                  type="button"
+                  onClick={() => handleEnroll(STEEL_COURSE)}
+                  className="bg-black text-white text-sm md:text-base lg:text-[18px] font-medium capitalize rounded-[24px] md:rounded-[30px] px-8 md:px-12 py-3 md:py-4 hover:bg-[#222] transition-colors flex-1 sm:flex-none"
+                >
                   Enroll Now
                 </button>
               </div>
@@ -417,7 +467,7 @@ export default function StudyCentrePage() {
       </section>
 
       {/* ═══ COURSE REGISTRATION (Section 6 - Even - 120px Padding) ═══ */}
-      <section className="site-container !py-16 md:!py-24 lg:!py-[120px]">
+      <section id="course-registration" className="site-container !py-16 md:!py-24 lg:!py-[120px]">
         <div className="text-center mb-8 md:mb-10">
           <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2] mb-3 md:mb-5">
             Course Registration
@@ -440,7 +490,7 @@ export default function StudyCentrePage() {
           </div>
 
           {/* Form */}
-          <div className="flex flex-col gap-5 md:gap-6">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5 md:gap-6">
             {/* Row 1: Full Name + Email */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-6">
               <div className="flex flex-col gap-2">
@@ -450,6 +500,10 @@ export default function StudyCentrePage() {
                 <div className="bg-white rounded-[24px] md:rounded-[33px] px-5 py-3 h-14 md:h-[80px] flex items-center">
                   <input
                     type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    required
                     placeholder="Enter full name"
                     className="w-full bg-transparent text-base md:text-[18px] text-black outline-none placeholder-black/40"
                   />
@@ -462,6 +516,10 @@ export default function StudyCentrePage() {
                 <div className="bg-white rounded-[24px] md:rounded-[33px] px-5 py-3 h-14 md:h-[80px] flex items-center">
                   <input
                     type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
                     placeholder="your@email.com"
                     className="w-full bg-transparent text-base md:text-[18px] text-black outline-none placeholder-black/40"
                   />
@@ -478,6 +536,10 @@ export default function StudyCentrePage() {
                 <div className="bg-white rounded-[24px] md:rounded-[33px] px-5 py-3 h-14 md:h-[80px] flex items-center">
                   <input
                     type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    required
                     placeholder="Enter full phone number"
                     className="w-full bg-transparent text-base md:text-[18px] text-black outline-none placeholder-black/40"
                   />
@@ -488,12 +550,12 @@ export default function StudyCentrePage() {
                   Course Selection*
                 </label>
                 <div className="bg-white rounded-[24px] md:rounded-[33px] px-5 py-3 h-14 md:h-[80px] flex items-center relative">
-                  <select defaultValue="" className="w-full bg-transparent text-base md:text-[18px] text-black/60 outline-none appearance-none cursor-pointer pr-8">
+                  <select name="course" value={formData.course} onChange={handleInputChange} required className="w-full bg-transparent text-base md:text-[18px] text-black/80 outline-none appearance-none cursor-pointer pr-8">
                     <option value="" disabled>
                       Select a course
                     </option>
-                    <option value="facade">Facade Design Engineering</option>
-                    <option value="bim">Advanced BIM Technology</option>
+                    <option value={TEKLA_COURSE}>{TEKLA_COURSE}</option>
+                    <option value={STEEL_COURSE}>{STEEL_COURSE}</option>
                   </select>
                   <svg
                     className="absolute right-5 pointer-events-none"
@@ -515,61 +577,41 @@ export default function StudyCentrePage() {
               </div>
             </div>
 
-            {/* Row 3: Mode of Learning + Message */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-base md:text-[20px] capitalize">
-                  Mode of Learning*
-                </label>
-                <div className="bg-white rounded-[24px] md:rounded-[33px] px-5 py-3 h-14 md:h-[80px] flex items-center relative">
-                  <select defaultValue="" className="w-full bg-transparent text-base md:text-[18px] text-black/60 outline-none appearance-none cursor-pointer pr-8">
-                    <option value="" disabled>
-                      Select learning mode
-                    </option>
-                    <option value="online">Online</option>
-                    <option value="offline">Offline</option>
-                    <option value="ondemand">OnDemand</option>
-                    <option value="hybrid">Hybrid</option>
-                  </select>
-                  <svg
-                    className="absolute right-5 pointer-events-none"
-                    width="14"
-                    height="8"
-                    viewBox="0 0 19 10"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M1 1L9.5 9L18 1"
-                      stroke="black"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-base md:text-[20px] capitalize">
-                  Message (Optional)
-                </label>
-                <div className="bg-white rounded-[24px] md:rounded-[33px] px-5 py-3 h-14 md:h-[80px] flex items-center">
-                  <input
-                    type="text"
-                    placeholder="Tell us about your goals and interest"
-                    className="w-full bg-transparent text-base md:text-[18px] text-black outline-none placeholder-black/40"
-                  />
-                </div>
+            {/* Row 3: Message */}
+            <div className="flex flex-col gap-2">
+              <label htmlFor="sc-message" className="text-base md:text-[20px] capitalize">
+                Message (Optional)
+              </label>
+              <div className="bg-white rounded-[24px] md:rounded-[33px] px-5 py-3 h-14 md:h-[80px] flex items-center">
+                <input
+                  id="sc-message"
+                  type="text"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  placeholder="Tell us about your goals and interest"
+                  className="w-full bg-transparent text-base md:text-[18px] text-black outline-none placeholder-black/40"
+                />
               </div>
             </div>
+
+            {(submitMessage || submitError) && (
+              <p className={`text-base md:text-lg ${submitError ? "text-red-600" : "text-[#00372f]"}`}>
+                {submitError || submitMessage}
+              </p>
+            )}
 
             {/* Submit Button */}
             <div className="mt-4">
-              <button className="w-full bg-black text-white text-lg md:text-[24px] font-medium capitalize rounded-[24px] md:rounded-[30px] h-14 md:h-[80px] hover:bg-[#222] transition-transform active:scale-95">
-                Register for the Course
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-black text-white text-lg md:text-[24px] font-medium capitalize rounded-[24px] md:rounded-[30px] h-14 md:h-[80px] hover:bg-[#222] transition-transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Submitting…" : "Register for the Course"}
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </section>
     </div>
