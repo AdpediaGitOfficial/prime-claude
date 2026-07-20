@@ -3,6 +3,7 @@
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
 import {
+  useEffect,
   useMemo,
   useState,
   type ChangeEvent,
@@ -11,13 +12,12 @@ import {
 
 const TOTAL_COUNTERS = 30;
 
-/**
- * Counters that are already taken. There is no availability endpoint yet, so
- * this stays empty and every counter is selectable. When the backend can
- * report booked counters, populate this set (e.g. from a fetch) and the
- * "booked" styling / legend below light up automatically.
- */
-const BOOKED_COUNTERS = new Set<number>();
+/** Parse the counter number from a listing's code ("COUNTER-07") or name ("Counter 07"). */
+const counterNumberFromListing = (listing: { code?: string | null; name?: string | null }) => {
+  const source = listing.code ?? listing.name ?? "";
+  const match = source.match(/(\d+)/);
+  return match ? Number.parseInt(match[1], 10) : NaN;
+};
 
 const VENDOR_TYPES = [
   "Fashion",
@@ -51,26 +51,51 @@ const counterLabel = (n: number) => `Counter ${String(n).padStart(2, "0")}`;
 export default function VendorCounters() {
   const [selected, setSelected] = useState<number[]>([]);
   const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [bookedCounters, setBookedCounters] = useState<Set<number>>(new Set());
   const [formData, setFormData] = useState<EnquiryForm>(initialFormData);
   const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
+
+  // Load live availability. Counters flagged unavailable in the admin become
+  // "booked" here; if the API is unreachable the grid falls back to all-available.
+  useEffect(() => {
+    let active = true;
+    apiCall(`${ENDPOINTS.LISTINGS}?type=VENDOR_COUNTER`)
+      .then((listings) => {
+        if (!active || !Array.isArray(listings)) return;
+        const booked = new Set<number>();
+        for (const listing of listings) {
+          if (listing && listing.isAvailable === false) {
+            const n = counterNumberFromListing(listing);
+            if (!Number.isNaN(n)) booked.add(n);
+          }
+        }
+        setBookedCounters(booked);
+      })
+      .catch(() => {
+        /* keep all counters selectable on failure */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const counters = useMemo(
     () => Array.from({ length: TOTAL_COUNTERS }, (_, i) => i + 1),
     []
   );
-  const availableCount = TOTAL_COUNTERS - BOOKED_COUNTERS.size;
-  const hasBooked = BOOKED_COUNTERS.size > 0;
+  const availableCount = TOTAL_COUNTERS - bookedCounters.size;
+  const hasBooked = bookedCounters.size > 0;
 
   const visibleCounters = useMemo(
     () =>
       onlyAvailable
-        ? counters.filter((n) => !BOOKED_COUNTERS.has(n))
+        ? counters.filter((n) => !bookedCounters.has(n))
         : counters,
-    [counters, onlyAvailable]
+    [counters, onlyAvailable, bookedCounters]
   );
 
   const toggleCounter = (n: number) => {
-    if (BOOKED_COUNTERS.has(n)) return;
+    if (bookedCounters.has(n)) return;
     setSelected((current) =>
       current.includes(n)
         ? current.filter((x) => x !== n)
@@ -83,12 +108,6 @@ export default function VendorCounters() {
   ) => {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));
-  };
-
-  const scrollToPanel = () => {
-    document
-      .getElementById("vendor-enquiry")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -180,7 +199,7 @@ export default function VendorCounters() {
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 scroll-mt-24"
         >
           {visibleCounters.map((n) => {
-            const isBooked = BOOKED_COUNTERS.has(n);
+            const isBooked = bookedCounters.has(n);
             const isSelected = selected.includes(n);
             return (
               <button
