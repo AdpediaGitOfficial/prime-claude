@@ -3,15 +3,11 @@ import Icon1 from "../../../public/ICONS/icon-1.png";
 import Icon2 from "../../../public/ICONS/icon-2.png";
 import Icon3 from "../../../public/ICONS/icon-3.png";
 import { MotionDiv } from "@/components/MotionWrappers";
+import VendorCounters from "@/components/VendorCounters";
 
 export const metadata = { title: "Multi-Brand Vendor Zone – Prime Promenade" };
 
 export default function VendorPage() {
-  const counters = Array.from({ length: 30 }, (_, index) => {
-    const number = String(index + 1).padStart(2, "0");
-    return `Counter ${number}`;
-  });
-
   return (
     <div className="bg-white text-black overflow-x-hidden">
       {/* ═══ HERO (Section 1 - Odd) ═══ */}
@@ -136,27 +132,7 @@ export default function VendorPage() {
           Choose from our selection of strategically located retail counters
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5">
-          {counters.map((counter) => (
-            <div
-              key={counter}
-              className="rounded-[20px] p-5 flex min-h-[180px] flex-col gap-5 shadow-sm hover:shadow-md transition-shadow"
-              style={{ background: "#fdf0e9" }}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-lg md:text-[22px] font-medium leading-[1.35]">
-                  {counter}
-                </p>
-                <span className="bg-white rounded-[19px] px-3 py-1 text-sm md:text-base text-black leading-[1.35]">
-                  available
-                </span>
-              </div>
-              <button className="mt-auto bg-black text-white rounded-[30px] md:rounded-[54px] w-full flex items-center justify-center font-medium text-base md:text-lg capitalize h-12 md:h-[58px] transition-transform active:scale-95">
-                Enquire Now
-              </button>
-            </div>
-          ))}
-        </div>
+        <VendorCounters />
 
       </section>
 
