@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude mcp:*)",
+      "mcp__claude_ai_Figma__get_design_context",
+      "mcp__claude_ai_Figma__get_screenshot",
+      "mcp__claude_ai_Figma__whoami",
+      "mcp__figma-dev-mode-mcp-server__get_design_context",
+      "mcp__figma-dev-mode-mcp-server__get_screenshot",
+      "Bash(python3 -c \"\nimport json\nwith open\\('/Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/mcp-figma-dev-mode-mcp-server-get_design_context-1773322947847.txt'\\) as f:\n    data = json.load\\(f\\)\nprint\\(f'Items: {len\\(data\\)}'\\)\nfor i, item in enumerate\\(data\\):\n    print\\(f'Item {i}: type={item[\\\\\"type\\\\\"]}, text_len={len\\(item[\\\\\"text\\\\\"]\\)}'\\)\n    if item['type'] == 'text':\n        print\\(item['text'][:500]\\)\n\")",
+      "Bash(python3 -c \"\nimport json\nwith open\\('/Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/mcp-figma-dev-mode-mcp-server-get_design_context-1773322947847.txt'\\) as f:\n    data = json.load\\(f\\)\ncode = data[0]['text']\nprint\\(code[8000:16000]\\)\n\")",
+      "Bash(python3 -c \"\nimport json\nwith open\\('/Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/mcp-figma-dev-mode-mcp-server-get_design_context-1773322947847.txt'\\) as f:\n    data = json.load\\(f\\)\ncode = data[0]['text']\nprint\\(code[16000:24000]\\)\n\")",
+      "Bash(python3 -c \"\nimport json\nwith open\\('/Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/mcp-figma-dev-mode-mcp-server-get_design_context-1773322947847.txt'\\) as f:\n    data = json.load\\(f\\)\ncode = data[0]['text']\nprint\\(code[24000:32000]\\)\n\")",
+      "Bash(python3 -c \"\nimport json\nwith open\\('/Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/mcp-figma-dev-mode-mcp-server-get_design_context-1773322947847.txt'\\) as f:\n    data = json.load\\(f\\)\ncode = data[0]['text']\nprint\\(code[32000:40000]\\)\n\")",
+      "Bash(python3 -c \"\nimport json\nwith open\\('/Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/mcp-figma-dev-mode-mcp-server-get_design_context-1773322947847.txt'\\) as f:\n    data = json.load\\(f\\)\ncode = data[0]['text']\nprint\\(code[40000:48000]\\)\n\")",
+      "Bash(python3 -c \"\nimport json\nwith open\\('/Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/mcp-figma-dev-mode-mcp-server-get_design_context-1773322947847.txt'\\) as f:\n    data = json.load\\(f\\)\ncode = data[0]['text']\nprint\\(code[48000:56000]\\)\n\")",
+      "Bash(python3-c \"\nimport json\nwith open\\('/Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/mcp-figma-dev-mode-mcp-server-get_design_context-1773322947847.txt'\\) as f:\n    data = json.load\\(f\\)\ncode = data[0]['text']\nprint\\(code[56000:68261]\\)\n\")",
+      "Bash(python3 -c \"\nimport json\nwith open\\('/Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/mcp-figma-dev-mode-mcp-server-get_design_context-1773322947847.txt'\\) as f:\n    data = json.load\\(f\\)\ncode = data[0]['text']\nprint\\(code[56000:]\\)\n\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3845/assets/1bcc5c4d081472f10ce51878271b71a7182c1268.png\")",
+      "Bash(curl -v \"http://localhost:3845/assets/1bcc5c4d081472f10ce51878271b71a7182c1268.png\" 2>&1 | head -30)",
+      "Bash(curl -s \"http://localhost:3845/\" 2>&1 | head -20)",
+      "Bash(curl -s -I \"http://localhost:3845/sse\" 2>&1 | head -20)",
+      "Bash(chmod +x /Users/cdpravee/Documents/Works/prime/download-assets.sh && bash download-assets.sh)",
+      "Bash(bash download-assets.sh)",
+      "Bash(python3 -c \"\nimport json, re\nwith open\\('/Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/mcp-figma-dev-mode-mcp-server-get_design_context-1773322947847.txt'\\) as f:\n    data = json.load\\(f\\)\ncode = data[0]['text']\nidx = code.find\\('529:759'\\)\nprint\\(code[idx-50:idx+1200]\\)\n\")",
+      "mcp__figma-dev-mode-mcp-server__get_metadata",
+      "Bash(python3 -c \"\nfrom PIL import Image\nimg = Image.open\\('/Users/cdpravee/Documents/Works/prime/images/prime-logo.png'\\)\nprint\\(img.size\\)\n\" 2>/dev/null || sips -g pixelWidth -g pixelHeight /Users/cdpravee/Documents/Works/prime/images/prime-logo.png 2>/dev/null || file /Users/cdpravee/Documents/Works/prime/images/prime-logo.png)",
+      "Bash(python3 -c \"\nimport json\nwith open\\('/Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/toolu_018ZCHUhCN81MAKjjG7dbYiz.txt'\\) as f:\n    data = json.load\\(f\\)\nfor item in data:\n    if item.get\\('type'\\) == 'text':\n        print\\(item['text'][:15000]\\)\n\" 2>/dev/null)",
+      "Bash(mv /Users/cdpravee/Documents/Works/prime/images/915ccc60817da2d2ac3ba8f1210f0d402cf02139.png /Users/cdpravee/Documents/Works/prime/images/915ccc60817da2d2ac3ba8f1210f0d402cf02139.png 2>/dev/null; ls /Users/cdpravee/Documents/Works/prime/*.png 2>/dev/null | head -3; ls /Users/cdpravee/Documents/Works/prime/915* 2>/dev/null)",
+      "Bash(cat /Users/cdpravee/.claude/projects/-Users-cdpravee-Documents-Works-prime/09f647b1-c69c-4c53-8800-b18641a3e739/tool-results/toolu_01L6qyyoR6vA1PLD9sWqccAD.txt | python3 -c \"\nimport sys, json\ndata = json.load\\(sys.stdin\\)\nprint\\(data[0]['text'][:8000]\\)\n\")",
+      "Bash(mkdir -p /Users/cdpravee/Documents/Works/conversion/prime-nextjs/app/about\nmkdir -p /Users/cdpravee/Documents/Works/conversion/prime-nextjs/app/pharmacy\nmkdir -p /Users/cdpravee/Documents/Works/conversion/prime-nextjs/app/pool-booking\nmkdir -p /Users/cdpravee/Documents/Works/conversion/prime-nextjs/app/study-centre\nmkdir -p /Users/cdpravee/Documents/Works/conversion/prime-nextjs/components\nmkdir -p /Users/cdpravee/Documents/Works/conversion/prime-nextjs/public/images\nmkdir -p /Users/cdpravee/Documents/Works/conversion/prime-nextjs/public/videos\necho \"Directories created\")",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(npm install:*)",
+      "Bash(npx next:*)",
+      "Bash(npm run:*)",
+      "Bash(curl:*)",
+      "Bash(grep:*)"
+    ]
+  }
+}
