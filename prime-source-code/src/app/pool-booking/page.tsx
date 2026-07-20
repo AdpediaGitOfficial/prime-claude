@@ -73,6 +73,12 @@ const PLANS: Plan[] = [
 
 const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
+const durationText = (m: number) => {
+  const h = Math.floor(m / 60);
+  const min = m % 60;
+  return h && min ? `${h}h ${min}m` : h ? `${h} hour${h > 1 ? "s" : ""}` : `${min} min`;
+};
+
 export default function PoolBookingPage() {
   const [selectedPool, setSelectedPool] = useState<PlanId | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
@@ -219,13 +225,16 @@ export default function PoolBookingPage() {
         </div>
       </section>
 
-      {/* ═══ CHOOSE YOUR PLAN (Alternating Section 1 - 120px Padding) ═══ */}
+      {/* ═══ BOOK YOUR SESSION (plans + date/time + add-ons with sticky summary) ═══ */}
       <section className="site-container !py-16 md:!py-24 lg:!py-[120px]">
         <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2] mb-6 md:mb-8 lg:mb-10">
           Choose Your Plan
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
-          {PLANS.map((plan) => {
+        <div className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-8 items-start">
+          {/* LEFT: booking steps */}
+          <div className="flex flex-col gap-10 md:gap-14 min-w-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+              {PLANS.map((plan) => {
             const isSelected = selectedPool === plan.id;
             const hours = Math.floor(plan.durationMinutes / 60);
             const mins = plan.durationMinutes % 60;
@@ -293,16 +302,15 @@ export default function PoolBookingPage() {
                 </button>
               </div>
             );
-          })}
-        </div>
-      </section>
+              })}
+            </div>
 
-      {/* ═══ SELECT DATE & TIME (Standard Padding) ═══ */}
-      <section className="site-container">
-        <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2] mb-6 md:mb-8">
-          Select Date &amp; Time
-        </h2>
-        <div className="bg-[#e3fdff] border border-[#77f4ff] rounded-[24px] md:rounded-[30px] px-5 sm:px-8 lg:px-12 py-6 md:py-10 flex flex-col gap-6 md:gap-8">
+            {/* Date & Time */}
+            <div>
+              <h3 className="text-2xl md:text-3xl lg:text-[32px] font-normal leading-[1.2] mb-5 md:mb-6">
+                Select Date &amp; Time
+              </h3>
+              <div className="bg-[#e3fdff] border border-[#77f4ff] rounded-[24px] md:rounded-[30px] px-5 sm:px-8 lg:px-10 py-6 md:py-8 flex flex-col gap-6 md:gap-8">
           {/* Date */}
           <div>
             <p className="text-lg md:text-[20px] capitalize text-black mb-2 md:mb-3">
@@ -325,15 +333,15 @@ export default function PoolBookingPage() {
               onSlotChange={setSelectedSlot}
             />
           </div>
-        </div>
-      </section>
+              </div>
+            </div>
 
-      {/* ═══ ENHANCE YOUR EXPERIENCE (Alternating Section 2 - 120px Padding) ═══ */}
-      <section className="site-container !py-16 md:!py-24 lg:!py-[120px]">
-        <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2] mb-6 md:mb-8">
-          Enhance Your Experience
-        </h2>
-        <div className="flex flex-col gap-4">
+            {/* Add-ons */}
+            <div>
+              <h3 className="text-2xl md:text-3xl lg:text-[32px] font-normal leading-[1.2] mb-5 md:mb-6">
+                Enhance Your Experience
+              </h3>
+              <div className="flex flex-col gap-4">
           {/* Row 1: Sauna Bath + Jacuzzi */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Sauna Bath */}
@@ -438,6 +446,40 @@ export default function PoolBookingPage() {
                 </div>
             </div>
           </div>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT: sticky booking summary */}
+          <aside className="lg:sticky lg:top-24 self-start bg-white border border-black/10 rounded-[20px] overflow-hidden shadow-md">
+            <div className="bg-[#9EF6FD] px-6 py-5">
+              <p className="text-lg font-semibold text-black">Your booking</p>
+            </div>
+            <div className="px-6 py-5 flex flex-col gap-3.5 text-sm">
+              <div className="flex justify-between gap-3"><span className="text-black/60">Plan</span><span className={selectedPlan ? "font-semibold text-right" : "text-black/40"}>{selectedPlan?.name ?? "—"}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-black/60">Capacity &amp; time</span><span className={selectedPlan ? "font-semibold text-right" : "text-black/40 text-right"}>{selectedPlan ? `${selectedPlan.badge} · ${durationText(selectedPlan.durationMinutes)}` : "Select a plan"}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-black/60">Date</span><span className={selectedDate ? "font-semibold text-right" : "text-black/40"}>{selectedDate || "—"}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-black/60">Time slot</span><span className={selectedSlot ? "font-semibold text-right" : "text-black/40 text-right"}>{selectedSlot ? `${selectedSlot.start} – ${selectedSlot.end}` : "—"}</span></div>
+              <div className="h-px bg-black/10" />
+              <div className="flex justify-between gap-3"><span className="text-black/60">Session</span><span className="font-semibold">{inr(selectedPlan?.price ?? 0)}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-black/60">Jacuzzi</span><span className={addons.jacuzzi ? "font-semibold" : "text-black/40"}>{addons.jacuzzi ? `+ ${inr(500)}` : "Not added"}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-black/60">Sauna Bath</span><span className={addons.sauna ? "font-semibold" : "text-black/40"}>{addons.sauna ? `+ ${inr(500)}` : "Not added"}</span></div>
+              <div className="h-px bg-black/10" />
+              <div className="flex justify-between items-baseline"><span className="text-black/60 uppercase tracking-wide text-xs">Total</span><span className="text-2xl font-bold text-black">{inr(bookingTotal)}</span></div>
+            </div>
+            <div className="px-6 pb-5">
+              {message && !showMobileModal && !showOtpModal && (
+                <p className="mb-3 text-sm text-rose-600">{message}</p>
+              )}
+              {bookingSuccess && (
+                <p className="mb-3 text-sm text-green-600 font-medium">Booking confirmed! We&rsquo;ll see you at the pool.</p>
+              )}
+              <button type="button" onClick={handleConfirmBooking} className="w-full bg-black text-white rounded-full py-3.5 font-medium hover:bg-black/85 transition-transform active:scale-95">
+                Confirm Booking
+              </button>
+              <p className="mt-3 text-xs text-black/55">Accept the policies below, then verify your mobile with OTP.</p>
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -524,37 +566,6 @@ export default function PoolBookingPage() {
               <li><strong className="text-black">Agreement.</strong> By booking you confirm that you have read, understood and agree to these Terms &amp; Conditions and the safety waiver.</li>
             </ol>
           </div>
-        </div>
-
-        {message && !showMobileModal && !showOtpModal && (
-          <p className="text-center text-rose-600 mt-4 text-sm">{message}</p>
-        )}
-        {bookingSuccess && (
-          <p className="text-center text-green-600 font-medium mt-4">Booking confirmed! We’ll see you at the pool.</p>
-        )}
-
-        {/* Running total */}
-        {selectedPlan && (
-          <div className="mt-8 flex flex-col items-center gap-1">
-            <div className="flex items-baseline gap-2">
-              <span className="text-sm text-black/60">Total</span>
-              <span className="text-3xl font-bold text-black">{inr(bookingTotal)}</span>
-            </div>
-            <p className="text-xs text-black/55">
-              {selectedPlan.name}
-              {addons.jacuzzi ? " · Jacuzzi ₹500" : ""}
-              {addons.sauna ? " · Sauna ₹500" : ""}
-            </p>
-          </div>
-        )}
-
-        <div className="flex justify-center mt-6 md:mt-8">
-          <button
-            onClick={handleConfirmBooking}
-            className="bg-black text-white text-lg md:text-[22px] font-medium capitalize rounded-full px-10 md:px-16 py-4 md:py-5 hover:bg-black/80 transition-transform active:scale-95 w-full sm:w-auto"
-          >
-            Confirm Booking
-          </button>
         </div>
       </section>
 
