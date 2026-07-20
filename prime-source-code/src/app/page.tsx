@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import AnimatedText from "@/components/AnimatedText";
 import Link from "next/link";
 import {
@@ -14,138 +13,9 @@ import ServiceCarousel from "@/components/UI/ServiceCarousel";
 import HomeLogoSlider from "@/components/UI/HomeLogoSlider";
 
 export default function HomePage() {
-  const [isPosterOpen, setIsPosterOpen] = useState(false);
-  const [activePoster, setActivePoster] = useState(0);
-  const posters = [
-    {
-      src: "/POSTER/popup-graphics.jpeg",
-      alt: "Prime Promenade announcement",
-    },
-    {
-      src: "/POSTER/popup-image.jpeg",
-      alt: "Prime Promenade featured announcement",
-    },
-  ];
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setIsPosterOpen(true);
-    }, 2000);
-
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!isPosterOpen) return;
-
-    const previousOverflow = document.body.style.overflow;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsPosterOpen(false);
-    };
-
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isPosterOpen]);
-
-  useEffect(() => {
-    if (!isPosterOpen) return;
-
-    const slider = window.setInterval(() => {
-      setActivePoster((current) => (current + 1) % posters.length);
-    }, 3000);
-
-    return () => window.clearInterval(slider);
-  }, [isPosterOpen, posters.length]);
 
   return (
     <main className="bg-white text-black">
-      {isPosterOpen && (
-        <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Prime Promenade announcement"
-          onClick={() => setIsPosterOpen(false)}
-        >
-          <div
-            className="relative max-h-[calc(100dvh-2rem)] w-full max-w-[min(90vw,480px)] overflow-hidden rounded-2xl bg-white shadow-2xl"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="relative h-[min(82dvh,680px)] w-full overflow-hidden bg-black">
-              <div
-                className="flex h-full transition-transform duration-700 ease-in-out"
-                style={{ transform: `translateX(-${activePoster * 100}%)` }}
-              >
-                {posters.map((poster) => (
-                  <div
-                    key={poster.src}
-                    className="h-full w-full shrink-0"
-                  >
-                    <img
-                      src={poster.src}
-                      alt={poster.alt}
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setActivePoster(
-                    (current) => (current - 1 + posters.length) % posters.length
-                  )
-                }
-                className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-2xl text-white transition-colors hover:bg-black/85 focus:outline-none focus:ring-2 focus:ring-white"
-                aria-label="Previous announcement"
-              >
-                <span aria-hidden="true">&#8249;</span>
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setActivePoster((current) => (current + 1) % posters.length)
-                }
-                className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-2xl text-white transition-colors hover:bg-black/85 focus:outline-none focus:ring-2 focus:ring-white"
-                aria-label="Next announcement"
-              >
-                <span aria-hidden="true">&#8250;</span>
-              </button>
-
-              <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
-                {posters.map((poster, index) => (
-                  <button
-                    key={poster.src}
-                    type="button"
-                    onClick={() => setActivePoster(index)}
-                    className={`h-2.5 rounded-full transition-all ${
-                      activePoster === index
-                        ? "w-7 bg-white"
-                        : "w-2.5 bg-white/50 hover:bg-white/75"
-                    }`}
-                    aria-label={`Show announcement ${index + 1}`}
-                    aria-current={activePoster === index ? "true" : undefined}
-                  />
-                ))}
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsPosterOpen(false)}
-              className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-black/75 text-2xl leading-none text-white shadow-lg transition-colors hover:bg-black focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/50"
-              aria-label="Close announcement"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Hero */}
       <section className="relative w-full h-[450px] md:h-screen md:min-h-[600px] overflow-hidden">
