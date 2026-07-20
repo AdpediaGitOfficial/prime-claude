@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "../../public/LOGO/FOOTER-LOGO.svg"
-import { FaFacebookF, FaYoutube, FaInstagram, FaLinkedinIn, FaTwitter } from 'react-icons/fa';
+import { FaFacebookF, FaInstagram } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -13,20 +13,11 @@ export default function Footer() {
             A world-class lifestyle destination uniting fitness, wellness, business, and curated experiences under one iconic roof.
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" aria-label="Facebook" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
+            <a href="https://www.facebook.com/61588610401388/" aria-label="Facebook" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
               <FaFacebookF size={20} />
             </a>
-            <a href="#" aria-label="YouTube" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
-              <FaYoutube size={20} />
-            </a>
-            <a href="#" aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
+            <a href="https://www.instagram.com/prime_promenade" aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
               <FaInstagram size={20} />
-            </a>
-            <a href="#" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
-              <FaLinkedinIn size={20} />
-            </a>
-            <a href="#" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
-              <FaTwitter size={20} />
             </a>
           </div>
         </div>
