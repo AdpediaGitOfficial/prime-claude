@@ -18,7 +18,6 @@ const routes = [
   "/pool-booking",
   "/conference",
   "/cafe",
-  "/gaming",
   "/pharmacy",
   "/study-centre",
   "/prime-x-arena",
