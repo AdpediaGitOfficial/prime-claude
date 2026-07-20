@@ -1,4 +1,12 @@
 import React from 'react'
+import { buildMetadata } from "@/utils/site";
+
+export const metadata = buildMetadata({
+  title: "Booking Successful – Prime Promenade",
+  description: "Your booking request has been received.",
+  path: "/successfull",
+  noindex: true,
+});
 
 const page = () => {
   return (
