@@ -25,19 +25,32 @@ export interface PackageTab {
   label: string;
   showPrice: boolean;
   showCapacity: boolean;
-  showFeatures: boolean;
+  /** Extra metadata list fields (stored as string[] under metadata[key]). */
+  listFields: { key: string; label: string }[];
 }
 
 export const PACKAGE_CONFIGS: Record<string, PackageTab> = {
-  POOL: { key: "POOL", label: "Pool packages", showPrice: true, showCapacity: true, showFeatures: true },
-  SPA_SERVICE: { key: "SPA_SERVICE", label: "Spa services", showPrice: false, showCapacity: false, showFeatures: false },
-  COURSE: { key: "COURSE", label: "Courses", showPrice: false, showCapacity: false, showFeatures: true },
+  POOL: {
+    key: "POOL", label: "Pool packages", showPrice: true, showCapacity: true,
+    listFields: [{ key: "features", label: "Features (one per line)" }],
+  },
+  SPA_SERVICE: {
+    key: "SPA_SERVICE", label: "Spa services", showPrice: false, showCapacity: false,
+    listFields: [],
+  },
+  COURSE: {
+    key: "COURSE", label: "Courses", showPrice: false, showCapacity: false,
+    listFields: [
+      { key: "modules", label: "Modules / syllabus (one per line)" },
+      { key: "eligibility", label: "Eligibility (one per line)" },
+    ],
+  },
 };
 
 type Tab = PackageTab;
 
-function metaFeatures(l?: Partial<Listing>): string[] {
-  const f = (l?.metadata as { features?: unknown } | undefined)?.features;
+function metaList(l: Partial<Listing> | undefined, key: string): string[] {
+  const f = (l?.metadata as Record<string, unknown> | undefined)?.[key];
   return Array.isArray(f) ? (f as string[]) : [];
 }
 
@@ -58,7 +71,11 @@ function PackageForm({
   const [durationLabel, setDurationLabel] = useState(initial.durationLabel ?? "");
   const [capacity, setCapacity] = useState(initial.capacity != null ? String(initial.capacity) : "");
   const [description, setDescription] = useState(initial.description ?? "");
-  const [features, setFeatures] = useState(metaFeatures(initial).join("\n"));
+  const [lists, setLists] = useState<Record<string, string>>(() => {
+    const init: Record<string, string> = {};
+    for (const lf of tab.listFields) init[lf.key] = metaList(initial, lf.key).join("\n");
+    return init;
+  });
   const [order, setOrder] = useState(String(initial.order ?? 0));
   const [isActive, setIsActive] = useState(initial.isActive ?? true);
   const [isAvailable, setIsAvailable] = useState(initial.isAvailable ?? true);
@@ -73,8 +90,8 @@ function PackageForm({
     setSaving(true);
     setError("");
     const metadata: Record<string, unknown> = { ...(initial.metadata ?? {}) };
-    if (tab.showFeatures) {
-      metadata.features = features.split("\n").map((s) => s.trim()).filter(Boolean);
+    for (const lf of tab.listFields) {
+      metadata[lf.key] = (lists[lf.key] ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
     }
     const payload: Record<string, unknown> = {
       type: tab.key,
@@ -138,12 +155,17 @@ function PackageForm({
             <label htmlFor="p-desc">Description</label>
             <textarea id="p-desc" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
-          {tab.showFeatures && (
-            <div className="field" style={{ margin: 0 }}>
-              <label htmlFor="p-feat">Features (one per line)</label>
-              <textarea id="p-feat" rows={4} value={features} onChange={(e) => setFeatures(e.target.value)} />
+          {tab.listFields.map((lf) => (
+            <div className="field" style={{ margin: 0 }} key={lf.key}>
+              <label htmlFor={`p-${lf.key}`}>{lf.label}</label>
+              <textarea
+                id={`p-${lf.key}`}
+                rows={4}
+                value={lists[lf.key] ?? ""}
+                onChange={(e) => setLists((c) => ({ ...c, [lf.key]: e.target.value }))}
+              />
             </div>
-          )}
+          ))}
           <div style={{ display: "grid", gridTemplateColumns: "110px 1fr 1fr", gap: 12, alignItems: "center" }}>
             <div className="field" style={{ margin: 0 }}>
               <label htmlFor="p-ord">Order</label>
@@ -238,8 +260,9 @@ export default function PackagesManager({ tabKeys }: { tabKeys: string[] }) {
                 <div className="sub-txt">
                   {l.durationLabel ? `${l.durationLabel}` : ""}
                   {tab.showCapacity && l.capacity != null ? ` · up to ${l.capacity}` : ""}
-                  {tab.showFeatures && metaFeatures(l).length ? ` · ${metaFeatures(l).length} features` : ""}
-                  {l.description && !tab.showFeatures ? ` · ${l.description}` : ""}
+                  {tab.listFields.map((lf) =>
+                    metaList(l, lf.key).length ? ` · ${metaList(l, lf.key).length} ${lf.key}` : ""
+                  ).join("")}
                 </div>
               </div>
               {!l.isActive && <span className="inactive-tag">Hidden</span>}

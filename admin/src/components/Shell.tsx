@@ -32,11 +32,11 @@ const TITLES: Record<string, [string, string]> = {
   "/": ["Dashboard", "Bookings & enquiries at a glance"],
   "/bookings": ["Bookings", "Pool & spa reservations"],
   "/hall": ["Hall Bookings", "Regal Hall (conference) booking requests"],
-  "/enquiries": ["Enquiries", "Vendor, course & contact leads"],
+  "/enquiries": ["Enquiries", "Vendor & contact leads"],
   "/counters": ["Vendor Counters", "Control live availability on the /vendor page"],
   "/pool": ["Pool Packages", "Manage swimming pool packages & pricing"],
   "/spa": ["Spa Services", "Manage the spa & salon service list"],
-  "/courses": ["Courses", "Manage study-centre courses"],
+  "/courses": ["Courses", "Course details & enrollments"],
   "/gym": ["Gym Enquiries", "Manage gym membership enquiries"],
   "/content": ["Website", "Content, banners & settings"],
 };

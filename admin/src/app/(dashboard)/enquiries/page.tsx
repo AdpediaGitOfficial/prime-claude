@@ -15,10 +15,6 @@ const received = (r: RowRecord) => <span className="sub-txt">{dateTime(String(r.
 
 const VENDOR_TYPES = ["Fashion", "Food & Beverage", "Health & Wellness", "Retail Products"];
 const DURATIONS = ["1 Week", "1 Month", "1 Year"];
-const COURSES = [
-  "Tekla Structures – Basic to Advanced",
-  "Structural Steel Design - Basic to Advanced",
-];
 
 const RESOURCES: ResourceConfig[] = [
   {
@@ -45,25 +41,6 @@ const RESOURCES: ResourceConfig[] = [
       { name: "counters", label: "Counters", type: "text", list: true },
       { name: "preferredDuration", label: "Preferred duration", type: "select", options: DURATIONS },
       { name: "additionalRequirements", label: "Notes", type: "textarea" },
-    ],
-  },
-  {
-    key: "course",
-    label: "Course",
-    path: "/api/admin/course-registrations",
-    kind: "lead",
-    searchPlaceholder: "Search name, course, phone…",
-    columns: [
-      { header: "Name", cell: nameContact },
-      { header: "Course", cell: (r) => s(r, "course") },
-      { header: "Received", cell: received },
-    ],
-    fields: [
-      { name: "fullName", label: "Full name", type: "text", required: true },
-      { name: "email", label: "Email", type: "email", required: true },
-      { name: "phone", label: "Phone", type: "tel", required: true },
-      { name: "course", label: "Course", type: "select", options: COURSES, required: true },
-      { name: "message", label: "Message", type: "textarea" },
     ],
   },
   {

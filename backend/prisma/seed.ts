@@ -66,17 +66,38 @@ const SPA_SERVICES = [
   "Manicure and Pedicure",
 ];
 
-// Courses shown on the /study-centre page (exact names).
+// Courses shown on the /study-centre page (exact content).
 const COURSES = [
   {
     name: "Tekla Structures – Basic to Advanced", code: "COURSE-TEKLA",
     durationLabel: "Starting from 100-120 hours",
-    description: "3D Modeling (Steel, PEB, Concrete), Components, Drawings & BOM",
+    metadata: {
+      modules: ["Intro to Tekla", "3D Modeling (Steel, PEB, Concrete)", "Components", "Drawings & BOM"],
+      eligibility: [
+        "Civil/Mechanical Engineering students (Diploma/B.Tech)",
+        "Structural Engineers",
+        "Draughtsmen & Designers",
+        "Working Professionals",
+      ],
+    },
   },
   {
     name: "Structural Steel Design - Basic to Advanced", code: "COURSE-STEEL",
     durationLabel: "Starting from 100-120 hours",
-    description: "Structural steel design and detailing, basic to advanced.",
+    metadata: {
+      modules: [
+        "Introduction to Structural Engineering",
+        "Structural Analysis and Design based on IS and AISC codes",
+        "RCC substructure and Steel Design Principles",
+        "Software Basics (Matrix/STAAD)",
+      ],
+      eligibility: [
+        "Civil Engineering students (B.Tech/M.Tech)",
+        "Architectural Students",
+        "Designers",
+        "Working Professionals",
+      ],
+    },
   },
 ];
 
@@ -159,7 +180,7 @@ async function seedListings() {
     });
   }
   for (const [i, c] of COURSES.entries()) {
-    const data = { name: c.name, durationLabel: c.durationLabel, description: c.description, order: i };
+    const data = { name: c.name, durationLabel: c.durationLabel, metadata: c.metadata, order: i };
     await prisma.listing.upsert({
       where: { type_code: { type: ListingType.COURSE, code: c.code } },
       update: data,
