@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,12 +32,9 @@ export default function LoginPage() {
   return (
     <div className="login-wrap">
       <form className="login-card" onSubmit={handleSubmit}>
-        <div className="brand-row">
-          <div className="brand-mark">P</div>
-          <div>
-            <div className="brand-name">Prime Promenade</div>
-            <div className="brand-sub">Admin Console</div>
-          </div>
+        <div style={{ marginBottom: 26 }}>
+          <BrandLogo height={40} />
+          <div className="brand-sub" style={{ marginTop: 10 }}>Admin Console</div>
         </div>
         <div className="field">
           <label htmlFor="email">Email address</label>

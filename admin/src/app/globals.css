@@ -57,6 +57,18 @@ a { color: inherit; text-decoration: none; }
 .brand-mark { width: 38px; height: 38px; border-radius: 11px; background: var(--brand); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 19px; }
 .brand-name { font-weight: 700; font-size: 17px; letter-spacing: -.01em; }
 .brand-sub { font-size: 12px; color: var(--muted); }
+
+/* Prime Promenade logo — dark wordmark on light, white wordmark on dark. */
+.brand-logo { width: auto; display: block; }
+.brand-logo.on-dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  .brand-logo.on-light { display: none; }
+  .brand-logo.on-dark { display: block; }
+}
+:root[data-theme="light"] .brand-logo.on-light { display: block; }
+:root[data-theme="light"] .brand-logo.on-dark { display: none; }
+:root[data-theme="dark"] .brand-logo.on-light { display: none; }
+:root[data-theme="dark"] .brand-logo.on-dark { display: block; }
 .field { margin-bottom: 15px; }
 .field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 6px; color: var(--muted); }
 .field input { width: 100%; height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 11px; background: var(--ground); color: var(--ink); font-size: 15px; outline: none; }

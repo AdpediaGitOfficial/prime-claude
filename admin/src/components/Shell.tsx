@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
+import BrandLogo from "@/components/BrandLogo";
 
 const NAV: Array<{ group: string; items: Array<{ href: string; label: string; icon: string }> }> = [
   { group: "Overview", items: [{ href: "/", label: "Dashboard", icon: "▤" }] },
@@ -94,14 +95,9 @@ export default function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="app">
       <aside>
-        <div className="brand-row">
-          <div className="brand-mark">P</div>
-          <div>
-            <div className="brand-name" style={{ fontSize: 15 }}>
-              Prime Promenade
-            </div>
-            <div className="brand-sub">Admin</div>
-          </div>
+        <div className="brand-row" style={{ flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
+          <BrandLogo height={30} />
+          <div className="brand-sub">Admin</div>
         </div>
 
         {NAV.map((section) => (
