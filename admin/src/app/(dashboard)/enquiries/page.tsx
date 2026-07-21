@@ -67,26 +67,6 @@ const RESOURCES: ResourceConfig[] = [
     ],
   },
   {
-    key: "gym",
-    label: "Gym",
-    path: "/api/admin/gym-memberships",
-    kind: "lead",
-    searchPlaceholder: "Search name, phone, email…",
-    columns: [
-      { header: "Name", cell: nameContact },
-      { header: "Age", cell: (r) => s(r, "age") },
-      { header: "Message", cell: (r) => s(r, "message") },
-      { header: "Received", cell: received },
-    ],
-    fields: [
-      { name: "fullName", label: "Full name", type: "text", required: true },
-      { name: "phone", label: "Phone", type: "tel", required: true },
-      { name: "email", label: "Email", type: "email", required: true },
-      { name: "age", label: "Age", type: "number" },
-      { name: "message", label: "Message", type: "textarea" },
-    ],
-  },
-  {
     key: "contact",
     label: "Contact",
     path: "/api/admin/contact-enquiries",

@@ -35,7 +35,7 @@ const TITLES: Record<string, [string, string]> = {
   "/pool": ["Pool Packages", "Manage swimming pool packages & pricing"],
   "/spa": ["Spa Services", "Manage the spa & salon service list"],
   "/courses": ["Courses", "Manage study-centre courses"],
-  "/gym": ["Gym Plans", "Manage gym membership plans"],
+  "/gym": ["Gym Enquiries", "Manage gym membership enquiries"],
   "/content": ["Website", "Content, banners & settings"],
 };
 

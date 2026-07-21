@@ -32,7 +32,6 @@ export const PACKAGE_CONFIGS: Record<string, PackageTab> = {
   POOL: { key: "POOL", label: "Pool packages", showPrice: true, showCapacity: true, showFeatures: true },
   SPA_SERVICE: { key: "SPA_SERVICE", label: "Spa services", showPrice: false, showCapacity: false, showFeatures: false },
   COURSE: { key: "COURSE", label: "Courses", showPrice: false, showCapacity: false, showFeatures: true },
-  GYM_PLAN: { key: "GYM_PLAN", label: "Gym plans", showPrice: true, showCapacity: false, showFeatures: true },
 };
 
 type Tab = PackageTab;
