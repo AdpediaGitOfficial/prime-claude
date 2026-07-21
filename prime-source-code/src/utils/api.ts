@@ -26,6 +26,13 @@ export const apiCall = async (endpoint: string, options: RequestInit = {}): Prom
   return response.json();
 };
 
+/** Absolute URL for a stored asset path (e.g. "/uploads/x.jpg" from the API). */
+export const assetUrl = (path?: string | null): string => {
+  if (!path) return "";
+  if (/^https?:\/\//.test(path)) return path;
+  return `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+};
+
 export const ENDPOINTS = {
   SEND_OTP: "/api/auth/send-otp",
   CREATE_BOOKING: "/api/bookings/create-verified",
@@ -37,4 +44,6 @@ export const ENDPOINTS = {
   CONTACT_ENQUIRIES: "/contact-enquiries",
   LISTINGS: "/listings",
   SITE_SETTINGS: "/site-settings",
+  BANNERS: "/banners",
+  GALLERY: "/gallery",
 } as const;

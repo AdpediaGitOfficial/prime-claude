@@ -2,6 +2,8 @@
 
 import AnimatedText from "@/components/AnimatedText";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { apiCall, ENDPOINTS, assetUrl } from "@/utils/api";
 import {
   MotionSpan,
   MotionH2,
@@ -12,7 +14,26 @@ import StackCard from "@/components/UI/StackCard";
 import ServiceCarousel from "@/components/UI/ServiceCarousel";
 import HomeLogoSlider from "@/components/UI/HomeLogoSlider";
 
+const DEFAULT_HERO = "/ASSETS/banner-main.jpg";
+
 export default function HomePage() {
+  // Hero image from the "home-hero" banner (falls back to the default).
+  const [heroImg, setHeroImg] = useState<string>(DEFAULT_HERO);
+  useEffect(() => {
+    let active = true;
+    apiCall(`${ENDPOINTS.BANNERS}?location=home-hero`)
+      .then((rows) => {
+        if (!active || !Array.isArray(rows)) return;
+        const withImage = rows.find((b) => b && b.imagePath);
+        if (withImage) setHeroImg(assetUrl(withImage.imagePath));
+      })
+      .catch(() => {
+        /* keep default hero */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <main className="bg-white text-black">
@@ -20,7 +41,7 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative w-full h-[450px] md:h-screen md:min-h-[600px] overflow-hidden">
         <img
-          src="/ASSETS/banner-main.jpg"
+          src={heroImg}
           alt="Prime Promenade"
           className="absolute inset-0 w-full h-full object-cover"
         />

@@ -4,8 +4,12 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Expand, X } from "lucide-react";
+import { apiCall, ENDPOINTS, assetUrl } from "@/utils/api";
 
-const galleryImages = [
+type GalleryItem = { src: string; alt: string; width: number; height: number };
+
+// Default images (fallback if the API is unreachable / has no gallery yet).
+const DEFAULT_GALLERY: GalleryItem[] = [
   {
     src: "/POSTER/popup-graphics.jpeg",
     alt: "Prime Promenade event announcement",
@@ -22,6 +26,30 @@ const galleryImages = [
 
 export default function GalleryPage() {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  // Live gallery from the admin (falls back to defaults if unreachable/empty).
+  const [galleryImages, setGalleryImages] = useState<GalleryItem[]>(DEFAULT_GALLERY);
+  useEffect(() => {
+    let active = true;
+    apiCall(ENDPOINTS.GALLERY)
+      .then((rows) => {
+        if (!active || !Array.isArray(rows)) return;
+        const mapped = rows
+          .filter((r) => r && r.imagePath)
+          .map((r) => ({
+            src: assetUrl(r.imagePath),
+            alt: (r.title as string) || "Prime Promenade gallery",
+            width: 1200,
+            height: 1600,
+          }));
+        if (mapped.length) setGalleryImages(mapped);
+      })
+      .catch(() => {
+        /* keep DEFAULT_GALLERY */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const showPrevious = () => {
     setSelectedImage((current) =>

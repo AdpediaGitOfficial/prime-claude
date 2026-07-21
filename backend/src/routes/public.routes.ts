@@ -5,6 +5,7 @@ import hallBookingRoutes from "../modules/hall-bookings/hallBooking.routes";
 import publicFormRoutes from "../modules/public-forms/publicForms.routes";
 import publicListingRoutes from "../modules/listings/listing.publicRoutes";
 import publicSettingsRoutes from "../modules/content/settings.publicRoutes";
+import publicContentRoutes from "../modules/content/content.publicRoutes";
 
 /**
  * Public API — paths match the existing frontend contract EXACTLY. Some live
@@ -25,5 +26,7 @@ router.use("/", publicFormRoutes);
 router.use("/listings", publicListingRoutes);
 // GET /site-settings
 router.use("/site-settings", publicSettingsRoutes);
+// GET /banners, GET /gallery
+router.use("/", publicContentRoutes);
 
 export default router;

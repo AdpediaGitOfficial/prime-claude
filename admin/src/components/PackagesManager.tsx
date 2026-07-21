@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { inr } from "@/lib/format";
 import { Toast } from "./Toast";
+import ImageUpload from "./ImageUpload";
 
 interface Listing {
   id: string;
@@ -76,6 +77,7 @@ function PackageForm({
     for (const lf of tab.listFields) init[lf.key] = metaList(initial, lf.key).join("\n");
     return init;
   });
+  const [image, setImage] = useState(String((initial.metadata as { image?: string } | undefined)?.image ?? ""));
   const [order, setOrder] = useState(String(initial.order ?? 0));
   const [isActive, setIsActive] = useState(initial.isActive ?? true);
   const [isAvailable, setIsAvailable] = useState(initial.isAvailable ?? true);
@@ -93,6 +95,8 @@ function PackageForm({
     for (const lf of tab.listFields) {
       metadata[lf.key] = (lists[lf.key] ?? "").split("\n").map((s) => s.trim()).filter(Boolean);
     }
+    if (image) metadata.image = image;
+    else delete metadata.image;
     const payload: Record<string, unknown> = {
       type: tab.key,
       name: name.trim(),
@@ -129,6 +133,10 @@ function PackageForm({
           <button className="close" onClick={onClose} aria-label="Close">✕</button>
         </div>
         <div className="form-grid">
+          <div className="field" style={{ margin: 0 }}>
+            <label>Image</label>
+            <ImageUpload value={image} onChange={setImage} />
+          </div>
           <div className="field" style={{ margin: 0 }}>
             <label htmlFor="p-name">Name *</label>
             <input id="p-name" value={name} onChange={(e) => setName(e.target.value)} />

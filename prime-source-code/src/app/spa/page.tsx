@@ -10,9 +10,9 @@ import Aromatherapy from "../../../public/SPA/spa-card-5.webp"
 import Saloon from "../../../public/SPA/spa-card-2.webp"
 import ManicurePedicure from "../../../public/SPA/manicure-pedicure.jpg"
 import { MotionDiv} from "@/components/MotionWrappers";
-import { apiCall, ENDPOINTS } from "@/utils/api";
+import { apiCall, ENDPOINTS, assetUrl } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
-import { useState, useMemo, type ChangeEvent, type FormEvent } from "react";
+import { useState, useMemo, useEffect, type ChangeEvent, type FormEvent } from "react";
 
 // Hourly appointment times 10:00 AM – 9:00 PM
 const TIME_OPTIONS = Array.from({ length: 12 }, (_, i) => {
@@ -42,7 +42,11 @@ const initialFormData: SpaBookingForm = {
   message: "",
 };
 
-const spaServices = [
+type SpaService = { name: string; img: string };
+
+// Default services (fallback if the API is unreachable). Their photos stay
+// keyed by name so admin-managed services keep the right image.
+const DEFAULT_SPA_SERVICES: SpaService[] = [
   { name: "Spa Massage", img: Luxurymessage.src },
   { name: "Salon and Hairstyling", img: Saloon.src },
   { name: "Facial and Skin Care", img: Facialtreatment.src },
@@ -53,8 +57,36 @@ const spaServices = [
   { name: "Manicure and Pedicure", img: ManicurePedicure.src },
 ];
 
+const SPA_IMAGE_BY_NAME: Record<string, string> = Object.fromEntries(
+  DEFAULT_SPA_SERVICES.map((s) => [s.name, s.img])
+);
+const SPA_FALLBACK_IMG = DEFAULT_SPA_SERVICES[0].img;
+
 export default function SpaPage() {
   const [formData, setFormData] = useState<SpaBookingForm>(initialFormData);
+  // Live service list from the admin (falls back to defaults if unreachable).
+  const [spaServices, setSpaServices] = useState<SpaService[]>(DEFAULT_SPA_SERVICES);
+  useEffect(() => {
+    let active = true;
+    apiCall(`${ENDPOINTS.LISTINGS}?type=SPA_SERVICE`)
+      .then((rows) => {
+        if (!active || !Array.isArray(rows)) return;
+        const mapped = rows
+          .filter((r) => r && typeof r.name === "string")
+          .map((r) => ({
+            name: r.name as string,
+            // Admin-set image wins; else the photo for a known service; else fallback.
+            img: assetUrl(r.metadata?.image) || SPA_IMAGE_BY_NAME[r.name] || SPA_FALLBACK_IMG,
+          }));
+        if (mapped.length) setSpaServices(mapped);
+      })
+      .catch(() => {
+        /* keep DEFAULT_SPA_SERVICES */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
   const { isSubmitting, submitMessage, submitError, setSubmitMessage, setSubmitError, runSubmit } =
     useFormSubmit();
 
