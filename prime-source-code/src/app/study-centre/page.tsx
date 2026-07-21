@@ -3,7 +3,7 @@
 import { PiStudent, PiHourglassHigh } from "react-icons/pi";
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 
 type CourseForm = {
   fullName: string;
@@ -18,9 +18,78 @@ const initialForm: CourseForm = { fullName: "", email: "", phone: "", course: ""
 const TEKLA_COURSE = "Tekla Structures – Basic to Advanced";
 const STEEL_COURSE = "Structural Steel Design - Basic to Advanced";
 
+type CourseContent = { title: string; modules: string[]; eligibility: string[]; duration: string };
+
+// Default content (fallback if the API is unreachable) — kept in sync with the
+// admin-managed COURSE listings so the page looks identical.
+const DEFAULT_TEKLA: CourseContent = {
+  title: TEKLA_COURSE,
+  modules: ["Intro to Tekla", "3D Modeling (Steel, PEB, Concrete)", "Components", "Drawings & BOM"],
+  eligibility: [
+    "Civil/Mechanical Engineering students (Diploma/B.Tech)",
+    "Structural Engineers",
+    "Draughtsmen & Designers",
+    "Working Professionals",
+  ],
+  duration: "Starting from 100-120 hours",
+};
+const DEFAULT_STEEL: CourseContent = {
+  title: STEEL_COURSE,
+  modules: [
+    "Introduction to Structural Engineering",
+    "Structural Analysis and Design based on IS and AISC codes",
+    "RCC substructure and Steel Design Principles",
+    "Software Basics (Matrix/STAAD)",
+  ],
+  eligibility: [
+    "Civil Engineering students (B.Tech/M.Tech)",
+    "Architectural Students",
+    "Designers",
+    "Working Professionals",
+  ],
+  duration: "Starting from 100-120 hours",
+};
+
+/** Overlay an admin COURSE listing onto default content (field-by-field). */
+function mergeCourse(base: CourseContent, l: {
+  name?: string; durationLabel?: string | null; metadata?: Record<string, unknown> | null;
+}): CourseContent {
+  const meta = (l.metadata ?? {}) as { modules?: unknown; eligibility?: unknown };
+  const modules = Array.isArray(meta.modules) && meta.modules.length ? (meta.modules as string[]) : base.modules;
+  const eligibility = Array.isArray(meta.eligibility) && meta.eligibility.length ? (meta.eligibility as string[]) : base.eligibility;
+  return {
+    title: l.name || base.title,
+    modules,
+    eligibility,
+    duration: l.durationLabel || base.duration,
+  };
+}
+
 export default function StudyCentrePage() {
   const [formData, setFormData] = useState<CourseForm>(initialForm);
   const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
+
+  // Live course content from the admin (falls back to defaults if unreachable).
+  const [tekla, setTekla] = useState<CourseContent>(DEFAULT_TEKLA);
+  const [steel, setSteel] = useState<CourseContent>(DEFAULT_STEEL);
+  useEffect(() => {
+    let active = true;
+    apiCall(`${ENDPOINTS.LISTINGS}?type=COURSE`)
+      .then((rows) => {
+        if (!active || !Array.isArray(rows)) return;
+        for (const l of rows) {
+          if (!l?.name) continue;
+          if (/tekla/i.test(l.name)) setTekla(mergeCourse(DEFAULT_TEKLA, l));
+          else if (/steel/i.test(l.name)) setSteel(mergeCourse(DEFAULT_STEEL, l));
+        }
+      })
+      .catch(() => {
+        /* keep defaults */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -186,15 +255,14 @@ export default function StudyCentrePage() {
             {/* Details (Right) */}
             <div className="flex flex-col gap-4 md:gap-5 flex-1 justify-center py-2 lg:py-4 pr-2 lg:pr-8">
               <h3 id="tekla-structures" className="text-xl md:text-2xl lg:text-[28px] font-semi leading-[1.2]">
-                Tekla Structures – Basic to Advanced
+                {tekla.title}
               </h3>
 
               {/* Bullet Points */}
               <ul className="flex flex-col gap-2 pl-5 list-disc text-sm md:text-base lg:text-[18px] leading-[1.4] text-black">
-                <li>Intro to Tekla</li>
-                <li>3D Modeling (Steel, PEB, Concrete)</li>
-                <li>Components</li>
-                <li>Drawings &amp; BOM</li>
+                {tekla.modules.map((m, i) => (
+                  <li key={i}>{m}</li>
+                ))}
               </ul>
 
               {/* Meta Info (Icons) */}
@@ -204,10 +272,9 @@ export default function StudyCentrePage() {
                   <div>
                     <p className="text-sm md:text-base lg:text-[18px] font-medium">Eligibility:</p>
                     <ul className="list-disc pl-5 text-sm md:text-base text-black/80 mt-1">
-                      <li>Civil/Mechanical Engineering students (Diploma/B.Tech)</li>
-                      <li>Structural Engineers</li>
-                      <li>Draughtsmen &amp; Designers</li>
-                      <li>Working Professionals</li>
+                      {tekla.eligibility.map((e, i) => (
+                        <li key={i}>{e}</li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -215,7 +282,7 @@ export default function StudyCentrePage() {
                   <PiHourglassHigh className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 text-black" />
                   <div>
                     <p className="text-sm md:text-base lg:text-[18px] font-medium">Duration:</p>
-                    <p className="text-sm md:text-base text-black/80 mt-1">Starting from 100-120 hours</p>
+                    <p className="text-sm md:text-base text-black/80 mt-1">{tekla.duration}</p>
                   </div>
                 </div>
               </div>
@@ -247,15 +314,14 @@ export default function StudyCentrePage() {
             {/* Details (Left on Desktop, Bottom on Mobile) */}
             <div className="flex flex-col gap-4 md:gap-5 flex-1 justify-center py-2 lg:py-4 px-2 lg:pl-8 lg:pr-4">
               <h3 id="advanced-bim-technology" className="text-xl md:text-2xl lg:text-[28px] font-semi leading-[1.2]">
-                Structural Steel Design - Basic to Advanced
+                {steel.title}
               </h3>
 
               {/* Bullet Points */}
               <ul className="flex flex-col gap-2 pl-5 list-disc text-sm md:text-base lg:text-[18px] leading-[1.4] text-black">
-                <li>Introduction to Structural Engineering </li>
-                <li>Structural Analysis and Design based on IS and AISC codes </li>
-                <li>RCC substructure and Steel Design Principles</li>
-                <li>So ware Basics(Matrix/STAAD)</li>
+                {steel.modules.map((m, i) => (
+                  <li key={i}>{m}</li>
+                ))}
               </ul>
 
               {/* Meta Info (Icons) */}
@@ -265,10 +331,9 @@ export default function StudyCentrePage() {
                   <div>
                     <p className="text-sm md:text-base lg:text-[18px] font-medium">Eligibility:</p>
                     <ul className="list-disc pl-5 text-sm md:text-base text-black/80 mt-1">
-                      <li>Civil Engineering students (B.Tech/M.Tech)</li>
-                      <li>Architectural Students</li>
-                      <li>Designers</li>
-                      <li>Working Professionals</li>
+                      {steel.eligibility.map((e, i) => (
+                        <li key={i}>{e}</li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -276,7 +341,7 @@ export default function StudyCentrePage() {
                   <PiHourglassHigh className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 text-black" />
                   <div>
                     <p className="text-sm md:text-base lg:text-[18px] font-medium">Duration:</p>
-                    <p className="text-sm md:text-base text-black/80 mt-1">Starting from 100-120 hours</p>
+                    <p className="text-sm md:text-base text-black/80 mt-1">{steel.duration}</p>
                   </div>
                 </div>
               </div>

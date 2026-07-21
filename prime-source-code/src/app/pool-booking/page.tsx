@@ -1,7 +1,7 @@
 "use client";
 
 import PoolTimeSlots, { type Slot } from "@/components/PoolTimeSlots";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { FaStarOfLife, FaCrown } from "react-icons/fa6";
 import { apiCall, ENDPOINTS } from "@/utils/api";
@@ -20,7 +20,9 @@ type Plan = {
 };
 
 // Rate card — priced per session, jacuzzi & sauna added separately at ₹500 each.
-const PLANS: Plan[] = [
+// Default catalog (used as the fallback if the API is unreachable). Kept in
+// sync with the admin-managed POOL listings so the page looks identical.
+const DEFAULT_PLANS: Plan[] = [
   {
     id: "solo",
     name: "Solo",
@@ -78,14 +80,65 @@ const durationText = (m: number) => {
   return h && min ? `${h}h ${min}m` : h ? `${h} hour${h > 1 ? "s" : ""}` : `${min} min`;
 };
 
+const CODE_TO_ID: Record<string, PlanId> = {
+  "POOL-SOLO": "solo",
+  "POOL-DUO": "duo",
+  "POOL-SESSION": "session",
+  "POOL-GROUP": "group",
+};
+
+/** Map an admin POOL listing onto the page's Plan shape. */
+function listingToPlan(l: {
+  code?: string | null;
+  name?: string;
+  price?: number | null;
+  durationLabel?: string | null;
+  metadata?: Record<string, unknown> | null;
+}): Plan | null {
+  const id = l.code ? CODE_TO_ID[l.code] : undefined;
+  if (!id) return null;
+  const meta = (l.metadata ?? {}) as {
+    caption?: string; badge?: string; popular?: boolean; features?: unknown;
+  };
+  const mins = Number.parseInt(String(l.durationLabel ?? "").match(/\d+/)?.[0] ?? "90", 10);
+  return {
+    id,
+    name: l.name ?? "",
+    caption: meta.caption ?? "",
+    badge: meta.badge ?? "",
+    price: l.price ?? 0,
+    durationMinutes: Number.isFinite(mins) ? mins : 90,
+    popular: Boolean(meta.popular),
+    features: Array.isArray(meta.features) ? (meta.features as string[]) : [],
+  };
+}
+
 export default function PoolBookingPage() {
+  // Live catalog from the admin (falls back to DEFAULT_PLANS if unreachable).
+  const [plans, setPlans] = useState<Plan[]>(DEFAULT_PLANS);
+  useEffect(() => {
+    let active = true;
+    apiCall(`${ENDPOINTS.LISTINGS}?type=POOL`)
+      .then((rows) => {
+        if (!active || !Array.isArray(rows)) return;
+        const mapped = rows.map(listingToPlan).filter((p): p is Plan => p !== null);
+        if (mapped.length) setPlans(mapped);
+      })
+      .catch(() => {
+        /* keep DEFAULT_PLANS */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const [selectedPool, setSelectedPool] = useState<PlanId | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [addons, setAddons] = useState({ sauna: false, jacuzzi: false });
   const [policies, setPolicies] = useState({ dressCode: false, kids: false, terms: false });
 
-  const selectedPlan = PLANS.find((p) => p.id === selectedPool) ?? null;
+  const selectedPlan = plans.find((p) => p.id === selectedPool) ?? null;
   const bookingTotal =
     (selectedPlan?.price ?? 0) + (addons.sauna ? 500 : 0) + (addons.jacuzzi ? 500 : 0);
 
@@ -262,7 +315,7 @@ export default function PoolBookingPage() {
           {/* LEFT: booking steps */}
           <div className="flex flex-col gap-10 md:gap-14 min-w-0">
             <div id="pool-plans" className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
-              {PLANS.map((plan) => {
+              {plans.map((plan) => {
             const isSelected = selectedPool === plan.id;
             const hours = Math.floor(plan.durationMinutes / 60);
             const mins = plan.durationMinutes % 60;

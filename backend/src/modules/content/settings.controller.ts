@@ -10,6 +10,17 @@ export const listSettings = asyncHandler(async (_req: Request, res: Response) =>
   return sendSuccess(res, settings, "Site settings");
 });
 
+/**
+ * GET /site-settings — PUBLIC. Returns a { key: value } map the frontend
+ * consumes for contact details, social links, etc. Raw shape (no envelope).
+ */
+export const getPublicSettings = asyncHandler(async (_req: Request, res: Response) => {
+  const settings = await prisma.siteSetting.findMany();
+  const map: Record<string, unknown> = {};
+  for (const s of settings) map[s.key] = s.value;
+  return res.status(200).json(map);
+});
+
 /** GET /api/admin/settings/:key */
 export const getSetting = asyncHandler(async (req: Request, res: Response) => {
   const setting = await prisma.siteSetting.findUnique({ where: { key: req.params.key } });
