@@ -12,13 +12,17 @@ const contactCell = (row: RowRecord) => (
   </>
 );
 
-const POOL_PLANS = ["Solo Dip", "Duo Splash", "Session Pass", "Group Retreat"];
+// Match the front-end catalog exactly (pool-booking PLANS, spa services).
+const POOL_PLANS = ["Solo", "Duo", "Session", "Group Function"];
 const SPA_SERVICES = [
-  "Signature Glow Facial",
-  "Aroma Relaxation Massage",
-  "Hair Spa & Styling",
-  "Body Polish & Scrub",
-  "Bridal Package",
+  "Spa Massage",
+  "Salon and Hairstyling",
+  "Facial and Skin Care",
+  "Nail Spa",
+  "Hair Treatment",
+  "Aromatherapy",
+  "Cleanup Services",
+  "Manicure and Pedicure",
 ];
 const HALL_SLOTS = ["Morning Slot", "Evening Slot"];
 

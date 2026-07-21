@@ -12,6 +12,7 @@ const NAV: Array<{ group: string; items: Array<{ href: string; label: string; ic
     items: [
       { href: "/bookings", label: "Bookings", icon: "▦" },
       { href: "/enquiries", label: "Enquiries", icon: "✉" },
+      { href: "/packages", label: "Packages", icon: "❑" },
       { href: "/counters", label: "Vendor Counters", icon: "▣" },
     ],
   },
@@ -22,6 +23,7 @@ const TITLES: Record<string, [string, string]> = {
   "/": ["Dashboard", "Bookings & enquiries at a glance"],
   "/bookings": ["Bookings", "Manage every reservation across the venue"],
   "/enquiries": ["Enquiries", "Gym, vendor, course & contact leads"],
+  "/packages": ["Packages", "Pool packages, spa services & courses"],
   "/counters": ["Vendor Counters", "Control live availability on the /vendor page"],
   "/content": ["Website", "Content, banners & settings"],
 };

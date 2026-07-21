@@ -12,32 +12,72 @@ const SEED_ADMIN = {
   password: process.env.SEED_ADMIN_PASSWORD ?? "Admin@12345",
 };
 
-// Pool plans mirror the frontend PLANS array (pool-booking page).
+const POOL_FEATURES_BASE = [
+  "Ozone, temperature-controlled pool",
+  "Private cabana",
+  "Premium towel service",
+];
+
+// Pool packages — mirror the frontend PLANS array (pool-booking page) EXACTLY.
 const POOL_PLANS = [
-  { name: "Solo Dip", code: "POOL-SOLO", price: 500, durationLabel: "90 min", capacity: 1 },
-  { name: "Duo Splash", code: "POOL-DUO", price: 900, durationLabel: "90 min", capacity: 2 },
-  { name: "Session Pass", code: "POOL-SESSION", price: 1500, durationLabel: "3 hours", capacity: 4 },
-  { name: "Group Retreat", code: "POOL-GROUP", price: 2500, durationLabel: "3 hours", capacity: 8 },
+  {
+    name: "Solo", code: "POOL-SOLO", price: 500, durationLabel: "60 min", capacity: 1,
+    metadata: { caption: "Just you", badge: "1 person", features: POOL_FEATURES_BASE },
+  },
+  {
+    name: "Duo", code: "POOL-DUO", price: 1000, durationLabel: "60 min", capacity: 2,
+    metadata: { caption: "For two", badge: "2 people", features: POOL_FEATURES_BASE },
+  },
+  {
+    name: "Session", code: "POOL-SESSION", price: 1500, durationLabel: "90 min", capacity: 8,
+    metadata: {
+      caption: "Small groups & families", badge: "Up to 8 people", popular: true,
+      features: [
+        "Ozone, temperature-controlled pool",
+        "Private cabanas & towel service",
+        "Dedicated speaker system",
+        "Kids above 5 years welcome",
+      ],
+    },
+  },
+  {
+    name: "Group Function", code: "POOL-GROUP", price: 3000, durationLabel: "180 min", capacity: 12,
+    metadata: {
+      caption: "Parties & celebrations", badge: "Up to 12",
+      features: [
+        "Entire pool reserved for your group",
+        "Private cabanas & towel service",
+        "Dedicated speaker system",
+        "Food from Promenade Café on request",
+      ],
+    },
+  },
 ];
 
-// Spa services shown on the /spa page (kept generic; edit via admin later).
+// Spa services shown on the /spa page (exact names).
 const SPA_SERVICES = [
-  "Signature Glow Facial",
-  "Aroma Relaxation Massage",
-  "Hair Spa & Styling",
-  "Body Polish & Scrub",
-  "Bridal Package",
+  "Spa Massage",
+  "Salon and Hairstyling",
+  "Facial and Skin Care",
+  "Nail Spa",
+  "Hair Treatment",
+  "Aromatherapy",
+  "Cleanup Services",
+  "Manicure and Pedicure",
 ];
 
-const GYM_PLANS = [
-  { name: "Monthly", code: "GYM-1M", price: 1500, durationLabel: "1 Month" },
-  { name: "Quarterly", code: "GYM-3M", price: 4000, durationLabel: "3 Months" },
-  { name: "Annual", code: "GYM-12M", price: 12000, durationLabel: "1 Year" },
-];
-
+// Courses shown on the /study-centre page (exact names).
 const COURSES = [
-  "Tekla Structures – Basic to Advanced",
-  "Structural Steel Design - Basic to Advanced",
+  {
+    name: "Tekla Structures – Basic to Advanced", code: "COURSE-TEKLA",
+    durationLabel: "Starting from 100-120 hours",
+    description: "3D Modeling (Steel, PEB, Concrete), Components, Drawings & BOM",
+  },
+  {
+    name: "Structural Steel Design - Basic to Advanced", code: "COURSE-STEEL",
+    durationLabel: "Starting from 100-120 hours",
+    description: "Structural steel design and detailing, basic to advanced.",
+  },
 ];
 
 const SITE_SETTINGS: Array<{ key: string; group: string; value: unknown }> = [
@@ -96,37 +136,37 @@ async function seedListings() {
   }
   console.log("✓ 30 vendor counters");
 
+  // Managed package catalog — kept in sync with the front-end content. The
+  // upsert refreshes the core fields so re-seeding restores the canonical
+  // catalog (name/price/duration/features).
   for (const [i, p] of POOL_PLANS.entries()) {
+    const data = {
+      name: p.name, price: p.price, durationLabel: p.durationLabel,
+      capacity: p.capacity, order: i, metadata: p.metadata,
+    };
     await prisma.listing.upsert({
       where: { type_code: { type: ListingType.POOL, code: p.code } },
-      update: {},
-      create: { type: ListingType.POOL, order: i, ...p },
-    });
-  }
-  for (const [i, p] of GYM_PLANS.entries()) {
-    await prisma.listing.upsert({
-      where: { type_code: { type: ListingType.GYM_PLAN, code: p.code } },
-      update: {},
-      create: { type: ListingType.GYM_PLAN, order: i, ...p },
+      update: data,
+      create: { type: ListingType.POOL, code: p.code, ...data },
     });
   }
   for (const [i, name] of SPA_SERVICES.entries()) {
     const code = `SPA-${i + 1}`;
     await prisma.listing.upsert({
       where: { type_code: { type: ListingType.SPA_SERVICE, code } },
-      update: {},
+      update: { name, order: i },
       create: { type: ListingType.SPA_SERVICE, name, code, order: i },
     });
   }
-  for (const [i, name] of COURSES.entries()) {
-    const code = `COURSE-${i + 1}`;
+  for (const [i, c] of COURSES.entries()) {
+    const data = { name: c.name, durationLabel: c.durationLabel, description: c.description, order: i };
     await prisma.listing.upsert({
-      where: { type_code: { type: ListingType.COURSE, code } },
-      update: {},
-      create: { type: ListingType.COURSE, name, code, order: i },
+      where: { type_code: { type: ListingType.COURSE, code: c.code } },
+      update: data,
+      create: { type: ListingType.COURSE, code: c.code, ...data },
     });
   }
-  console.log("✓ Pool / gym / spa / course listings");
+  console.log("✓ Pool / spa / course listings");
 }
 
 async function seedSettings() {
