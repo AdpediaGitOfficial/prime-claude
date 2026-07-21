@@ -1,7 +1,24 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+const ENV_API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+
+/**
+ * Resolve the API base URL at call time. An explicit NEXT_PUBLIC_API_BASE_URL
+ * always wins. If it wasn't set at build time, fall back to same-origin
+ * `/backend` when we're on a real domain (the deployment convention) — this
+ * prevents a build that forgot the env var from calling http://localhost:5000
+ * (which fails with a loopback/CORS error in production). Local dev keeps
+ * localhost:5000.
+ */
+const apiBase = (): string => {
+  if (ENV_API_BASE) return ENV_API_BASE;
+  if (typeof window !== "undefined") {
+    const h = window.location.hostname;
+    if (h !== "localhost" && h !== "127.0.0.1") return `${window.location.origin}/backend`;
+  }
+  return "http://localhost:5000";
+};
 
 export const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = `${apiBase()}${endpoint}`;
   const { headers: extraHeaders, ...rest } = options;
 
   const response = await fetch(url, {
@@ -30,7 +47,7 @@ export const apiCall = async (endpoint: string, options: RequestInit = {}): Prom
 export const assetUrl = (path?: string | null): string => {
   if (!path) return "";
   if (/^https?:\/\//.test(path)) return path;
-  return `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+  return `${apiBase()}${path.startsWith("/") ? "" : "/"}${path}`;
 };
 
 export const ENDPOINTS = {
