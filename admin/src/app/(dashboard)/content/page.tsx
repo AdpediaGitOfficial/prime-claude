@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { titleCase } from "@/lib/format";
 import { Toast } from "@/components/Toast";
+import BannersManager from "@/components/BannersManager";
+import GalleryManager from "@/components/GalleryManager";
 
 interface Setting {
   id: string;
@@ -73,7 +75,7 @@ function SettingCard({ setting, onSaved }: { setting: Setting; onSaved: (m: stri
   );
 }
 
-export default function ContentPage() {
+function SettingsSection() {
   const [settings, setSettings] = useState<Setting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -99,18 +101,32 @@ export default function ContentPage() {
           <SettingCard key={s.id} setting={s} onSaved={setToast} />
         ))}
       </div>
-
-      <div className="section-head"><h2>Pages, banners &amp; gallery</h2></div>
-      <div className="card" style={{ padding: 34, textAlign: "center", color: "var(--muted)" }}>
-        <div style={{ fontSize: 30, marginBottom: 8 }}>◨</div>
-        <p style={{ fontSize: 13.5, maxWidth: 460, margin: "0 auto" }}>
-          Homepage banners, gallery images and page copy are backed by the
-          pages / banners / gallery API and Prisma models. These editor screens
-          are the next iteration — the data layer is already in place.
-        </p>
-      </div>
-
       <Toast message={toast} onDone={() => setToast("")} />
+    </>
+  );
+}
+
+const TABS = [
+  { key: "settings", label: "Settings" },
+  { key: "banners", label: "Banners" },
+  { key: "gallery", label: "Gallery" },
+] as const;
+
+export default function ContentPage() {
+  const [tab, setTab] = useState<(typeof TABS)[number]["key"]>("settings");
+
+  return (
+    <>
+      <div className="tabs">
+        {TABS.map((t) => (
+          <button key={t.key} className={`tab${tab === t.key ? " active" : ""}`} onClick={() => setTab(t.key)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {tab === "settings" && <SettingsSection />}
+      {tab === "banners" && <BannersManager />}
+      {tab === "gallery" && <GalleryManager />}
     </>
   );
 }

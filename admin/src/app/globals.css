@@ -217,6 +217,30 @@ tbody tr:hover { background: color-mix(in srgb, var(--peach) 45%, transparent); 
 @keyframes popIn { from { transform: scale(.97); opacity: .5; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .overlay, .drawer, .modal { animation: none; } }
 
+/* ── CMS (banners / gallery) ── */
+.cms-list { display: flex; flex-direction: column; gap: 12px; }
+.cms-row { display: flex; gap: 14px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow); }
+.cms-row .grow { flex: 1; min-width: 0; }
+.cms-row .r-title { font-weight: 650; font-size: 14px; }
+.cms-thumb { width: 84px; height: 56px; border-radius: 9px; object-fit: cover; background: var(--ground); border: 1px solid var(--line); flex-shrink: 0; display: block; }
+.cms-thumb.empty { display: grid; place-items: center; color: var(--faint); font-size: 20px; }
+.cms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+.cms-card { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+.cms-card .ph { width: 100%; height: 140px; object-fit: cover; display: block; background: var(--ground); }
+.cms-card .ph.empty { display: grid; place-items: center; color: var(--faint); font-size: 26px; }
+.cms-card .body { padding: 11px 13px; display: flex; flex-direction: column; gap: 3px; }
+.cms-card .row-act { margin-top: 8px; }
+.inactive-tag { font-size: 10.5px; font-weight: 650; color: var(--muted); background: var(--ground); border-radius: 20px; padding: 2px 9px; }
+
+/* Image uploader */
+.uploader { display: flex; gap: 14px; align-items: center; }
+.uploader .preview { width: 110px; height: 74px; border-radius: 10px; object-fit: cover; background: var(--ground); border: 1px solid var(--line); flex-shrink: 0; display: grid; place-items: center; color: var(--faint); font-size: 22px; }
+.uploader .preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+.file-label { position: relative; overflow: hidden; display: inline-flex; }
+.file-label input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.check-row { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--ink); cursor: pointer; }
+.check-row input { width: 16px; height: 16px; accent-color: var(--brand); }
+
 @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .spinner, .skeleton { animation: none; } }
 

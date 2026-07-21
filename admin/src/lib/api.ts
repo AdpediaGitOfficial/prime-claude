@@ -131,6 +131,37 @@ export async function logout() {
   tokenStore.clear();
 }
 
+/** Absolute URL for a stored asset path (e.g. "/uploads/x.jpg"). */
+export function assetUrl(path?: string | null): string {
+  if (!path) return "";
+  if (/^https?:\/\//.test(path)) return path;
+  return `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+
+/** Upload a single file (multipart). Returns the stored path + absolute url. */
+export async function uploadFile(
+  file: File
+): Promise<{ url: string; path: string; filename: string }> {
+  const form = new FormData();
+  form.append("file", file);
+
+  const doUpload = () => {
+    const headers: Record<string, string> = {};
+    if (tokenStore.access) headers.Authorization = `Bearer ${tokenStore.access}`;
+    // Do NOT set Content-Type — the browser adds the multipart boundary.
+    return fetch(`${API_BASE_URL}/api/admin/uploads`, { method: "POST", headers, body: form });
+  };
+
+  let res = await doUpload();
+  if (res.status === 401 && (await tryRefresh())) res = await doUpload();
+
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new ApiError(res.status, (json as { message?: string }).message || "Upload failed");
+  }
+  return (json as ApiEnvelope<{ url: string; path: string; filename: string }>).data;
+}
+
 /** Build a query string from a params object, skipping empty values. */
 export function qs(params: Record<string, string | number | undefined>) {
   const sp = new URLSearchParams();
