@@ -20,13 +20,22 @@ interface Listing {
   metadata?: Record<string, unknown> | null;
 }
 
-const TABS = [
-  { key: "POOL", label: "Pool packages", showPrice: true, showCapacity: true, showFeatures: true },
-  { key: "SPA_SERVICE", label: "Spa services", showPrice: false, showCapacity: false, showFeatures: false },
-  { key: "COURSE", label: "Courses", showPrice: false, showCapacity: false, showFeatures: false },
-] as const;
+export interface PackageTab {
+  key: string;
+  label: string;
+  showPrice: boolean;
+  showCapacity: boolean;
+  showFeatures: boolean;
+}
 
-type Tab = (typeof TABS)[number];
+export const PACKAGE_CONFIGS: Record<string, PackageTab> = {
+  POOL: { key: "POOL", label: "Pool packages", showPrice: true, showCapacity: true, showFeatures: true },
+  SPA_SERVICE: { key: "SPA_SERVICE", label: "Spa services", showPrice: false, showCapacity: false, showFeatures: false },
+  COURSE: { key: "COURSE", label: "Courses", showPrice: false, showCapacity: false, showFeatures: true },
+  GYM_PLAN: { key: "GYM_PLAN", label: "Gym plans", showPrice: true, showCapacity: false, showFeatures: true },
+};
+
+type Tab = PackageTab;
 
 function metaFeatures(l?: Partial<Listing>): string[] {
   const f = (l?.metadata as { features?: unknown } | undefined)?.features;
@@ -161,8 +170,11 @@ function PackageForm({
   );
 }
 
-export default function PackagesManager() {
-  const [tab, setTab] = useState<Tab>(TABS[0]);
+export default function PackagesManager({ tabKeys }: { tabKeys: string[] }) {
+  // Resolve config keys inside the client module (route pages pass plain
+  // strings — server components can't safely import values from here).
+  const tabs = tabKeys.map((k) => PACKAGE_CONFIGS[k]).filter(Boolean);
+  const [tab, setTab] = useState<Tab>(tabs[0]);
   const [items, setItems] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -192,13 +204,15 @@ export default function PackagesManager() {
 
   return (
     <>
-      <div className="tabs">
-        {TABS.map((t) => (
-          <button key={t.key} className={`tab${tab.key === t.key ? " active" : ""}`} onClick={() => setTab(t)}>
-            {t.label}
-          </button>
-        ))}
-      </div>
+      {tabs.length > 1 && (
+        <div className="tabs">
+          {tabs.map((t) => (
+            <button key={t.key} className={`tab${tab.key === t.key ? " active" : ""}`} onClick={() => setTab(t)}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="section-head" style={{ marginTop: 0 }}>
         <h2>{tab.label}</h2>

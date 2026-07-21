@@ -12,8 +12,16 @@ const NAV: Array<{ group: string; items: Array<{ href: string; label: string; ic
     items: [
       { href: "/bookings", label: "Bookings", icon: "▦" },
       { href: "/enquiries", label: "Enquiries", icon: "✉" },
-      { href: "/packages", label: "Packages", icon: "❑" },
       { href: "/counters", label: "Vendor Counters", icon: "▣" },
+    ],
+  },
+  {
+    group: "Catalog",
+    items: [
+      { href: "/pool", label: "Pool", icon: "🌊" },
+      { href: "/spa", label: "Spa", icon: "🌿" },
+      { href: "/courses", label: "Courses", icon: "🎓" },
+      { href: "/gym", label: "Gym", icon: "🏋" },
     ],
   },
   { group: "Website", items: [{ href: "/content", label: "Content & Settings", icon: "◨" }] },
@@ -23,8 +31,11 @@ const TITLES: Record<string, [string, string]> = {
   "/": ["Dashboard", "Bookings & enquiries at a glance"],
   "/bookings": ["Bookings", "Manage every reservation across the venue"],
   "/enquiries": ["Enquiries", "Gym, vendor, course & contact leads"],
-  "/packages": ["Packages", "Pool packages, spa services & courses"],
   "/counters": ["Vendor Counters", "Control live availability on the /vendor page"],
+  "/pool": ["Pool Packages", "Manage swimming pool packages & pricing"],
+  "/spa": ["Spa Services", "Manage the spa & salon service list"],
+  "/courses": ["Courses", "Manage study-centre courses"],
+  "/gym": ["Gym Plans", "Manage gym membership plans"],
   "/content": ["Website", "Content, banners & settings"],
 };
 
