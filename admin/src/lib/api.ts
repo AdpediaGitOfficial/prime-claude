@@ -90,7 +90,10 @@ export async function api<T = unknown>(
       res = await rawFetch(path, options, true);
     } else {
       tokenStore.clear();
-      if (typeof window !== "undefined") window.location.href = "/login";
+      if (typeof window !== "undefined") {
+        // Respect the app basePath (e.g. /admin) for the login redirect.
+        window.location.href = `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/login`;
+      }
       throw new ApiError(401, "Session expired");
     }
   }

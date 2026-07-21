@@ -3,6 +3,31 @@
 Target setup (chosen): **single VPS + Nginx + pm2**, **managed PostgreSQL**,
 **subdomains**, OTP in **console mode** (SMS provider to be wired later).
 
+> ## ▶ TESTING NOW on https://prime.adpedia.in (single domain)
+> For the test phase everything lives under one subdomain, path-based:
+> `/` = site, `/admin` = admin, `/backend` = API — all same-origin (no CORS).
+>
+> **What differs from the subdomain runbook below:**
+> | Step | Testing value |
+> |---|---|
+> | Backend env | use `deploy/backend.env.testing.example` (`CORS_ORIGINS=https://prime.adpedia.in`, `PUBLIC_BASE_URL=https://prime.adpedia.in/backend`) |
+> | Backend web root (site) | copy `out/` to **`/var/www/prime`** |
+> | Nginx | `deploy/nginx/prime.adpedia.in.conf` → `certbot --nginx -d prime.adpedia.in` |
+> | Site build | `NEXT_PUBLIC_API_BASE_URL=https://prime.adpedia.in/backend npm run build` |
+> | Admin build | `NEXT_PUBLIC_API_BASE_URL=https://prime.adpedia.in/backend NEXT_PUBLIC_BASE_PATH=/admin npm run build` |
+>
+> URLs: site `https://prime.adpedia.in` · admin `https://prime.adpedia.in/admin` ·
+> API `https://prime.adpedia.in/backend` (health: `/backend/health`).
+>
+> **Moving to the real domain later:** rebuild both Next apps with the new
+> `NEXT_PUBLIC_API_BASE_URL` (drop `NEXT_PUBLIC_BASE_PATH` if using subdomains),
+> switch Nginx to `primepromenade.conf`, update `CORS_ORIGINS` + `PUBLIC_BASE_URL`,
+> re-issue certs. **No database or code changes** — only build-time URLs + Nginx.
+
+---
+
+### Subdomain (production) runbook follows ↓
+
 ```
 primepromenade.com          → static site   (Nginx serves prime-source-code/out)
 admin.primepromenade.com    → admin app     (Nginx → Node :4000)
