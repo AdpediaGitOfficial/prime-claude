@@ -11,6 +11,7 @@ const NAV: Array<{ group: string; items: Array<{ href: string; label: string; ic
     group: "Manage",
     items: [
       { href: "/bookings", label: "Bookings", icon: "▦" },
+      { href: "/hall", label: "Hall Bookings", icon: "▤" },
       { href: "/enquiries", label: "Enquiries", icon: "✉" },
       { href: "/counters", label: "Vendor Counters", icon: "▣" },
     ],
@@ -29,8 +30,9 @@ const NAV: Array<{ group: string; items: Array<{ href: string; label: string; ic
 
 const TITLES: Record<string, [string, string]> = {
   "/": ["Dashboard", "Bookings & enquiries at a glance"],
-  "/bookings": ["Bookings", "Manage every reservation across the venue"],
-  "/enquiries": ["Enquiries", "Gym, vendor, course & contact leads"],
+  "/bookings": ["Bookings", "Pool & spa reservations"],
+  "/hall": ["Hall Bookings", "Regal Hall (conference) booking requests"],
+  "/enquiries": ["Enquiries", "Vendor, course & contact leads"],
   "/counters": ["Vendor Counters", "Control live availability on the /vendor page"],
   "/pool": ["Pool Packages", "Manage swimming pool packages & pricing"],
   "/spa": ["Spa Services", "Manage the spa & salon service list"],
