@@ -175,7 +175,7 @@ export default function SpaPage() {
   };
 
   return (
-    <div className="bg-white text-black overflow-x-hidden">
+    <div className="bg-white text-black overflow-x-clip">
 
       {/* ═══ HERO ═══ */}
       <section className="relative w-full overflow-hidden h-[450px] md:min-h-[100vh] lg:min-h-[100vh]">

@@ -156,7 +156,7 @@ export default function ConferencePage() {
   for (let i = 1; i <= daysInMonth; i++) calendarDays.push(i);
 
   return (
-    <div className="bg-white text-black overflow-x-hidden">
+    <div className="bg-white text-black overflow-x-clip">
 
       {/* ═══ HERO (Section 1 - Odd) ═══ */}
       <section className="relative w-full overflow-hidden h-[450px] md:h-screen">

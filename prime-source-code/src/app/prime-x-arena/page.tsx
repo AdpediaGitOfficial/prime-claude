@@ -11,7 +11,7 @@ const PrimexArenaPage = () => {
 
   return (
     <>
-      <div className=" bg-white text-black overflow-x-hidden selection:bg-[#7C3AED] selection:text-white">
+      <div className=" bg-white text-black overflow-x-clip selection:bg-[#7C3AED] selection:text-white">
         {/* --- Hero Banner Section --- */}
         <section className="relative w-full overflow-hidden h-[450px] md:min-h-[100svh] lg:min-h-[1060px]">
           <img

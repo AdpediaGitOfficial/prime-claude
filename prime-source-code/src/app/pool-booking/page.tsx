@@ -239,7 +239,7 @@ export default function PoolBookingPage() {
 
   return (
     <>
-    <div className="bg-white text-black overflow-x-hidden">
+    <div className="bg-white text-black overflow-x-clip">
       {/* ═══ HERO ═══ */}
       <section className="relative w-full overflow-hidden h-[450px] md:h-screen md:min-h-[600px]">
         <img
