@@ -111,17 +111,44 @@ reload the site → it should reflect. (Or run the A–E harness against the liv
 ---
 
 ## Redeploys (after code changes)
+
+**One command — pulls the latest code, rebuilds all three tiers, runs
+migrations, and restarts pm2:**
 ```bash
-cd /opt/prime && git pull
+cd /opt/prime            # the repo checkout on the server
+./deploy/deploy.sh       # git pull (current branch) → build → migrate → rsync → pm2 restart
+```
+The script auto-detects the checked-out branch and fast-forwards it, so
+you don't need a separate `git pull`. It targets the **testing** setup
+(`https://prime.adpedia.in`, admin under `/admin`, site → `/var/www/prime`)
+by default. Flags / overrides:
+```bash
+./deploy/deploy.sh --no-pull        # build the current checkout, skip git pull
+./deploy/deploy.sh --seed           # FIRST deploy only — re-seeds the DB
+# real domain / subdomain layout:
+API_BASE_URL=https://api.primepromenade.com ADMIN_BASE_PATH= \
+  SITE_WEB_ROOT=/var/www/primepromenade ./deploy/deploy.sh
+```
+
+> Do **not** pass `--seed` on redeploys (it resets the catalog to defaults).
+> The migrations (email-optional, pool no-OTP, booking references,
+> enrollment references) apply automatically via `prisma migrate deploy`
+> and backfill existing rows — no manual DB step.
+
+<details><summary>Manual equivalent (if you're not using deploy.sh)</summary>
+
+```bash
+cd /opt/prime && git pull --ff-only
 # backend
 cd backend && npm ci && npm run build && npx prisma migrate deploy && pm2 restart pp-api
 # admin
-cd ../admin && npm ci && NEXT_PUBLIC_API_BASE_URL=https://api.primepromenade.com npm run build && pm2 restart pp-admin
+cd ../admin && npm ci && NEXT_PUBLIC_API_BASE_URL=https://prime.adpedia.in/backend \
+  NEXT_PUBLIC_BASE_PATH=/admin npm run build && pm2 restart pp-admin
 # site
-cd ../prime-source-code && npm ci && NEXT_PUBLIC_API_BASE_URL=https://api.primepromenade.com npm run build && sudo rsync -a --delete out/ /var/www/primepromenade/
+cd ../prime-source-code && npm ci && NEXT_PUBLIC_API_BASE_URL=https://prime.adpedia.in/backend \
+  npm run build && sudo rsync -a --delete out/ /var/www/prime/
 ```
-> Do **not** re-run `npm run seed` on redeploys (it would reset the catalog to
-> defaults). Only `migrate deploy`.
+</details>
 
 ## Operations
 - **Logs:** `pm2 logs pp-api` / `pm2 logs pp-admin`; Nginx logs in `/var/log/nginx/`.

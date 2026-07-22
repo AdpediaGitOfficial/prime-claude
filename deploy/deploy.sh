@@ -5,8 +5,9 @@
 # silently fall back to http://localhost:5000.
 #
 # Usage (from the repo root):
-#   ./deploy/deploy.sh              # normal redeploy
+#   ./deploy/deploy.sh              # pull latest + redeploy all three tiers
 #   ./deploy/deploy.sh --seed       # FIRST deploy only (seeds the DB)
+#   ./deploy/deploy.sh --no-pull    # skip git pull (build the current checkout)
 #
 # Override the target per-environment via env vars, e.g. the real domain:
 #   API_BASE_URL=https://api.primepromenade.com ADMIN_BASE_PATH= \
@@ -23,14 +24,29 @@ SUDO="${SUDO-sudo}"                               # SUDO= to disable
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SEED=0
-for arg in "$@"; do [ "$arg" = "--seed" ] && SEED=1; done
+PULL=1
+for arg in "$@"; do
+  [ "$arg" = "--seed" ] && SEED=1
+  [ "$arg" = "--no-pull" ] && PULL=0
+done
 
 echo "▶ Deploying Prime Promenade"
 echo "    API base URL      : $API_BASE_URL"
 echo "    Admin base path   : ${ADMIN_BASE_PATH:-<none / subdomain>}"
 echo "    Site web root      : $SITE_WEB_ROOT"
+echo "    Pull latest code   : $([ $PULL = 1 ] && echo yes || echo no)"
 echo "    Seed database      : $([ $SEED = 1 ] && echo yes || echo no)"
 echo
+
+# 0. Refresh code (fast-forward the checked-out branch) --------
+if [ "$PULL" = "1" ]; then
+  echo "── Git ──────────────────────────────────"
+  BRANCH="$(git -C "$ROOT" rev-parse --abbrev-ref HEAD)"
+  echo "  fetching + fast-forwarding origin/$BRANCH …"
+  git -C "$ROOT" fetch origin "$BRANCH"
+  git -C "$ROOT" pull --ff-only origin "$BRANCH"
+  echo "  now at: $(git -C "$ROOT" rev-parse --short HEAD)"
+fi
 
 # 1. Backend ---------------------------------------------------
 echo "── Backend ──────────────────────────────"
