@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { api } from "@/lib/api";
 import { inr, relativeDate, statusClass, titleCase } from "@/lib/format";
 
@@ -84,20 +85,41 @@ export default function DashboardPage() {
     [series]
   );
 
-  const serviceBars = useMemo(() => {
-    if (!stats) return [];
+  // Per-area cards / bars: [label, count, href, icon]
+  const areas = useMemo(() => {
+    if (!stats) return [] as Array<{ label: string; count: number; href: string; icon: string }>;
     const t = stats.totals;
-    const rows: Array<[string, number]> = [
-      ["Pool", t.poolBookings ?? 0],
-      ["Conference", t.hallBookings ?? 0],
-      ["Spa", t.spaBookings ?? 0],
-      ["Gym", t.gymMemberships ?? 0],
-      ["Vendor", t.vendorInvites ?? 0],
-      ["Course", t.courseRegistrations ?? 0],
+    return [
+      { label: "Pool bookings", count: t.poolBookings ?? 0, href: "/bookings", icon: "🏊" },
+      { label: "Hall bookings", count: t.hallBookings ?? 0, href: "/hall", icon: "🏛" },
+      { label: "Spa bookings", count: t.spaBookings ?? 0, href: "/bookings", icon: "💆" },
+      { label: "Gym enquiries", count: t.gymMemberships ?? 0, href: "/gym", icon: "🏋" },
+      { label: "Vendor enquiries", count: t.vendorInvites ?? 0, href: "/enquiries", icon: "🛍" },
+      { label: "Course enrollments", count: t.courseRegistrations ?? 0, href: "/enrollments", icon: "🎓" },
+      { label: "Contact enquiries", count: t.contactEnquiries ?? 0, href: "/enquiries", icon: "✉" },
+      { label: "Vendor counters", count: stats.vendorCounters.booked, href: "/counters", icon: "▣" },
     ];
-    return rows;
   }, [stats]);
-  const barMax = Math.max(1, ...serviceBars.map((r) => r[1]));
+
+  const serviceBars = useMemo(
+    () =>
+      areas
+        .filter((a) => a.label !== "Vendor counters" && a.label !== "Contact enquiries")
+        .map((a) => ({ label: a.label.split(" ")[0], count: a.count, href: a.href })),
+    [areas]
+  );
+  const barMax = Math.max(1, ...serviceBars.map((r) => r.count));
+
+  // Needs-attention items (only rendered when > 0)
+  const attention = useMemo(() => {
+    if (!stats) return [] as Array<{ label: string; count: number; href: string; tone: "warn" | "bad" }>;
+    return [
+      { label: "Hall bookings awaiting confirmation", count: stats.pending.hallBookings ?? 0, href: "/hall", tone: "warn" as const },
+      { label: "Spa bookings awaiting confirmation", count: stats.pending.spaBookings ?? 0, href: "/bookings", tone: "warn" as const },
+      { label: "New contact leads", count: stats.pending.newContactEnquiries ?? 0, href: "/enquiries", tone: "warn" as const },
+      { label: "Counters booked", count: stats.vendorCounters.booked ?? 0, href: "/counters", tone: "bad" as const },
+    ].filter((a) => a.count > 0);
+  }, [stats]);
 
   if (loading) {
     return (
@@ -115,31 +137,49 @@ export default function DashboardPage() {
 
   return (
     <>
+      {/* Headline stats — each links to its area */}
       <div className="grid stat-grid">
-        <div className="card stat">
+        <Link href="/bookings" className="card stat card-link">
           <div className="stat-top"><span className="stat-label">Total bookings</span><span className="stat-ic">▦</span></div>
           <div className="stat-val tnum">{stats.totals.bookings.toLocaleString("en-IN")}</div>
           <span className="delta up">▲ {stats.today.poolBookings + stats.today.hallBookings + stats.today.spaBookings} today</span>
-        </div>
-        <div className="card stat">
+        </Link>
+        <Link href="/enquiries" className="card stat card-link">
           <div className="stat-top"><span className="stat-label">Total enquiries</span><span className="stat-ic">✉</span></div>
           <div className="stat-val tnum">{stats.totals.enquiries.toLocaleString("en-IN")}</div>
           <span className="delta flat">{stats.pending.newContactEnquiries} new contact leads</span>
-        </div>
-        <div className="card stat">
+        </Link>
+        <Link href="/bookings" className="card stat card-link">
           <div className="stat-top"><span className="stat-label">Pool revenue</span><span className="stat-ic">₹</span></div>
           <div className="stat-val tnum">{inr(stats.revenue.poolTotal)}</div>
           <span className="delta flat">confirmed bookings</span>
-        </div>
-        <div className="card stat">
+        </Link>
+        <Link href="/counters" className="card stat card-link">
           <div className="stat-top"><span className="stat-label">Counters available</span><span className="stat-ic">▣</span></div>
           <div className="stat-val tnum">{stats.vendorCounters.available} / {stats.vendorCounters.total}</div>
           <span className={stats.vendorCounters.booked > 0 ? "delta down" : "delta flat"}>
             {stats.vendorCounters.booked} booked
           </span>
-        </div>
+        </Link>
       </div>
 
+      {/* Needs attention */}
+      {attention.length > 0 && (
+        <>
+          <div className="section-head"><h2>Needs attention</h2></div>
+          <div className="area-grid">
+            {attention.map((a) => (
+              <Link key={a.label} href={a.href} className={`card attn ${a.tone} card-link`}>
+                <span className="badge">{a.count}</span>
+                <span className="t">{a.label}</span>
+                <span className="arrow">→</span>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Trend + service split */}
       <div className="two-col" style={{ marginTop: 16 }}>
         <div className="card chart-card">
           <div className="chart-head">
@@ -157,18 +197,34 @@ export default function DashboardPage() {
         <div className="card chart-card">
           <div className="stat-label" style={{ marginBottom: 14 }}>By service</div>
           <div className="bars">
-            {serviceBars.map(([label, val]) => (
-              <div className="bar-row" key={label}>
-                <span style={{ color: "var(--muted)" }}>{label}</span>
-                <div className="bar-track"><div className="bar-fill" style={{ width: `${(val / barMax) * 100}%` }} /></div>
-                <span className="tnum" style={{ textAlign: "right", fontWeight: 650 }}>{val}</span>
-              </div>
+            {serviceBars.map((s) => (
+              <Link className="bar-row link" href={s.href} key={s.label} style={{ textDecoration: "none", color: "inherit" }}>
+                <span style={{ color: "var(--muted)" }}>{s.label}</span>
+                <div className="bar-track"><div className="bar-fill" style={{ width: `${(s.count / barMax) * 100}%` }} /></div>
+                <span className="tnum" style={{ textAlign: "right", fontWeight: 650 }}>{s.count}</span>
+              </Link>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="section-head"><h2>Recent pool bookings</h2></div>
+      {/* Manage by area — each booking / enquiry type, click through */}
+      <div className="section-head"><h2>Manage by area</h2></div>
+      <div className="area-grid">
+        {areas.map((a) => (
+          <Link key={a.label} href={a.href} className="card area-card card-link">
+            <span className="ic">{a.icon}</span>
+            <div>
+              <div className="n tnum">{a.count.toLocaleString("en-IN")}</div>
+              <div className="l">{a.label}</div>
+            </div>
+            <span className="arrow">→</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* Recent pool bookings */}
+      <div className="section-head"><h2>Recent pool bookings</h2><Link href="/bookings" className="link">View all →</Link></div>
       <div className="table-wrap">
         <table>
           <thead><tr><th>Guest</th><th>Plan</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
