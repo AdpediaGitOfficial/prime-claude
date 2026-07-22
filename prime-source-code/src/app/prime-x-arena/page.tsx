@@ -343,8 +343,8 @@ const PrimexArenaPage = () => {
           
                 <div className="form-row flex flex-col md:flex-row items-center gap-5 md:gap-6">
                   <div className="w-full">
-                    <label htmlFor="email" className="text-[14px] md:text-[15px] font-medium text-gray-700 block mb-2">Email Address*</label>
-                    <input type="email" id="email" placeholder="Your@Email.Com" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
+                    <label htmlFor="email" className="text-[14px] md:text-[15px] font-medium text-gray-700 block mb-2">Email Address</label>
+                    <input type="email" id="email" placeholder="Your@Email.Com (optional)" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
                   </div>
 
                   <div className="w-full">

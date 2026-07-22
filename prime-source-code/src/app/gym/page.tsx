@@ -444,7 +444,7 @@ export default function GymPage() {
               <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
                 <div>
                   <label htmlFor="gym-email" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">
-                    email address*
+                    email address
                   </label>
                   <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-20">
                     <input
@@ -453,8 +453,7 @@ export default function GymPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      required
-                      placeholder="your@email.com"
+                      placeholder="your@email.com (optional)"
                       className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none"
                     />
                   </div>

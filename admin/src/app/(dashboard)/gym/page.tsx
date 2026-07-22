@@ -30,7 +30,7 @@ const RESOURCES: ResourceConfig[] = [
     fields: [
       { name: "fullName", label: "Full name", type: "text", required: true },
       { name: "phone", label: "Phone", type: "tel", required: true },
-      { name: "email", label: "Email", type: "email", required: true },
+      { name: "email", label: "Email", type: "email", required: false },
       { name: "age", label: "Age", type: "number" },
       { name: "message", label: "Message", type: "textarea" },
     ],

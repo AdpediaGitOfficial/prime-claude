@@ -154,10 +154,9 @@ export default function PoolBookingPage() {
   }, []);
 
   const [showMobileModal, setShowMobileModal] = useState(false);
-  const [showOtpModal, setShowOtpModal] = useState(false);
   const [guestName, setGuestName] = useState("");
   const [mobile, setMobile] = useState("");
-  const [otp, setOtp] = useState("");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
@@ -190,36 +189,23 @@ export default function PoolBookingPage() {
     setShowMobileModal(true);
   };
 
-  const handleSendOtp = async () => {
+  const handlePlaceBooking = async () => {
     if (!guestName.trim()) return setMessage("Please enter your name.");
     if (!/^\d{10}$/.test(mobile)) return setMessage("Enter a valid 10-digit mobile number.");
-    setLoading(true);
-    try {
-      await apiCall(ENDPOINTS.SEND_OTP, { method: "POST", body: JSON.stringify({ phone: "+91" + mobile }) });
-      setShowMobileModal(false);
-      setShowOtpModal(true);
-      setMessage(null);
-    } catch (err: any) {
-      setMessage(err.message || "Failed to send OTP.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtpAndBook = async () => {
-    if (!otp) return setMessage("Enter the OTP.");
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+      return setMessage("Enter a valid email, or leave it blank.");
     setLoading(true);
     try {
       const addonsList: string[] = [
         ...(addons.sauna ? ["Sauna Bath"] : []),
         ...(addons.jacuzzi ? ["Jacuzzi"] : []),
       ];
-      await apiCall(ENDPOINTS.CREATE_BOOKING, {
+      await apiCall(ENDPOINTS.POOL_BOOKINGS, {
         method: "POST",
         body: JSON.stringify({
           guest: guestName.trim(),
           phone: "+91" + mobile,
-          otp,
+          email: email.trim(),
           poolType: selectedPlan ? selectedPlan.name : "",
           date: selectedDate,
           timeSlot: `${selectedSlot!.start} - ${selectedSlot!.end}`,
@@ -227,7 +213,7 @@ export default function PoolBookingPage() {
           totalAmount: bookingTotal,
         }),
       });
-      setShowOtpModal(false);
+      setShowMobileModal(false);
       setBookingSuccess(true);
       setMessage(null);
     } catch (err: any) {
@@ -486,7 +472,7 @@ export default function PoolBookingPage() {
               <div className="flex justify-between items-baseline"><span className="text-black/60 uppercase tracking-wide text-xs">Total</span><span className="text-2xl font-bold text-black">{inr(bookingTotal)}</span></div>
             </div>
             <div className="px-6 pb-5">
-              {message && !showMobileModal && !showOtpModal && (
+              {message && !showMobileModal && (
                 <p className="mb-3 text-sm text-rose-600">{message}</p>
               )}
               {bookingSuccess && (
@@ -495,7 +481,7 @@ export default function PoolBookingPage() {
               <button type="button" onClick={handleConfirmBooking} className="w-full bg-black text-white rounded-full py-3.5 font-medium hover:bg-black/85 transition-transform active:scale-95">
                 Confirm Booking
               </button>
-              <p className="mt-3 text-xs text-black/55">Accept the policies below, then verify your mobile with OTP.</p>
+              <p className="mt-3 text-xs text-black/55">Accept the policies below, then confirm your details to book.</p>
             </div>
           </aside>
         </div>
@@ -652,12 +638,12 @@ export default function PoolBookingPage() {
       </section>
     </div>
 
-      {/* ═══ MOBILE MODAL ═══ */}
+      {/* ═══ DETAILS MODAL ═══ */}
       {showMobileModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
           <div className="bg-white rounded-2xl p-7 w-full max-w-[360px] shadow-2xl">
             <h3 className="text-xl font-semibold mb-1">Enter your details</h3>
-            <p className="text-sm text-black/50 mb-5">We'll send a one-time OTP to verify your identity.</p>
+            <p className="text-sm text-black/50 mb-5">We&rsquo;ll use these to confirm your pool booking.</p>
             <input
               type="text"
               className="w-full border border-black/20 rounded-xl px-4 py-3 text-base mb-3 focus:outline-none focus:ring-2 focus:ring-black/30"
@@ -668,10 +654,17 @@ export default function PoolBookingPage() {
             <input
               type="tel"
               maxLength={10}
-              className="w-full border border-black/20 rounded-xl px-4 py-3 text-base mb-4 focus:outline-none focus:ring-2 focus:ring-black/30"
+              className="w-full border border-black/20 rounded-xl px-4 py-3 text-base mb-3 focus:outline-none focus:ring-2 focus:ring-black/30"
               value={mobile}
               onChange={(e) => setMobile(e.target.value.replace(/\D/g, ""))}
               placeholder="Mobile number (e.g. 9876543210)"
+            />
+            <input
+              type="email"
+              className="w-full border border-black/20 rounded-xl px-4 py-3 text-base mb-4 focus:outline-none focus:ring-2 focus:ring-black/30"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email (optional)"
             />
             {message && <p className="text-rose-600 text-sm mb-3">{message}</p>}
             <div className="flex gap-3">
@@ -682,54 +675,11 @@ export default function PoolBookingPage() {
                 Cancel
               </button>
               <button
-                onClick={handleSendOtp}
+                onClick={handlePlaceBooking}
                 disabled={loading}
                 className="flex-1 bg-black text-white rounded-full py-3 text-sm font-medium hover:bg-black/80 transition-colors disabled:opacity-60"
               >
-                {loading ? "Sending…" : "Send OTP"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ═══ OTP MODAL ═══ */}
-      {showOtpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-          <div className="bg-white rounded-2xl p-7 w-full max-w-[360px] shadow-2xl">
-            <h3 className="text-xl font-semibold mb-1">Enter OTP</h3>
-            <p className="text-sm text-black/50 mb-3">OTP sent to:</p>
-            <div className="flex items-center justify-between bg-black/5 rounded-xl px-4 py-3 mb-5">
-              <span className="text-base font-medium tracking-wide">+91 {mobile}</span>
-              <button
-                onClick={() => { setShowOtpModal(false); setOtp(""); setMessage(null); setShowMobileModal(true); }}
-                className="text-xs text-black/50 underline hover:text-black transition-colors ml-3"
-              >
-                Change
-              </button>
-            </div>
-            <input
-              type="text"
-              maxLength={6}
-              className="w-full border border-black/20 rounded-xl px-4 py-3 text-base tracking-[0.3em] text-center mb-4 focus:outline-none focus:ring-2 focus:ring-black/30"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-              placeholder="• • • • • •"
-            />
-            {message && <p className="text-rose-600 text-sm mb-3">{message}</p>}
-            <div className="flex gap-3">
-              <button
-                onClick={() => { setShowOtpModal(false); setMessage(null); }}
-                className="flex-1 border border-black/20 rounded-full py-3 text-sm font-medium hover:bg-black/5 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleVerifyOtpAndBook}
-                disabled={loading}
-                className="flex-1 bg-black text-white rounded-full py-3 text-sm font-medium hover:bg-black/80 transition-colors disabled:opacity-60"
-              >
-                {loading ? "Booking…" : "Verify & Book"}
+                {loading ? "Booking…" : "Confirm Booking"}
               </button>
             </div>
           </div>

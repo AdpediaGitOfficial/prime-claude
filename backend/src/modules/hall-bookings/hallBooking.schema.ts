@@ -5,7 +5,10 @@ import { phoneSchema } from "../otp/otp.schema";
 export const createHallBookingSchema = z.object({
   fullName: z.string().trim().min(1, "Full name is required"),
   phone: phoneSchema,
-  email: z.string().trim().email("Enter a valid email"),
+  email: z
+    .union([z.string().trim().email("Enter a valid email"), z.literal("")])
+    .optional()
+    .default(""),
   organisationName: z.string().trim().optional().default(""),
   eventType: z.string().trim().optional().default(""),
   attendance: z.coerce.number().int().nonnegative().optional().default(0),

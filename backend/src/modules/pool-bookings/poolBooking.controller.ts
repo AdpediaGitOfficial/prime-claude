@@ -38,3 +38,38 @@ export const createVerifiedPoolBooking = asyncHandler(async (req: Request, res: 
 
   return res.status(201).json(booking);
 });
+
+/**
+ * POST /pool-bookings
+ * Public — creates a pool booking directly (no OTP). Email is optional.
+ * Returns the created record (raw shape, to match the frontend).
+ */
+export const createDirectPoolBooking = asyncHandler(async (req: Request, res: Response) => {
+  const { guest, phone, email, poolType, date, timeSlot, addons, totalAmount } = req.body as {
+    guest: string;
+    phone: string;
+    email?: string;
+    poolType: string;
+    date: string;
+    timeSlot: string;
+    addons: string[];
+    totalAmount: number;
+  };
+
+  const booking = await prisma.poolBooking.create({
+    data: {
+      guestName: guest,
+      phone,
+      email: email || null,
+      poolType,
+      date,
+      timeSlot,
+      addons,
+      totalAmount,
+      otpVerified: false,
+      status: "PENDING",
+    },
+  });
+
+  return res.status(201).json(booking);
+});

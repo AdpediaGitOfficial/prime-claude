@@ -1,6 +1,6 @@
 import { Router } from "express";
 import otpRoutes from "../modules/otp/otp.routes";
-import poolBookingRoutes from "../modules/pool-bookings/poolBooking.routes";
+import poolBookingRoutes, { directPoolBookingRouter } from "../modules/pool-bookings/poolBooking.routes";
 import hallBookingRoutes from "../modules/hall-bookings/hallBooking.routes";
 import publicFormRoutes from "../modules/public-forms/publicForms.routes";
 import publicListingRoutes from "../modules/listings/listing.publicRoutes";
@@ -18,6 +18,8 @@ const router = Router();
 router.use("/api/auth", otpRoutes);
 // /api/bookings/create-verified
 router.use("/api/bookings", poolBookingRoutes);
+// POST /pool-bookings (direct, no OTP)
+router.use("/pool-bookings", directPoolBookingRouter);
 // GET+POST /hall-bookings
 router.use("/hall-bookings", hallBookingRoutes);
 // POST /spa-bookings, /gym-memberships, /vendor-invites, /course-registrations, /contact-enquiries

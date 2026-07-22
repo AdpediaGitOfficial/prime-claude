@@ -35,7 +35,7 @@ const RESOURCES: ResourceConfig[] = [
     fields: [
       { name: "fullName", label: "Full name", type: "text", required: true },
       { name: "phone", label: "Phone", type: "tel", required: true },
-      { name: "email", label: "Email", type: "email", required: true },
+      { name: "email", label: "Email", type: "email", required: false },
       { name: "organisationName", label: "Brand / business", type: "text" },
       { name: "vendorType", label: "Vendor type", type: "select", options: VENDOR_TYPES },
       { name: "counters", label: "Counters", type: "text", list: true },
@@ -57,7 +57,7 @@ const RESOURCES: ResourceConfig[] = [
     ],
     fields: [
       { name: "fullName", label: "Full name", type: "text", required: true },
-      { name: "email", label: "Email", type: "email", required: true },
+      { name: "email", label: "Email", type: "email", required: false },
       { name: "phone", label: "Phone", type: "tel" },
       { name: "subject", label: "Subject", type: "text" },
       { name: "message", label: "Message", type: "textarea", required: true },

@@ -35,6 +35,7 @@ const RESOURCES: ResourceConfig[] = [
     fields: [
       { name: "guestName", label: "Guest name", type: "text", required: true },
       { name: "phone", label: "Phone", type: "tel", required: true },
+      { name: "email", label: "Email", type: "email", required: false },
       { name: "poolType", label: "Plan", type: "select", options: POOL_PLANS, required: true },
       { name: "date", label: "Date", type: "date", required: true },
       { name: "timeSlot", label: "Time slot", type: "text", required: true },
@@ -56,7 +57,7 @@ const RESOURCES: ResourceConfig[] = [
     ],
     fields: [
       { name: "fullName", label: "Full name", type: "text", required: true },
-      { name: "email", label: "Email", type: "email", required: true },
+      { name: "email", label: "Email", type: "email", required: false },
       { name: "phone", label: "Phone", type: "tel", required: true },
       { name: "selectedService", label: "Service", type: "select", options: SPA_SERVICES, required: true },
       { name: "date", label: "Date", type: "date", required: true },

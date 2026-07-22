@@ -325,8 +325,8 @@ export default function SpaPage() {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="spa-email" className="text-sm md:text-base">Email Address*</label>
-                      <input id="spa-email" type="email" name="email" value={formData.email} onChange={handleInputChange} required placeholder="your@email.com" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black outline-none placeholder-black/40 focus:ring-2 focus:ring-[#5b2d82]/25 w-full" />
+                      <label htmlFor="spa-email" className="text-sm md:text-base">Email Address</label>
+                      <input id="spa-email" type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="your@email.com (optional)" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black outline-none placeholder-black/40 focus:ring-2 focus:ring-[#5b2d82]/25 w-full" />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label htmlFor="spa-service" className="text-sm md:text-base">Selected Service*</label>

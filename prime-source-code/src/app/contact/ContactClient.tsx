@@ -293,7 +293,7 @@ export default function ContactClient() {
               </div>
               <div className="flex flex-col gap-2 md:gap-3">
                 <label className="text-base md:text-xl capitalize leading-[1.35]">
-                  Email Address*
+                  Email Address
                 </label>
                 <div
                   className="rounded-[24px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 md:h-[80px]"
@@ -302,10 +302,9 @@ export default function ContactClient() {
                   <input
                     type="email"
                     name="email"
-                    required
                     value={formData.email}
                     onChange={handleInputChange}
-                    placeholder="your@email.com"
+                    placeholder="your@email.com (optional)"
                     className="w-full bg-transparent text-base md:text-lg text-black/80 font-light outline-none placeholder:text-black/40"
                   />
                 </div>

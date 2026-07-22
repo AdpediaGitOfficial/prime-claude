@@ -12,3 +12,18 @@ export const createPoolBookingSchema = z.object({
   addons: z.array(z.string()).optional().default([]),
   totalAmount: z.coerce.number().int().nonnegative().optional().default(0),
 });
+
+/** POST /pool-bookings — direct pool booking (no OTP). Email optional. */
+export const createDirectPoolBookingSchema = z.object({
+  guest: z.string().trim().min(1, "Guest name is required"),
+  phone: phoneSchema,
+  email: z
+    .union([z.string().trim().email("Enter a valid email"), z.literal("")])
+    .optional()
+    .default(""),
+  poolType: z.string().trim().min(1, "Please select a plan"),
+  date: z.string().trim().min(1, "Date is required"),
+  timeSlot: z.string().trim().min(1, "Time slot is required"),
+  addons: z.array(z.string()).optional().default([]),
+  totalAmount: z.coerce.number().int().nonnegative().optional().default(0),
+});

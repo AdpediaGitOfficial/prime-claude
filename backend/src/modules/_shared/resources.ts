@@ -8,13 +8,17 @@ const bookingStatus = z.enum(BOOKING_STATUSES);
 const leadStatus = z.enum(LEAD_STATUSES);
 const req = (label: string) => z.string().trim().min(1, `${label} is required`);
 const opt = z.string().trim().optional();
-const email = z.string().trim().email("Enter a valid email");
+const email = z
+  .union([z.string().trim().email("Enter a valid email"), z.literal("")])
+  .optional()
+  .default("");
 const phone = z.string().trim().regex(/^\+?\d{10,15}$/, "Enter a valid phone number");
 
 // ─── Admin create schemas (walk-in / manual entry) ───
 const poolCreate = z.object({
   guestName: req("Guest name"),
   phone,
+  email,
   poolType: req("Plan"),
   date: req("Date"),
   timeSlot: req("Time slot"),

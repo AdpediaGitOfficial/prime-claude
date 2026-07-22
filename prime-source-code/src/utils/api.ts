@@ -53,6 +53,7 @@ export const assetUrl = (path?: string | null): string => {
 export const ENDPOINTS = {
   SEND_OTP: "/api/auth/send-otp",
   CREATE_BOOKING: "/api/bookings/create-verified",
+  POOL_BOOKINGS: "/pool-bookings",
   HALL_BOOKINGS: "/hall-bookings",
   SPA_BOOKINGS: "/spa-bookings",
   GYM_MEMBERSHIPS: "/gym-memberships",

@@ -333,16 +333,15 @@ export default function VendorCounters() {
             </div>
             <div>
               <label htmlFor="v-email" className="block text-sm font-medium mb-1">
-                Email address*
+                Email address
               </label>
               <input
                 id="v-email"
                 name="email"
                 type="email"
-                required
                 value={formData.email}
                 onChange={handleInputChange}
-                placeholder="your@email.com"
+                placeholder="your@email.com (optional)"
                 className="w-full bg-white rounded-xl px-4 h-11 text-base outline-none focus:ring-2 focus:ring-[#ec6824]/40"
               />
             </div>

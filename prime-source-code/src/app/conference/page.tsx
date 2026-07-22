@@ -471,8 +471,8 @@ export default function ConferencePage() {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="hall-email" className="text-sm md:text-base text-black">Email Address*</label>
-                      <input id="hall-email" type="email" name="email" value={formData.email} onChange={handleInputChange} required placeholder="your@email.com" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
+                      <label htmlFor="hall-email" className="text-sm md:text-base text-black">Email Address</label>
+                      <input id="hall-email" type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="your@email.com (optional)" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label htmlFor="hall-org" className="text-sm md:text-base text-black">Organisation Name*</label>

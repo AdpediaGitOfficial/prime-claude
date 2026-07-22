@@ -576,7 +576,7 @@ export default function StudyCentrePage() {
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-base md:text-[20px] capitalize">
-                  Email Address*
+                  Email Address
                 </label>
                 <div className="bg-white rounded-[24px] md:rounded-[33px] px-5 py-3 h-14 md:h-[80px] flex items-center">
                   <input
@@ -584,8 +584,7 @@ export default function StudyCentrePage() {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    required
-                    placeholder="your@email.com"
+                    placeholder="your@email.com (optional)"
                     className="w-full bg-transparent text-base md:text-[18px] text-black outline-none placeholder-black/40"
                   />
                 </div>

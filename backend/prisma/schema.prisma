@@ -116,6 +116,7 @@ model PoolBooking {
   id          String        @id @default(cuid())
   guestName   String
   phone       String
+  email       String?
   poolType    String // selected plan name (Solo / Duo / Session / Group ...)
   date        String // "YYYY-MM-DD" as sent by the frontend
   timeSlot    String // "10:00 AM - 11:30 AM"

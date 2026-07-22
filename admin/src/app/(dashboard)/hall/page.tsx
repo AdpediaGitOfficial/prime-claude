@@ -57,7 +57,7 @@ const RESOURCES: ResourceConfig[] = [
     fields: [
       { name: "fullName", label: "Organiser name", type: "text", required: true },
       { name: "phone", label: "Phone", type: "tel", required: true },
-      { name: "email", label: "Email", type: "email", required: true },
+      { name: "email", label: "Email", type: "email", required: false },
       { name: "organisationName", label: "Organisation", type: "text" },
       { name: "eventType", label: "Event type", type: "text" },
       { name: "attendance", label: "Expected attendance", type: "number" },

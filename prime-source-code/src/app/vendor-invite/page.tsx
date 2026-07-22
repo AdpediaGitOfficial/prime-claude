@@ -151,14 +151,13 @@ export default function VendorPage() {
               </label>
 
               <label className="flex flex-col gap-2 text-sm md:text-base font-medium text-black">
-                Email Address*
+                Email Address
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  required
-                  placeholder="Your@Email.Com"
+                  placeholder="Your@Email.Com (optional)"
                   className="w-full min-w-0 h-12 md:h-14 rounded-full bg-white px-5 text-sm md:text-base font-normal text-black outline-none placeholder:text-black/35 focus:ring-2 focus:ring-black/15"
                 />
               </label>
