@@ -2,7 +2,11 @@ import { Router } from "express";
 import { validate } from "../../middleware/validate";
 import { strictLimiter } from "../../middleware/rateLimit";
 import { createPoolBookingSchema, createDirectPoolBookingSchema } from "./poolBooking.schema";
-import { createVerifiedPoolBooking, createDirectPoolBooking } from "./poolBooking.controller";
+import {
+  createVerifiedPoolBooking,
+  createDirectPoolBooking,
+  getPoolAvailability,
+} from "./poolBooking.controller";
 
 const router = Router();
 export const directPoolBookingRouter = Router();
@@ -38,6 +42,21 @@ directPoolBookingRouter.post(
   validate({ body: createDirectPoolBookingSchema }),
   createDirectPoolBooking
 );
+
+/**
+ * @openapi
+ * /pool-bookings:
+ *   get:
+ *     tags: [Public - Bookings]
+ *     summary: Occupied pool intervals for a date (drives slot availability)
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         schema: { type: string, example: "2026-07-25" }
+ *     responses:
+ *       200: { description: "{ capacity, occupied: [{ start, end }] } (minutes since midnight)" }
+ */
+directPoolBookingRouter.get("/", getPoolAvailability);
 
 /**
  * @openapi

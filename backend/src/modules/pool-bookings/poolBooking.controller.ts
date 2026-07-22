@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { prisma } from "../../config/prisma";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { verifyOtp } from "../otp/otp.service";
+import { assertPoolAvailable, occupiedIntervals, POOL_CAPACITY } from "./poolAvailability";
 
 /**
  * POST /api/bookings/create-verified
@@ -21,6 +22,7 @@ export const createVerifiedPoolBooking = asyncHandler(async (req: Request, res: 
   };
 
   await verifyOtp(phone, otp, "pool_booking");
+  await assertPoolAvailable(date, timeSlot);
 
   const booking = await prisma.poolBooking.create({
     data: {
@@ -56,6 +58,8 @@ export const createDirectPoolBooking = asyncHandler(async (req: Request, res: Re
     totalAmount: number;
   };
 
+  await assertPoolAvailable(date, timeSlot);
+
   const booking = await prisma.poolBooking.create({
     data: {
       guestName: guest,
@@ -72,4 +76,16 @@ export const createDirectPoolBooking = asyncHandler(async (req: Request, res: Re
   });
 
   return res.status(201).json(booking);
+});
+
+/**
+ * GET /pool-bookings?date=YYYY-MM-DD
+ * Public — returns the occupied pool intervals for a date so the booking page
+ * can show per-slot availability. No personal data is exposed.
+ */
+export const getPoolAvailability = asyncHandler(async (req: Request, res: Response) => {
+  const date = String(req.query.date ?? "").trim();
+  if (!date) return res.json({ capacity: POOL_CAPACITY, occupied: [] });
+  const occupied = await occupiedIntervals(date);
+  return res.json({ capacity: POOL_CAPACITY, occupied });
 });

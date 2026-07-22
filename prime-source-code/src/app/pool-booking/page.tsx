@@ -1,7 +1,7 @@
 "use client";
 
 import PoolTimeSlots, { type Slot } from "@/components/PoolTimeSlots";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { FaStarOfLife, FaCrown } from "react-icons/fa6";
 import { apiCall, ENDPOINTS } from "@/utils/api";
@@ -135,6 +135,27 @@ export default function PoolBookingPage() {
   const [selectedPool, setSelectedPool] = useState<PlanId | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+
+  // Live pool occupancy for the chosen date → drives per-slot availability.
+  const [poolOccupied, setPoolOccupied] = useState<{ start: number; end: number }[]>([]);
+  const [poolCapacity, setPoolCapacity] = useState(2);
+
+  const refreshAvailability = useCallback((date: string) => {
+    if (!date) {
+      setPoolOccupied([]);
+      return;
+    }
+    apiCall(`${ENDPOINTS.POOL_BOOKINGS}?date=${encodeURIComponent(date)}`)
+      .then((res) => {
+        setPoolOccupied(Array.isArray(res?.occupied) ? res.occupied : []);
+        if (typeof res?.capacity === "number") setPoolCapacity(res.capacity);
+      })
+      .catch(() => setPoolOccupied([]));
+  }, []);
+
+  useEffect(() => {
+    refreshAvailability(selectedDate);
+  }, [selectedDate, refreshAvailability]);
   const [addons, setAddons] = useState({ sauna: false, jacuzzi: false });
   const [policies, setPolicies] = useState({ dressCode: false, kids: false, terms: false });
 
@@ -218,8 +239,12 @@ export default function PoolBookingPage() {
       setShowMobileModal(false);
       setBookingSuccess(true);
       setMessage(null);
+      refreshAvailability(selectedDate);
     } catch (err: any) {
+      // If the slot filled up between selection and submit, surface it and
+      // refresh availability so the picker greys out the now-full slot.
       setMessage(err.message || "Booking failed.");
+      refreshAvailability(selectedDate);
     } finally {
       setLoading(false);
     }
@@ -435,6 +460,8 @@ export default function PoolBookingPage() {
               </p>
               <PoolTimeSlots
                 durationMinutes={selectedPlan?.durationMinutes ?? 90}
+                occupied={poolOccupied}
+                capacity={poolCapacity}
                 onSlotChange={setSelectedSlot}
               />
             </div>
