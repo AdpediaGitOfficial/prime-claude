@@ -114,6 +114,7 @@ model AuditLog {
 /// Pool booking created via POST /api/bookings/create-verified (OTP verified).
 model PoolBooking {
   id          String        @id @default(cuid())
+  reference   String        @unique @default(dbgenerated("('POOL-' || lpad(nextval('pool_booking_ref_seq'::regclass)::text, 5, '0'))"))
   guestName   String
   phone       String
   email       String?
@@ -136,6 +137,7 @@ model PoolBooking {
 /// Conference / hall booking — POST /hall-bookings ; GET returns booked dates.
 model HallBooking {
   id                     String        @id @default(cuid())
+  reference              String        @unique @default(dbgenerated("('HALL-' || lpad(nextval('hall_booking_ref_seq'::regclass)::text, 5, '0'))"))
   fullName               String
   phone                  String
   email                  String
@@ -159,6 +161,7 @@ model HallBooking {
 /// Spa / salon appointment — POST /spa-bookings.
 model SpaBooking {
   id              String        @id @default(cuid())
+  reference       String        @unique @default(dbgenerated("('SPA-' || lpad(nextval('spa_booking_ref_seq'::regclass)::text, 5, '0'))"))
   fullName        String
   email           String
   phone           String

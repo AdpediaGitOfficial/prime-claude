@@ -15,8 +15,9 @@ const RESOURCES: ResourceConfig[] = [
     path: "/api/admin/hall-bookings",
     kind: "booking",
     canCreate: true,
-    searchPlaceholder: "Search name, organisation, event…",
+    searchPlaceholder: "Search booking ID, name, phone…",
     columns: [
+      { header: "Booking ID", cell: (r) => <span className="tnum" style={{ fontWeight: 650 }}>{s(r, "reference")}</span> },
       {
         header: "Organiser",
         cell: (r) => (

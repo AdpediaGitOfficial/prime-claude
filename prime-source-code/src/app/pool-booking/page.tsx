@@ -160,6 +160,7 @@ export default function PoolBookingPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingRef, setBookingRef] = useState<string>("");
 
   const scrollToSection = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -200,7 +201,7 @@ export default function PoolBookingPage() {
         ...(addons.sauna ? ["Sauna Bath"] : []),
         ...(addons.jacuzzi ? ["Jacuzzi"] : []),
       ];
-      await apiCall(ENDPOINTS.POOL_BOOKINGS, {
+      const booking = await apiCall(ENDPOINTS.POOL_BOOKINGS, {
         method: "POST",
         body: JSON.stringify({
           guest: guestName.trim(),
@@ -213,6 +214,7 @@ export default function PoolBookingPage() {
           totalAmount: bookingTotal,
         }),
       });
+      setBookingRef(booking?.reference ?? "");
       setShowMobileModal(false);
       setBookingSuccess(true);
       setMessage(null);
@@ -476,7 +478,12 @@ export default function PoolBookingPage() {
                 <p className="mb-3 text-sm text-rose-600">{message}</p>
               )}
               {bookingSuccess && (
-                <p className="mb-3 text-sm text-green-600 font-medium">Booking confirmed! We&rsquo;ll see you at the pool.</p>
+                <div className="mb-3 rounded-xl bg-green-50 border border-green-200 px-4 py-3">
+                  <p className="text-sm text-green-700 font-medium">Booking confirmed! We&rsquo;ll see you at the pool.</p>
+                  {bookingRef && (
+                    <p className="text-sm text-green-800 mt-1">Your booking ID: <span className="font-bold tracking-wide">{bookingRef}</span></p>
+                  )}
+                </div>
               )}
               <button type="button" onClick={handleConfirmBooking} className="w-full bg-black text-white rounded-full py-3.5 font-medium hover:bg-black/85 transition-transform active:scale-95">
                 Confirm Booking

@@ -25,8 +25,9 @@ const RESOURCES: ResourceConfig[] = [
     path: "/api/admin/pool-bookings",
     kind: "booking",
     canCreate: true,
-    searchPlaceholder: "Search guest, phone or plan…",
+    searchPlaceholder: "Search booking ID, name, phone…",
     columns: [
+      { header: "Booking ID", cell: (r) => <span className="tnum" style={{ fontWeight: 650 }}>{s(r, "reference")}</span> },
       { header: "Guest", cell: (r) => <><div className="who">{s(r, "guestName")}</div><div className="sub-txt">{s(r, "phone")}</div></> },
       { header: "Plan", cell: (r) => s(r, "poolType") },
       { header: "Date & slot", cell: (r) => <><div>{relativeDate(String(r.date))}</div><div className="sub-txt">{s(r, "timeSlot")}</div></> },
@@ -49,8 +50,9 @@ const RESOURCES: ResourceConfig[] = [
     path: "/api/admin/spa-bookings",
     kind: "booking",
     canCreate: true,
-    searchPlaceholder: "Search name, service, phone…",
+    searchPlaceholder: "Search booking ID, name, phone…",
     columns: [
+      { header: "Booking ID", cell: (r) => <span className="tnum" style={{ fontWeight: 650 }}>{s(r, "reference")}</span> },
       { header: "Guest", cell: (r) => <><div className="who">{s(r, "fullName")}</div><div className="sub-txt">{s(r, "phone")}</div></> },
       { header: "Service", cell: (r) => s(r, "selectedService") },
       { header: "Date & time", cell: (r) => <><div>{relativeDate(String(r.date))}</div><div className="sub-txt">{s(r, "preferredTime")}</div></> },

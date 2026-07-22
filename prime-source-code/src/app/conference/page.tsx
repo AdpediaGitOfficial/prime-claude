@@ -128,6 +128,9 @@ export default function ConferencePage() {
         setFormData(initialFormData);
         setSelectedDateStr(null);
         setSelectedSlot(null);
+        return createdBooking?.reference
+          ? `Booking request sent successfully. Your booking ID: ${createdBooking.reference}`
+          : undefined;
       },
       "Booking request sent successfully.",
       "Failed to send booking request."

@@ -163,11 +163,14 @@ export default function SpaPage() {
 
     runSubmit(
       async () => {
-        await apiCall(ENDPOINTS.SPA_BOOKINGS, {
+        const booking = await apiCall(ENDPOINTS.SPA_BOOKINGS, {
           method: "POST",
           body: JSON.stringify(formData),
         });
         setFormData(initialFormData);
+        return booking?.reference
+          ? `Spa booking request sent successfully. Your booking ID: ${booking.reference}`
+          : undefined;
       },
       "Spa booking request sent successfully.",
       "Failed to send spa booking request."

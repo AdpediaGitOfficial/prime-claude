@@ -125,7 +125,14 @@ export function RecordDrawer({
       <div className="drawer" onClick={(e) => e.stopPropagation()}>
         <div className="panel-head">
           <div>
-            <h3>{config.label} detail</h3>
+            <h3>
+              {config.label} detail
+              {row.reference ? (
+                <span className="tnum" style={{ marginLeft: 8, fontWeight: 650, color: "var(--brand)" }}>
+                  {String(row.reference)}
+                </span>
+              ) : null}
+            </h3>
             <div className="sub-txt" style={{ marginTop: 4 }}>
               Received {dateTime(String(row.createdAt))}
             </div>

@@ -18,7 +18,7 @@ interface AnalyticsPoint {
   gym: number; vendor: number; course: number; contact: number;
 }
 interface PoolBooking {
-  id: string; guestName: string; poolType: string; date: string; totalAmount: number; status: string;
+  id: string; reference?: string; guestName: string; poolType: string; date: string; totalAmount: number; status: string;
 }
 
 function AreaChart({ series }: { series: AnalyticsPoint[] }) {
@@ -227,13 +227,14 @@ export default function DashboardPage() {
       <div className="section-head"><h2>Recent pool bookings</h2><Link href="/bookings" className="link">View all →</Link></div>
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Guest</th><th>Plan</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+          <thead><tr><th>Booking ID</th><th>Guest</th><th>Plan</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
           <tbody>
             {recent.length === 0 ? (
-              <tr><td colSpan={5} className="empty">No bookings yet.</td></tr>
+              <tr><td colSpan={6} className="empty">No bookings yet.</td></tr>
             ) : (
               recent.map((r) => (
                 <tr key={r.id}>
+                  <td className="tnum" style={{ fontWeight: 650 }}>{r.reference ?? "—"}</td>
                   <td className="who">{r.guestName}</td>
                   <td>{r.poolType}</td>
                   <td>{relativeDate(r.date)}</td>

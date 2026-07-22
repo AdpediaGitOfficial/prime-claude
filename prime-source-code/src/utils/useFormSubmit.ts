@@ -19,7 +19,7 @@ export function useFormSubmit() {
   const [submitError, setSubmitError] = useState("");
 
   const runSubmit = async (
-    action: () => Promise<void>,
+    action: () => Promise<void | string>,
     successMessage: string,
     fallbackErrorMessage: string
   ) => {
@@ -27,8 +27,10 @@ export function useFormSubmit() {
     setSubmitMessage("");
     setIsSubmitting(true);
     try {
-      await action();
-      setSubmitMessage(successMessage);
+      // The action may return a string to override the success message
+      // (e.g. to include a booking reference returned by the API).
+      const dynamic = await action();
+      setSubmitMessage(typeof dynamic === "string" && dynamic ? dynamic : successMessage);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : fallbackErrorMessage);
     } finally {
