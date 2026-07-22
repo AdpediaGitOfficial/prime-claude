@@ -109,11 +109,14 @@ export default function StudyCentrePage() {
     event.preventDefault();
     runSubmit(
       async () => {
-        await apiCall(ENDPOINTS.COURSE_REGISTRATIONS, {
+        const reg = await apiCall(ENDPOINTS.COURSE_REGISTRATIONS, {
           method: "POST",
           body: JSON.stringify(formData),
         });
         setFormData(initialForm);
+        return reg?.reference
+          ? `Registration submitted — we’ll get back to you within 24 hours. Your enrollment ID: ${reg.reference}`
+          : undefined;
       },
       "Registration submitted — we’ll get back to you within 24 hours.",
       "Failed to submit your registration. Please try again."

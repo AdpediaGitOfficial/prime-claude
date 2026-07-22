@@ -224,6 +224,7 @@ model VendorInvite {
 /// Study-centre course registration — POST /course-registrations.
 model CourseRegistration {
   id        String     @id @default(cuid())
+  reference String     @unique @default(dbgenerated("('ENR-' || lpad(nextval('course_registration_ref_seq'::regclass)::text, 5, '0'))"))
   fullName  String
   email     String
   phone     String

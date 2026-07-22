@@ -17,8 +17,9 @@ const RESOURCES: ResourceConfig[] = [
     label: "Course enrollment",
     path: "/api/admin/course-registrations",
     kind: "lead",
-    searchPlaceholder: "Search name, course, phone…",
+    searchPlaceholder: "Search enrollment ID, name, phone…",
     columns: [
+      { header: "Enrollment ID", cell: (r) => <span className="tnum" style={{ fontWeight: 650 }}>{s(r, "reference")}</span> },
       {
         header: "Name",
         cell: (r) => (
