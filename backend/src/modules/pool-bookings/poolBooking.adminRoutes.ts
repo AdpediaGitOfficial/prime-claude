@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validate } from "../../middleware/validate";
 import { adminBlockPoolBookingSchema } from "./poolBooking.schema";
-import { createAdminPoolBooking, getPoolCalendar } from "./poolBooking.controller";
+import { createAdminPoolBooking, getPoolCalendar, getPoolMonth } from "./poolBooking.controller";
 
 /**
  * Custom admin routes for pool bookings, mounted BEFORE the generic resource
@@ -13,6 +13,7 @@ import { createAdminPoolBooking, getPoolCalendar } from "./poolBooking.controlle
 const router = Router();
 
 router.get("/calendar", getPoolCalendar);
+router.get("/month", getPoolMonth);
 router.post("/", validate({ body: adminBlockPoolBookingSchema }), createAdminPoolBooking);
 
 export default router;

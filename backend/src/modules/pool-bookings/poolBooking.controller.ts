@@ -3,7 +3,8 @@ import { prisma } from "../../config/prisma";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { sendSuccess } from "../../utils/apiResponse";
 import { verifyOtp } from "../otp/otp.service";
-import { assignPool, occupiedByPool } from "./poolAvailability";
+import { assignPool, occupiedByPool, parseSlot } from "./poolAvailability";
+import { AppError } from "../../utils/AppError";
 
 /**
  * POST /api/bookings/create-verified
@@ -106,12 +107,35 @@ export const getPoolCalendar = asyncHandler(async (req: Request, res: Response) 
   const rows = await prisma.poolBooking.findMany({
     where: { date, status: { not: "CANCELLED" } },
     select: {
-      id: true, reference: true, guestName: true, phone: true, poolId: true,
-      poolType: true, timeSlot: true, status: true, source: true,
+      id: true, reference: true, guestName: true, phone: true, email: true, poolId: true,
+      poolType: true, timeSlot: true, status: true, source: true, addons: true, totalAmount: true,
     },
     orderBy: { timeSlot: "asc" },
   });
   const pool1 = rows.filter((r) => (r.poolId ?? 1) === 1);
   const pool2 = rows.filter((r) => r.poolId === 2);
   return sendSuccess(res, { date, pool1, pool2 }, "Pool calendar");
+});
+
+/**
+ * GET /api/admin/pool-bookings/month?month=YYYY-MM  (admin)
+ * Per-day booked minutes/counts for a month — drives the calendar load bars.
+ */
+export const getPoolMonth = asyncHandler(async (req: Request, res: Response) => {
+  const month = String(req.query.month ?? "").trim();
+  if (!/^\d{4}-\d{2}$/.test(month)) throw AppError.badRequest("month must be YYYY-MM");
+  const rows = await prisma.poolBooking.findMany({
+    where: { date: { startsWith: month }, status: { not: "CANCELLED" } },
+    select: { date: true, timeSlot: true, poolId: true },
+  });
+  const map: Record<string, { date: string; pool1Mins: number; pool2Mins: number; count: number }> = {};
+  for (const r of rows) {
+    const iv = parseSlot(r.timeSlot);
+    const mins = iv ? iv.end - iv.start : 0;
+    const d = (map[r.date] ??= { date: r.date, pool1Mins: 0, pool2Mins: 0, count: 0 });
+    if ((r.poolId ?? 1) === 2) d.pool2Mins += mins;
+    else d.pool1Mins += mins;
+    d.count++;
+  }
+  return sendSuccess(res, Object.values(map), "Pool month summary");
 });

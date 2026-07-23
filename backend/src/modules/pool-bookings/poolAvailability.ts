@@ -86,6 +86,8 @@ export async function assignPool(
 ): Promise<number> {
   const win = parseSlot(timeSlot);
   if (!win) throw AppError.badRequest("Invalid time slot.");
+  if (win.start < OPEN_MIN || win.end > CLOSE_MIN)
+    throw AppError.badRequest("Bookings are available 10:00 AM – 10:00 PM only.");
   const eligible = eligiblePools(poolType);
   const occ = await occupiedByPool(date);
   const isFree = (p: number) => !poolBusy(occ[p as 1 | 2], win);

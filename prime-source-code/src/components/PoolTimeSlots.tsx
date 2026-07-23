@@ -16,10 +16,15 @@ const formatMins = (mins: number) => {
   return `${hour12}:${String(m).padStart(2, "0")} ${ampm}`;
 };
 
-/** Hourly start times from 10:00 AM; each booking runs start → start+duration. */
+/**
+ * Flexible start times every 30 minutes from 10:00 AM; each booking runs
+ * start → start+duration and must end by 10:00 PM. 30 min is the finest grid
+ * all plan lengths (60/90/180) align to, so it offers every real start
+ * (e.g. a Group can begin 11:00 → 2:00) without unsellable slivers.
+ */
 const generateSlots = (durationMinutes: number): Slot[] => {
   const out: Slot[] = [];
-  for (let cur = OPEN; cur + durationMinutes <= CLOSE; cur += 60) {
+  for (let cur = OPEN; cur + durationMinutes <= CLOSE; cur += 30) {
     out.push({
       start: formatMins(cur),
       end: formatMins(cur + durationMinutes),

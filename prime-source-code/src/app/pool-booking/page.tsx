@@ -165,8 +165,10 @@ export default function PoolBookingPage() {
   const [policies, setPolicies] = useState({ dressCode: false, kids: false, terms: false });
 
   const selectedPlan = plans.find((p) => p.id === selectedPool) ?? null;
-  const bookingTotal =
+  const bookingSubtotal =
     (selectedPlan?.price ?? 0) + (addons.sauna ? 500 : 0) + (addons.jacuzzi ? 500 : 0);
+  const bookingGst = Math.round(bookingSubtotal * 0.18);
+  const bookingTotal = bookingSubtotal + bookingGst; // GST-inclusive
 
   // Next 14 selectable days as chips (value is an ISO yyyy-mm-dd string).
   const dateOptions = useMemo(() => {
@@ -504,7 +506,10 @@ export default function PoolBookingPage() {
               <div className="flex justify-between gap-3"><span className="text-black/60">Jacuzzi</span><span className={addons.jacuzzi ? "font-semibold" : "text-black/40"}>{addons.jacuzzi ? `+ ${inr(500)}` : "Not added"}</span></div>
               <div className="flex justify-between gap-3"><span className="text-black/60">Sauna Bath</span><span className={addons.sauna ? "font-semibold" : "text-black/40"}>{addons.sauna ? `+ ${inr(500)}` : "Not added"}</span></div>
               <div className="h-px bg-black/10" />
-              <div className="flex justify-between items-baseline"><span className="text-black/60 uppercase tracking-wide text-xs">Total</span><span className="text-2xl font-bold text-black">{inr(bookingTotal)}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-black/60">Subtotal</span><span className="font-semibold">{inr(bookingSubtotal)}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-black/60">GST (18%)</span><span className="font-semibold">+ {inr(bookingGst)}</span></div>
+              <div className="h-px bg-black/10" />
+              <div className="flex justify-between items-baseline"><span className="text-black/60 uppercase tracking-wide text-xs">Total <span className="normal-case tracking-normal text-black/40">incl. GST</span></span><span className="text-2xl font-bold text-black">{inr(bookingTotal)}</span></div>
             </div>
             <div className="px-6 pb-5">
               {message && !showMobileModal && (

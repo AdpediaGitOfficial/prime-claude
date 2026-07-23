@@ -15,8 +15,8 @@ export const createPoolBookingSchema = z.object({
 
 /** POST /api/admin/pool-bookings — admin create / block a slot. */
 export const adminBlockPoolBookingSchema = z.object({
-  guestName: z.string().trim().optional().default(""),
-  phone: z.string().trim().regex(/^\+?\d{10,15}$/, "Enter a valid phone number"),
+  guestName: z.string().trim().min(1, "Guest name is required"),
+  phone: z.string().trim().regex(/^\+?\d{10,15}$/, "Enter a valid mobile number"),
   email: z
     .union([z.string().trim().email("Enter a valid email"), z.literal("")])
     .optional()
