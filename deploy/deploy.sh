@@ -52,7 +52,9 @@ fi
 echo "── Backend ──────────────────────────────"
 cd "$ROOT/backend"
 npm ci
+rm -rf dist
 npm run build
+npx prisma generate
 npx prisma migrate deploy
 if [ "$SEED" = "1" ]; then
   echo "  seeding baseline data (first deploy)…"
@@ -63,6 +65,7 @@ fi
 echo "── Admin dashboard ──────────────────────"
 cd "$ROOT/admin"
 npm ci
+rm -rf .next                                   # wipe stale chunks (avoids ChunkLoadError)
 NEXT_PUBLIC_API_BASE_URL="$API_BASE_URL" \
 NEXT_PUBLIC_BASE_PATH="$ADMIN_BASE_PATH" \
   npm run build
@@ -71,6 +74,7 @@ NEXT_PUBLIC_BASE_PATH="$ADMIN_BASE_PATH" \
 echo "── Public site ──────────────────────────"
 cd "$ROOT/prime-source-code"
 npm ci
+rm -rf .next out                               # fresh static export, no stale chunks
 NEXT_PUBLIC_API_BASE_URL="$API_BASE_URL" npm run build
 echo "  syncing out/ → $SITE_WEB_ROOT"
 $SUDO mkdir -p "$SITE_WEB_ROOT"
