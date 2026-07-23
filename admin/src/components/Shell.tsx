@@ -12,6 +12,7 @@ const NAV: Array<{ group: string; items: Array<{ href: string; label: string; ic
     group: "Manage",
     items: [
       { href: "/bookings", label: "Bookings", icon: "▦" },
+      { href: "/pool-calendar", label: "Pool Calendar", icon: "◷" },
       { href: "/hall", label: "Hall Bookings", icon: "▤" },
       { href: "/enquiries", label: "Enquiries", icon: "✉" },
       { href: "/enrollments", label: "Enrollments", icon: "🎓" },
@@ -33,6 +34,7 @@ const NAV: Array<{ group: string; items: Array<{ href: string; label: string; ic
 const TITLES: Record<string, [string, string]> = {
   "/": ["Dashboard", "Bookings & enquiries at a glance"],
   "/bookings": ["Bookings", "Pool & spa reservations"],
+  "/pool-calendar": ["Pool Calendar", "Both pools' availability & offline blocking"],
   "/hall": ["Hall Bookings", "Regal Hall (conference) booking requests"],
   "/enquiries": ["Enquiries", "Vendor & contact leads"],
   "/enrollments": ["Enrollments", "Course enrollments from the study centre"],

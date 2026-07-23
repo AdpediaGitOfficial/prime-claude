@@ -1,15 +1,37 @@
 import { prisma } from "../../config/prisma";
 import { AppError } from "../../utils/AppError";
 
-/** Number of physical pools that can be reserved at the same instant. */
-export const POOL_CAPACITY = 2;
+/**
+ * Two physical pools with roles:
+ *   Pool 1 — small pool  (Solo / Duo / Session, ≤ 8 guests)
+ *   Pool 2 — group pool  (Group Function, ≤ 12 guests) + small overflow
+ *
+ * Assignment rules:
+ *   • Group Function  → Pool 2 only.
+ *   • Small plans     → Pool 1 first, spill to Pool 2 only when Pool 1 is busy.
+ * So the group pool stays reserved for groups until the small pool is taken.
+ */
+export const POOL_SMALL = 1;
+export const POOL_GROUP = 2;
+export const OPEN_MIN = 600;   // 10:00 AM
+export const CLOSE_MIN = 1320; // 10:00 PM
 
 /** Booking statuses that still occupy a pool (everything except CANCELLED). */
 const OCCUPYING_STATUSES = ["PENDING", "CONFIRMED", "COMPLETED"] as const;
 
 export type Interval = { start: number; end: number };
+export type PoolOccupancy = { 1: Interval[]; 2: Interval[] };
 
-/** Parse "10:00 AM" → minutes since midnight, or null if unparseable. */
+/** A plan is a group booking when its name mentions "group". */
+export function isGroupPlan(poolType: string): boolean {
+  return /group/i.test(poolType || "");
+}
+
+/** Pools a plan may use, in assignment-preference order. */
+export function eligiblePools(poolType: string): number[] {
+  return isGroupPlan(poolType) ? [POOL_GROUP] : [POOL_SMALL, POOL_GROUP];
+}
+
 function parseTime(raw: string): number | null {
   const m = raw.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
   if (!m) return null;
@@ -21,7 +43,7 @@ function parseTime(raw: string): number | null {
   return h * 60 + min;
 }
 
-/** Parse a stored slot label "10:00 AM - 11:30 AM" → interval in minutes. */
+/** Parse "10:00 AM - 11:30 AM" → interval in minutes. */
 export function parseSlot(timeSlot: string): Interval | null {
   const parts = timeSlot.split(/\s*-\s*/);
   if (parts.length !== 2) return null;
@@ -31,52 +53,59 @@ export function parseSlot(timeSlot: string): Interval | null {
   return { start, end };
 }
 
-/**
- * Busiest number of `existing` intervals that overlap at any single instant
- * inside `win`. Touching intervals (one ends exactly when another starts) are
- * NOT counted as concurrent.
- */
-export function busiestWithin(existing: Interval[], win: Interval): number {
-  const events: Array<[number, number]> = [];
-  for (const iv of existing) {
-    const s = Math.max(iv.start, win.start);
-    const e = Math.min(iv.end, win.end);
-    if (s < e) {
-      events.push([s, 1]);
-      events.push([e, -1]);
-    }
-  }
-  // At an equal coordinate, process ends (-1) before starts (+1).
-  events.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-  let cur = 0;
-  let max = 0;
-  for (const [, delta] of events) {
-    cur += delta;
-    if (cur > max) max = cur;
-  }
-  return max;
-}
+const overlaps = (a: Interval, b: Interval) => a.start < b.end && a.end > b.start;
+const poolBusy = (ivs: Interval[], win: Interval) => ivs.some((iv) => overlaps(iv, win));
 
-/** All occupying intervals for a given date (excludes CANCELLED). */
-export async function occupiedIntervals(date: string): Promise<Interval[]> {
+/** Occupied intervals for a date, grouped by pool (excludes CANCELLED). */
+export async function occupiedByPool(date: string): Promise<PoolOccupancy> {
   const rows = await prisma.poolBooking.findMany({
     where: { date, status: { in: [...OCCUPYING_STATUSES] } },
-    select: { timeSlot: true },
+    select: { timeSlot: true, poolId: true },
   });
-  return rows
-    .map((r) => parseSlot(r.timeSlot))
-    .filter((iv): iv is Interval => iv !== null);
+  const out: PoolOccupancy = { 1: [], 2: [] };
+  for (const r of rows) {
+    const iv = parseSlot(r.timeSlot);
+    if (!iv) continue;
+    const pid = r.poolId === 2 ? 2 : 1; // legacy null → treat as pool 1
+    out[pid].push(iv);
+  }
+  return out;
 }
 
 /**
- * Throw a 409 if booking `timeSlot` on `date` would exceed pool capacity.
- * Called on every create path so the last free pool can't be double-booked.
+ * Decide which pool a booking gets.
+ * @param requestedPool  when set (admin), force this pool (validated).
+ * @returns the assigned pool id (1 or 2).
+ * @throws 400 if the requested pool is invalid for the plan, 409 if no pool free.
  */
-export async function assertPoolAvailable(date: string, timeSlot: string): Promise<void> {
+export async function assignPool(
+  date: string,
+  timeSlot: string,
+  poolType: string,
+  requestedPool?: number | null,
+): Promise<number> {
   const win = parseSlot(timeSlot);
-  if (!win) return; // unparseable slot — nothing to enforce
-  const existing = await occupiedIntervals(date);
-  if (busiestWithin(existing, win) >= POOL_CAPACITY) {
-    throw AppError.conflict("This time slot is fully booked. Please choose another slot.");
+  if (!win) throw AppError.badRequest("Invalid time slot.");
+  const eligible = eligiblePools(poolType);
+  const occ = await occupiedByPool(date);
+  const isFree = (p: number) => !poolBusy(occ[p as 1 | 2], win);
+
+  if (requestedPool) {
+    if (!eligible.includes(requestedPool)) {
+      throw AppError.badRequest(
+        isGroupPlan(poolType)
+          ? "Group Function can only use the group pool (Pool 2)."
+          : `Pool ${requestedPool} is not valid for this plan.`,
+      );
+    }
+    if (!isFree(requestedPool)) {
+      throw AppError.conflict(`Pool ${requestedPool} is already booked for this time.`);
+    }
+    return requestedPool;
   }
+
+  for (const p of eligible) {
+    if (isFree(p)) return p;
+  }
+  throw AppError.conflict("This time slot is fully booked. Please choose another slot.");
 }

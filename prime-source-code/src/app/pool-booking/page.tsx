@@ -136,21 +136,26 @@ export default function PoolBookingPage() {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
 
-  // Live pool occupancy for the chosen date → drives per-slot availability.
-  const [poolOccupied, setPoolOccupied] = useState<{ start: number; end: number }[]>([]);
-  const [poolCapacity, setPoolCapacity] = useState(2);
+  // Live per-pool occupancy for the chosen date → drives per-slot availability.
+  type Interval = { start: number; end: number };
+  const [pool1, setPool1] = useState<Interval[]>([]);
+  const [pool2, setPool2] = useState<Interval[]>([]);
 
   const refreshAvailability = useCallback((date: string) => {
     if (!date) {
-      setPoolOccupied([]);
+      setPool1([]);
+      setPool2([]);
       return;
     }
     apiCall(`${ENDPOINTS.POOL_BOOKINGS}?date=${encodeURIComponent(date)}`)
       .then((res) => {
-        setPoolOccupied(Array.isArray(res?.occupied) ? res.occupied : []);
-        if (typeof res?.capacity === "number") setPoolCapacity(res.capacity);
+        setPool1(Array.isArray(res?.pool1) ? res.pool1 : []);
+        setPool2(Array.isArray(res?.pool2) ? res.pool2 : []);
       })
-      .catch(() => setPoolOccupied([]));
+      .catch(() => {
+        setPool1([]);
+        setPool2([]);
+      });
   }, []);
 
   useEffect(() => {
@@ -460,8 +465,9 @@ export default function PoolBookingPage() {
               </p>
               <PoolTimeSlots
                 durationMinutes={selectedPlan?.durationMinutes ?? 90}
-                occupied={poolOccupied}
-                capacity={poolCapacity}
+                pool1={pool1}
+                pool2={pool2}
+                groupPlan={selectedPool === "group"}
                 onSlotChange={setSelectedSlot}
               />
             </div>

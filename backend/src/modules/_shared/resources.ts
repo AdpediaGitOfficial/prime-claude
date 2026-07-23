@@ -15,10 +15,11 @@ const email = z
 const phone = z.string().trim().regex(/^\+?\d{10,15}$/, "Enter a valid phone number");
 
 // ─── Admin create schemas (walk-in / manual entry) ───
-const poolCreate = z.object({
+const poolUpdate = z.object({
   guestName: req("Guest name"),
   phone,
   email,
+  poolId: z.coerce.number().int().min(1).max(2).optional(),
   poolType: req("Plan"),
   date: req("Date"),
   timeSlot: req("Time slot"),
@@ -97,8 +98,9 @@ export const RESOURCES: Record<string, ResourceConfig & { path: string }> = {
     searchFields: ["reference", "guestName", "phone", "poolType", "timeSlot"],
     sortFields: ["createdAt", "date", "totalAmount", "status", "guestName", "reference"],
     allowedStatuses: [...BOOKING_STATUSES],
-    createSchema: poolCreate,
-    updateSchema: poolCreate.partial(),
+    // create is handled by the custom pool admin router (pool-aware assignment);
+    // edit uses the generic router with poolUpdate.
+    updateSchema: poolUpdate.partial(),
   },
   hallBookings: {
     path: "hall-bookings",

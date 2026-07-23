@@ -5,10 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 export type Slot = { start: string; end: string; startMin: number; endMin: number };
 export type Interval = { start: number; end: number };
 
-const toMinutes = (time: string) => {
-  const [h, m] = time.split(":").map((v) => parseInt(v, 10));
-  return h * 60 + (isNaN(m) ? 0 : m);
-};
+const OPEN = 600;   // 10:00 AM
+const CLOSE = 1320; // 10:00 PM
 
 const formatMins = (mins: number) => {
   const h = Math.floor(mins / 60);
@@ -18,15 +16,16 @@ const formatMins = (mins: number) => {
   return `${hour12}:${String(m).padStart(2, "0")} ${ampm}`;
 };
 
-const generateSlots = (startStr = "10:00", endStr = "22:00", durationMinutes = 90): Slot[] => {
-  const start = toMinutes(startStr);
-  const end = toMinutes(endStr);
+/** Hourly start times from 10:00 AM; each booking runs start → start+duration. */
+const generateSlots = (durationMinutes: number): Slot[] => {
   const out: Slot[] = [];
-  let cur = start;
-  while (cur + durationMinutes <= end) {
-    const next = cur + durationMinutes;
-    out.push({ start: formatMins(cur), end: formatMins(next), startMin: cur, endMin: next });
-    cur = next;
+  for (let cur = OPEN; cur + durationMinutes <= CLOSE; cur += 60) {
+    out.push({
+      start: formatMins(cur),
+      end: formatMins(cur + durationMinutes),
+      startMin: cur,
+      endMin: cur + durationMinutes,
+    });
   }
   return out;
 };
@@ -39,56 +38,40 @@ const durationLabel = (minutes: number) => {
   return `${m}m`;
 };
 
-/**
- * Busiest number of `existing` intervals overlapping at any instant inside
- * `win`. Touching intervals (one ends when another starts) don't count.
- */
-const busiestWithin = (existing: Interval[], win: Interval): number => {
-  const events: Array<[number, number]> = [];
-  for (const iv of existing) {
-    const s = Math.max(iv.start, win.start);
-    const e = Math.min(iv.end, win.end);
-    if (s < e) {
-      events.push([s, 1]);
-      events.push([e, -1]);
-    }
-  }
-  events.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-  let cur = 0;
-  let max = 0;
-  for (const [, delta] of events) {
-    cur += delta;
-    if (cur > max) max = cur;
-  }
-  return max;
-};
+const busy = (ivs: Interval[], win: Interval) =>
+  ivs.some((iv) => iv.start < win.end && iv.end > win.start);
 
 export default function PoolTimeSlots({
   durationMinutes = 90,
-  occupied = [],
-  capacity = 2,
+  pool1 = [],
+  pool2 = [],
+  groupPlan = false,
   onSlotChange,
 }: {
   durationMinutes?: number;
-  occupied?: Interval[];
-  capacity?: number;
+  pool1?: Interval[];
+  pool2?: Interval[];
+  groupPlan?: boolean;
   onSlotChange?: (slot: Slot | null) => void;
 }) {
-  const slots = useMemo(() => generateSlots("10:00", "22:00", durationMinutes), [durationMinutes]);
+  const slots = useMemo(() => generateSlots(durationMinutes), [durationMinutes]);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
   const label = durationLabel(durationMinutes);
 
-  // Free pools per slot = capacity − busiest overlapping booking count.
+  // Free pools for each slot, honouring the pool roles:
+  //   Group  → only Pool 2 counts (0 or 1).
+  //   Others → Pool 1 preferred, Pool 2 overflow (0, 1 or 2).
   const freeBySlot = useMemo(
     () =>
-      slots.map((slot) =>
-        Math.max(0, capacity - busiestWithin(occupied, { start: slot.startMin, end: slot.endMin }))
-      ),
-    [slots, occupied, capacity]
+      slots.map((s) => {
+        const win = { start: s.startMin, end: s.endMin };
+        const p1Free = !busy(pool1, win);
+        const p2Free = !busy(pool2, win);
+        return groupPlan ? (p2Free ? 1 : 0) : (p1Free ? 1 : 0) + (p2Free ? 1 : 0);
+      }),
+    [slots, pool1, pool2, groupPlan]
   );
 
-  // Clear the selection whenever the slot grid changes (plan switch) or the
-  // currently-selected slot becomes fully booked (availability refresh).
   useEffect(() => {
     setActiveSlot(null);
     onSlotChange?.(null);
@@ -104,7 +87,7 @@ export default function PoolTimeSlots({
   }, [freeBySlot]);
 
   const handleSelect = (index: number) => {
-    if (freeBySlot[index] <= 0) return; // fully booked — not selectable
+    if (freeBySlot[index] <= 0) return;
     setActiveSlot(index);
     onSlotChange?.(slots[index]);
   };
@@ -115,16 +98,15 @@ export default function PoolTimeSlots({
         const free = freeBySlot[index];
         const isActive = activeSlot === index;
         const isFull = free <= 0;
+        // Group shows Available / Fully booked (no "1 pool left").
         const availText = isFull
           ? "Fully booked"
+          : groupPlan
+          ? "Available"
           : free === 1
           ? "1 pool left"
-          : `${free} pools available`;
-        const availClass = isFull
-          ? "text-red-600"
-          : free === 1
-          ? "text-amber-600"
-          : "text-emerald-600";
+          : "2 pools available";
+        const availClass = isFull ? "text-red-600" : free === 1 && !groupPlan ? "text-amber-600" : "text-emerald-600";
         return (
           <button
             key={`${slot.start}-${slot.end}`}
@@ -141,25 +123,13 @@ export default function PoolTimeSlots({
                 : "border-black/20 hover:bg-[#cff9ff]"
             }`}
           >
-            <div
-              className={`font-medium ${
-                isActive ? "text-white" : isFull ? "text-black/40" : "text-black"
-              }`}
-            >
+            <div className={`font-medium ${isActive ? "text-white" : isFull ? "text-black/40" : "text-black"}`}>
               {slot.start}
             </div>
-            <div
-              className={`text-xs ${
-                isActive ? "text-white/80" : isFull ? "text-black/35" : "text-black/60"
-              }`}
-            >
+            <div className={`text-xs ${isActive ? "text-white/80" : isFull ? "text-black/35" : "text-black/60"}`}>
               to {slot.end}
             </div>
-            <div
-              className={`text-[11px] mt-1 font-medium no-underline ${
-                isActive ? "text-white/90" : availClass
-              }`}
-            >
+            <div className={`text-[11px] mt-1 font-medium no-underline ${isActive ? "text-white/90" : availClass}`}>
               {availText}
             </div>
           </button>

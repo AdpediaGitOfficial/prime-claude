@@ -8,6 +8,7 @@ import contentRoutes from "../modules/content/content.routes";
 import listingAdminRoutes from "../modules/listings/listing.adminRoutes";
 import uploadRoutes from "../modules/uploads/upload.routes";
 import adminUserRoutes from "../modules/admin-users/adminUser.routes";
+import poolAdminRoutes from "../modules/pool-bookings/poolBooking.adminRoutes";
 
 /** Admin API — everything under /api/admin. */
 const router = Router();
@@ -19,6 +20,10 @@ router.use("/auth", adminAuthRoutes);
 router.use(authGuard);
 
 router.use("/dashboard", dashboardRoutes);
+
+// Pool-specific admin routes (calendar + pool-aware create/block) take
+// precedence over the generic pool-bookings router mounted in the loop below.
+router.use("/pool-bookings", poolAdminRoutes);
 
 // One REST router per booking/enquiry collection (list/get/status/delete).
 for (const cfg of Object.values(RESOURCES)) {

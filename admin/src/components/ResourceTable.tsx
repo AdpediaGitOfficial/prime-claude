@@ -16,14 +16,18 @@ export interface Column {
 
 export type FieldType = "text" | "email" | "tel" | "number" | "date" | "textarea" | "select";
 
+export type FieldOption = string | { value: string; label: string };
+
 export interface FieldDef {
   name: string;
   label: string;
   type: FieldType;
-  options?: string[];
+  options?: FieldOption[];
   required?: boolean;
   /** Comma-separated string ⇄ string[] (e.g. vendor counters). */
   list?: boolean;
+  /** Placeholder shown as the empty select option (default "Select…"). */
+  placeholder?: string;
 }
 
 export interface ResourceConfig {

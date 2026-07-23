@@ -118,6 +118,7 @@ model PoolBooking {
   guestName   String
   phone       String
   email       String?
+  poolId      Int? // physical pool: 1 = small (≤8), 2 = group (≤12)
   poolType    String // selected plan name (Solo / Duo / Session / Group ...)
   date        String // "YYYY-MM-DD" as sent by the frontend
   timeSlot    String // "10:00 AM - 11:30 AM"

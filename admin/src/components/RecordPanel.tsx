@@ -20,6 +20,9 @@ function toPayload(fields: FieldDef[], values: Record<string, string>, status: s
     if (f.type === "number") {
       if (raw === "") continue;
       out[f.name] = Number(raw);
+    } else if (f.type === "select") {
+      if (raw === "") continue; // unselected optional dropdown → omit
+      out[f.name] = raw;
     } else if (f.list) {
       out[f.name] = raw ? raw.split(",").map((s) => s.trim()).filter(Boolean) : [];
     } else {
@@ -57,10 +60,12 @@ function FormFields({
             <textarea id={f.name} rows={3} value={values[f.name] ?? ""} onChange={(e) => set(f.name, e.target.value)} />
           ) : f.type === "select" ? (
             <select id={f.name} value={values[f.name] ?? ""} onChange={(e) => set(f.name, e.target.value)}>
-              <option value="">Select…</option>
-              {f.options?.map((o) => (
-                <option key={o} value={o}>{o}</option>
-              ))}
+              <option value="">{f.placeholder ?? "Select…"}</option>
+              {f.options?.map((o) => {
+                const val = typeof o === "string" ? o : o.value;
+                const lab = typeof o === "string" ? o : o.label;
+                return <option key={val} value={val}>{lab}</option>;
+              })}
             </select>
           ) : (
             <input id={f.name} type={f.type} value={values[f.name] ?? ""} onChange={(e) => set(f.name, e.target.value)} />
