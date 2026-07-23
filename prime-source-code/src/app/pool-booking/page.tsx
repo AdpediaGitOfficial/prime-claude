@@ -506,10 +506,8 @@ export default function PoolBookingPage() {
               <div className="flex justify-between gap-3"><span className="text-black/60">Jacuzzi</span><span className={addons.jacuzzi ? "font-semibold" : "text-black/40"}>{addons.jacuzzi ? `+ ${inr(500)}` : "Not added"}</span></div>
               <div className="flex justify-between gap-3"><span className="text-black/60">Sauna Bath</span><span className={addons.sauna ? "font-semibold" : "text-black/40"}>{addons.sauna ? `+ ${inr(500)}` : "Not added"}</span></div>
               <div className="h-px bg-black/10" />
-              <div className="flex justify-between gap-3"><span className="text-black/60">Subtotal</span><span className="font-semibold">{inr(bookingSubtotal)}</span></div>
-              <div className="flex justify-between gap-3"><span className="text-black/60">GST (18%)</span><span className="font-semibold">+ {inr(bookingGst)}</span></div>
-              <div className="h-px bg-black/10" />
-              <div className="flex justify-between items-baseline"><span className="text-black/60 uppercase tracking-wide text-xs">Total <span className="normal-case tracking-normal text-black/40">incl. GST</span></span><span className="text-2xl font-bold text-black">{inr(bookingTotal)}</span></div>
+              <div className="flex justify-between items-baseline"><span className="text-black/60 uppercase tracking-wide text-xs">Total</span><span className="text-2xl font-bold text-black">{inr(bookingSubtotal)}<span className="align-super text-sm font-semibold text-black/40">*</span></span></div>
+              <p className="mt-1.5 text-xs text-black/55">* 18% GST will be extra.</p>
             </div>
             <div className="px-6 pb-5">
               {message && !showMobileModal && (
