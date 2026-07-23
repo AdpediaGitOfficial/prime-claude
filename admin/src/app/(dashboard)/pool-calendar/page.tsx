@@ -122,7 +122,7 @@ export default function PoolCalendarPage() {
               const isToday = c.id === todayISO(), isSel = c.id === sel;
               return (
                 <button key={i} onClick={() => setSel(c.id)}
-                  style={{ aspectRatio: "1/1.08", border: isToday ? "1.5px solid var(--brand,#0c9cae)" : "1px solid transparent", borderRadius: 10, background: isSel ? "var(--ink,#0d1a1d)" : "var(--surface-2,#f4f8fa)", color: isSel ? "var(--surface,#fff)" : "inherit", cursor: "pointer", padding: "5px 0 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                  style={{ aspectRatio: "1/1.08", border: isToday ? "1.5px solid var(--brand)" : "1px solid transparent", borderRadius: 10, background: isSel ? "var(--ink)" : "var(--ground)", color: isSel ? "var(--surface)" : "inherit", cursor: "pointer", padding: "5px 0 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
                   <span style={{ fontSize: 13, fontWeight: 600 }}>{c.d}</span>
                   <div style={{ width: "60%", marginTop: "auto", marginBottom: 6, display: "flex", flexDirection: "column", gap: 2 }}>
                     {(l1 > 0 || l2 > 0) && <>
@@ -135,7 +135,7 @@ export default function PoolCalendarPage() {
             })}
           </div>
           <button className="btn-outline" onClick={jumpToday} style={{ width: "100%", marginTop: 12, padding: 8, fontSize: 13 }}>Jump to today</button>
-          <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--line-soft,#e9f0f2)", fontSize: 11.5, color: "var(--muted)", display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--line)", fontSize: 11.5, color: "var(--muted)", display: "flex", flexDirection: "column", gap: 6 }}>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><i style={{ width: 14, height: 4, borderRadius: 2, background: P1, display: "inline-block" }} /> Pool 1 load</span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><i style={{ width: 14, height: 4, borderRadius: 2, background: P2, display: "inline-block" }} /> Pool 2 load</span>
           </div>
@@ -164,8 +164,8 @@ export default function PoolCalendarPage() {
 
       <style>{`
         @media (max-width: 900px){ .pc-layout{ grid-template-columns:1fr !important; } }
-        .mini{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);width:34px;height:34px;border-radius:9px;cursor:pointer;}
-        .mini:hover{border-color:var(--brand,#0c9cae);}
+        .mini{border:1px solid var(--line);background:var(--ground);color:var(--ink);width:34px;height:34px;border-radius:9px;cursor:pointer;}
+        .mini:hover{border-color:var(--brand);}
       `}</style>
     </>
   );
@@ -173,7 +173,7 @@ export default function PoolCalendarPage() {
 
 function Stat({ label, val, c }: { label: string; val: string; c?: string }) {
   return (
-    <div style={{ background: "var(--surface-2,#f4f8fa)", border: "1px solid var(--line)", borderRadius: 10, padding: "6px 11px", minWidth: 92 }}>
+    <div style={{ background: "var(--ground)", border: "1px solid var(--line)", borderRadius: 10, padding: "6px 11px", minWidth: 92 }}>
       <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: ".04em", color: "var(--muted)", fontWeight: 600, display: "flex", alignItems: "center", gap: 5 }}>
         {c && <span style={{ width: 8, height: 8, borderRadius: 2, background: c }} />}{label}
       </div>
@@ -188,7 +188,7 @@ function DayGrid({ day, onBooking, onGap }: { day: CalData | null; onBooking: (b
     { pool: 1, label: "Pool 1 · small ≤8", color: P1, list: day?.pool1 ?? [] },
     { pool: 2, label: "Pool 2 · group ≤12", color: P2, list: day?.pool2 ?? [] },
   ];
-  const statusColor: Record<string, string> = { PENDING: "var(--warn,#bd7a12)", CONFIRMED: "var(--ok,#0e9d6a)", COMPLETED: "var(--info,#2b74c9)", CANCELLED: "var(--bad,#db4349)" };
+  const statusColor: Record<string, string> = { PENDING: "var(--warn)", CONFIRMED: "var(--good)", COMPLETED: "var(--info)", CANCELLED: "var(--bad)" };
   return (
     <div style={{ overflowX: "auto" }}>
       <div style={{ display: "grid", gridTemplateColumns: "56px 1fr 1fr", minWidth: 620 }}>
@@ -201,7 +201,7 @@ function DayGrid({ day, onBooking, onGap }: { day: CalData | null; onBooking: (b
         {/* time axis */}
         <div style={{ position: "relative" }}>
           {Array.from({ length: 12 }, (_, i) => (
-            <div key={i} style={{ height: ROW, borderBottom: "1px solid var(--line-soft,#e9f0f2)", position: "relative" }}>
+            <div key={i} style={{ height: ROW, borderBottom: "1px solid var(--line)", position: "relative" }}>
               <span style={{ position: "absolute", top: -8, right: 7, fontSize: 10, color: "var(--muted)" }}>{fmt(OPEN + i * 60).replace(":00", "")}</span>
             </div>
           ))}
@@ -216,7 +216,7 @@ function DayGrid({ day, onBooking, onGap }: { day: CalData | null; onBooking: (b
             const start = Math.min(CLOSE - 30, OPEN + Math.round(y / (ROW / 2)) * 30);
             onGap(c.pool, Math.max(OPEN, start));
           }} style={{ position: "relative", borderLeft: "1px solid var(--line)", cursor: "copy" }}>
-            {Array.from({ length: 12 }, (_, i) => <div key={i} style={{ height: ROW, borderBottom: "1px solid var(--line-soft,#e9f0f2)" }} />)}
+            {Array.from({ length: 12 }, (_, i) => <div key={i} style={{ height: ROW, borderBottom: "1px solid var(--line)" }} />)}
             {c.list.map((b) => {
               const r = slotRange(b.timeSlot); if (!r) return null;
               const cancelled = b.status === "CANCELLED";
@@ -248,7 +248,7 @@ function AmountBox({ plan, addons }: { plan: string; addons: string[] }) {
   const b = breakdown(plan, addons); const has = (a: string) => addons.includes(a);
   const row = (k: string, v: string, mut?: boolean) => <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "3px 0", color: mut ? "var(--muted)" : "inherit" }}><span style={{ color: "var(--muted)" }}>{k}</span><span>{v}</span></div>;
   return (
-    <div style={{ background: "var(--surface-2,#f4f8fa)", border: "1px solid var(--line)", borderRadius: 10, padding: "11px 13px" }}>
+    <div style={{ background: "var(--ground)", border: "1px solid var(--line)", borderRadius: 10, padding: "11px 13px" }}>
       {row(plan, inr(b.base))}
       {row("Jacuzzi", has("Jacuzzi") ? "+ " + inr(ADDON) : "Not added", true)}
       {row("Sauna Bath", has("Sauna Bath") ? "+ " + inr(ADDON) : "Not added", true)}
@@ -263,10 +263,10 @@ function Drawer({ title, sub, onClose, children, foot }: { title: string; sub?: 
   return (
     <>
       <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(6,18,20,.5)", zIndex: 60 }} />
-      <div style={{ position: "fixed", top: 0, right: 0, height: "100%", width: "min(400px,94vw)", background: "var(--surface,#fff)", borderLeft: "1px solid var(--line)", zIndex: 61, display: "flex", flexDirection: "column", boxShadow: "-10px 0 40px rgba(0,0,0,.2)" }}>
+      <div style={{ position: "fixed", top: 0, right: 0, height: "100%", width: "min(400px,94vw)", background: "var(--surface)", borderLeft: "1px solid var(--line)", zIndex: 61, display: "flex", flexDirection: "column", boxShadow: "-10px 0 40px rgba(0,0,0,.2)" }}>
         <div style={{ padding: "18px 20px", borderBottom: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
-          <div><h3 style={{ margin: 0, fontSize: 17, fontWeight: 750 }}>{title}</h3>{sub && <div style={{ fontFamily: "var(--mono,monospace)", fontSize: 12.5, color: "var(--brand,#076070)", fontWeight: 650, marginTop: 3 }}>{sub}</div>}</div>
-          <button onClick={onClose} aria-label="Close" style={{ border: "none", background: "var(--surface-2,#f4f8fa)", width: 30, height: 30, borderRadius: 8, cursor: "pointer", color: "inherit", fontSize: 15 }}>✕</button>
+          <div><h3 style={{ margin: 0, fontSize: 17, fontWeight: 750 }}>{title}</h3>{sub && <div style={{ fontFamily: "var(--mono,monospace)", fontSize: 12.5, color: "var(--brand)", fontWeight: 650, marginTop: 3 }}>{sub}</div>}</div>
+          <button onClick={onClose} aria-label="Close" style={{ border: "none", background: "var(--ground)", width: 30, height: 30, borderRadius: 8, cursor: "pointer", color: "inherit", fontSize: 15 }}>✕</button>
         </div>
         <div style={{ padding: "18px 20px", overflowY: "auto", flex: 1 }}>{children}</div>
         <div style={{ padding: "16px 20px", borderTop: "1px solid var(--line)", display: "flex", gap: 10 }}>{foot}</div>
@@ -278,7 +278,7 @@ function Drawer({ title, sub, onClose, children, foot }: { title: string; sub?: 
 function ManageDrawer({ b, onClose, onChanged }: { b: Booking; onClose: () => void; onChanged: (m: string) => void }) {
   const [busy, setBusy] = useState(false);
   const r = slotRange(b.timeSlot);
-  const kv = (k: string, v: React.ReactNode) => <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "8px 0", borderBottom: "1px solid var(--line-soft,#e9f0f2)", fontSize: 13.5 }}><span style={{ color: "var(--muted)" }}>{k}</span><span style={{ fontWeight: 600, textAlign: "right" }}>{v}</span></div>;
+  const kv = (k: string, v: React.ReactNode) => <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "8px 0", borderBottom: "1px solid var(--line)", fontSize: 13.5 }}><span style={{ color: "var(--muted)" }}>{k}</span><span style={{ fontWeight: 600, textAlign: "right" }}>{v}</span></div>;
   const setStatus = async (s: string) => { setBusy(true); try { await api(`/api/admin/pool-bookings/${b.id}/status`, { method: "PATCH", body: JSON.stringify({ status: s }) }); onChanged(`Marked ${s.toLowerCase()}`); } catch (e) { alert(e instanceof Error ? e.message : "Failed"); } finally { setBusy(false); } };
   const del = async () => { if (!confirm("Delete this booking permanently?")) return; setBusy(true); try { await api(`/api/admin/pool-bookings/${b.id}`, { method: "DELETE" }); onChanged("Booking deleted"); } catch (e) { alert(e instanceof Error ? e.message : "Failed"); } finally { setBusy(false); } };
   const label = (s: string) => s[0] + s.slice(1).toLowerCase();
@@ -286,7 +286,7 @@ function ManageDrawer({ b, onClose, onChanged }: { b: Booking; onClose: () => vo
     <Drawer title={b.guestName} sub={b.reference} onClose={onClose}
       foot={<>
         <button className="btn-outline" style={{ flex: 1 }} disabled={busy} onClick={() => setStatus("CANCELLED")}>Cancel booking</button>
-        <button style={{ border: "none", borderRadius: 10, padding: "11px 14px", fontWeight: 650, cursor: "pointer", background: "rgba(219,67,73,.14)", color: "var(--bad,#db4349)" }} disabled={busy} onClick={del}>Delete</button>
+        <button style={{ border: "none", borderRadius: 10, padding: "11px 14px", fontWeight: 650, cursor: "pointer", background: "rgba(219,67,73,.14)", color: "var(--bad)" }} disabled={busy} onClick={del}>Delete</button>
       </>}>
       {kv("Pool", <PoolPill pool={b.poolId} />)}
       {kv("Plan", b.poolType)}
@@ -300,7 +300,7 @@ function ManageDrawer({ b, onClose, onChanged }: { b: Booking; onClose: () => vo
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
         {["PENDING","CONFIRMED","COMPLETED","CANCELLED"].map((s) => (
           <button key={s} disabled={busy} onClick={() => setStatus(s)}
-            style={{ border: b.status === s ? "1px solid var(--ink,#0d1a1d)" : "1px solid var(--line)", background: b.status === s ? "var(--ink,#0d1a1d)" : "var(--surface-2,#f4f8fa)", color: b.status === s ? "var(--surface,#fff)" : "inherit", borderRadius: 8, padding: "7px 12px", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>{label(s)}</button>
+            style={{ border: b.status === s ? "1px solid var(--ink)" : "1px solid var(--line)", background: b.status === s ? "var(--ink)" : "var(--ground)", color: b.status === s ? "var(--surface)" : "inherit", borderRadius: 8, padding: "7px 12px", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>{label(s)}</button>
         ))}
       </div>
     </Drawer>
@@ -361,7 +361,7 @@ function BlockDrawer({ date, pool, start, poolFreeAt, onClose, onSaved }: {
     } catch (e) { setErr(e instanceof Error ? e.message : "Failed to block"); setBusy(false); }
   };
 
-  const inputStyle = { width: "100%", padding: "9px 11px", border: "1px solid var(--line)", borderRadius: 9, background: "var(--surface-2,#f4f8fa)", color: "inherit", fontSize: 14 } as const;
+  const inputStyle = { width: "100%", padding: "9px 11px", border: "1px solid var(--line)", borderRadius: 9, background: "var(--ground)", color: "inherit", fontSize: 14 } as const;
   const lbl = (t: React.ReactNode) => <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--muted)", marginBottom: 5 }}>{t}</label>;
   const grp = PLANS[plan].group;
 
@@ -386,21 +386,21 @@ function BlockDrawer({ date, pool, start, poolFreeAt, onClose, onSaved }: {
       </div>
       <div style={{ marginBottom: 12 }}>{lbl("Add-ons · ₹500 each")}
         {[["Jacuzzi", jac, setJac] as const, ["Sauna Bath", sauna, setSauna] as const].map(([name, val, set]) => (
-          <label key={name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 11px", border: "1px solid var(--line)", borderRadius: 9, background: "var(--surface-2,#f4f8fa)", marginBottom: 6, cursor: "pointer" }}>
+          <label key={name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 11px", border: "1px solid var(--line)", borderRadius: 9, background: "var(--ground)", marginBottom: 6, cursor: "pointer" }}>
             <span style={{ fontSize: 13.5, fontWeight: 600 }}>{name} <span style={{ fontWeight: 500, color: "var(--muted)", fontSize: 12 }}>Individual service</span></span>
-            <input type="checkbox" checked={val} onChange={(e) => set(e.target.checked)} style={{ width: 18, height: 18, accentColor: "var(--brand,#0c9cae)" }} />
+            <input type="checkbox" checked={val} onChange={(e) => set(e.target.checked)} style={{ width: 18, height: 18, accentColor: "var(--brand)" }} />
           </label>
         ))}
       </div>
-      <div style={{ marginBottom: 12 }}>{lbl(<>Guest name <span style={{ color: "var(--bad,#db4349)" }}>*</span></>)}<input value={guest} onChange={(e) => setGuest(e.target.value)} placeholder="Customer name" style={inputStyle} /></div>
-      <div style={{ marginBottom: 12 }}>{lbl(<>Mobile number <span style={{ color: "var(--bad,#db4349)" }}>*</span></>)}<input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit mobile" inputMode="numeric" style={inputStyle} /></div>
+      <div style={{ marginBottom: 12 }}>{lbl(<>Guest name <span style={{ color: "var(--bad)" }}>*</span></>)}<input value={guest} onChange={(e) => setGuest(e.target.value)} placeholder="Customer name" style={inputStyle} /></div>
+      <div style={{ marginBottom: 12 }}>{lbl(<>Mobile number <span style={{ color: "var(--bad)" }}>*</span></>)}<input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit mobile" inputMode="numeric" style={inputStyle} /></div>
       <div style={{ marginBottom: 10 }}>{lbl("Amount")}<AmountBox plan={plan} addons={addons} /></div>
-      {err && <div style={{ color: "var(--bad,#db4349)", fontSize: 12.5 }}>{err}</div>}
+      {err && <div style={{ color: "var(--bad)", fontSize: 12.5 }}>{err}</div>}
     </Drawer>
   );
 }
 
 function Toast({ msg, onDone }: { msg: string; onDone: () => void }) {
   useEffect(() => { const t = setTimeout(onDone, 2600); return () => clearTimeout(t); }, [onDone]);
-  return <div style={{ position: "fixed", bottom: 22, left: "50%", transform: "translateX(-50%)", background: "var(--ink,#0d1a1d)", color: "var(--surface,#fff)", padding: "11px 18px", borderRadius: 10, fontSize: 14, fontWeight: 600, zIndex: 70, boxShadow: "0 8px 30px rgba(0,0,0,.3)" }}>{msg}</div>;
+  return <div style={{ position: "fixed", bottom: 22, left: "50%", transform: "translateX(-50%)", background: "var(--ink)", color: "var(--surface)", padding: "11px 18px", borderRadius: 10, fontSize: 14, fontWeight: 600, zIndex: 70, boxShadow: "0 8px 30px rgba(0,0,0,.3)" }}>{msg}</div>;
 }
