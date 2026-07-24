@@ -14,7 +14,7 @@ interface GalleryImage {
   isActive: boolean;
 }
 
-const empty: Partial<GalleryImage> = { title: "", imagePath: "", category: "", order: 0, isActive: true };
+const empty: Partial<GalleryImage> = { title: "", imagePath: "", order: 0, isActive: true };
 
 function GalleryForm({
   initial,
@@ -41,7 +41,6 @@ function GalleryForm({
     const payload = {
       imagePath: form.imagePath,
       title: form.title || undefined,
-      category: form.category || undefined,
       order: Number(form.order) || 0,
       isActive: form.isActive ?? true,
     };
@@ -73,18 +72,12 @@ function GalleryForm({
             <ImageUpload value={form.imagePath ?? ""} onChange={(p) => set("imagePath", p)} />
           </div>
           <div className="field" style={{ margin: 0 }}>
-            <label htmlFor="g-title">Title</label>
-            <input id="g-title" value={form.title ?? ""} onChange={(e) => set("title", e.target.value)} />
+            <label htmlFor="g-title">Title (optional)</label>
+            <input id="g-title" value={form.title ?? ""} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Grand opening" />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 110px", gap: 12 }}>
-            <div className="field" style={{ margin: 0 }}>
-              <label htmlFor="g-cat">Category</label>
-              <input id="g-cat" value={form.category ?? ""} onChange={(e) => set("category", e.target.value)} placeholder="Events, Interiors…" />
-            </div>
-            <div className="field" style={{ margin: 0 }}>
-              <label htmlFor="g-ord">Order</label>
-              <input id="g-ord" type="number" value={String(form.order ?? 0)} onChange={(e) => set("order", e.target.value)} />
-            </div>
+          <div className="field" style={{ margin: 0, maxWidth: 140 }}>
+            <label htmlFor="g-ord">Order</label>
+            <input id="g-ord" type="number" value={String(form.order ?? 0)} onChange={(e) => set("order", e.target.value)} />
           </div>
           <label className="check-row">
             <input type="checkbox" checked={form.isActive ?? true} onChange={(e) => set("isActive", e.target.checked)} />
@@ -152,7 +145,7 @@ export default function GalleryManager() {
                   {g.title || <span style={{ color: "var(--muted)" }}>Untitled</span>}
                 </div>
                 <div className="sub-txt">
-                  {g.category || "—"} {!g.isActive && <span className="inactive-tag" style={{ marginLeft: 6 }}>Hidden</span>}
+                  Order {g.order} {!g.isActive && <span className="inactive-tag" style={{ marginLeft: 6 }}>Hidden</span>}
                 </div>
                 <div className="row-act">
                   <button className="mini" title="Edit" onClick={() => setEditorFor(g)}>✎</button>
