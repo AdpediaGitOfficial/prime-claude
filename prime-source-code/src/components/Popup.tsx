@@ -158,27 +158,27 @@ export default function Popup() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.96, opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="relative w-[min(340px,88vw)] overflow-hidden rounded-2xl bg-black shadow-2xl"
+            className="relative w-[min(400px,92vw)]"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               onClick={close}
               aria-label="Close announcement"
-              className="absolute right-2.5 top-2.5 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/80"
+              className="absolute -right-2 -top-2 z-30 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg ring-1 ring-black/5 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#e1ff83] sm:-right-3 sm:-top-3"
             >
               <X className="h-4 w-4" />
             </button>
 
-            {/* Slide frame */}
-            <div className="relative aspect-[3/4] overflow-hidden bg-black">
+            {/* Image-only slide frame */}
+            <div className="relative aspect-[3/4] overflow-hidden rounded-[22px] bg-[#111] shadow-2xl ring-1 ring-white/10">
               {slides.map((s, i) => {
                 const img = (
                   <Image
                     src={s.src}
                     alt={s.alt}
                     fill
-                    sizes="340px"
+                    sizes="400px"
                     className="object-contain"
                     priority={i === 0}
                   />
@@ -186,11 +186,11 @@ export default function Popup() {
                 return (
                   <div
                     key={s.src + i}
-                    className="absolute inset-0 transition-opacity duration-500"
+                    className="absolute inset-0 transition-opacity duration-500 ease-out"
                     style={{ opacity: i === cur ? 1 : 0, pointerEvents: i === cur ? "auto" : "none" }}
                   >
                     {s.href ? (
-                      <a href={s.href} className="block h-full w-full" aria-label={s.alt}>
+                      <a href={s.href} className="block h-full w-full cursor-pointer" aria-label={s.alt}>
                         {img}
                       </a>
                     ) : (
@@ -206,7 +206,7 @@ export default function Popup() {
                     type="button"
                     onClick={() => go(cur - 1)}
                     aria-label="Previous"
-                    className="absolute left-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white transition-colors hover:bg-black/75"
+                    className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur transition-colors hover:bg-white hover:text-black"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
@@ -214,11 +214,11 @@ export default function Popup() {
                     type="button"
                     onClick={() => go(cur + 1)}
                     aria-label="Next"
-                    className="absolute right-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white transition-colors hover:bg-black/75"
+                    className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur transition-colors hover:bg-white hover:text-black"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
-                  <div className="absolute bottom-2.5 left-0 right-0 z-10 flex justify-center gap-1.5">
+                  <div className="absolute bottom-3 left-0 right-0 z-10 flex justify-center gap-1.5">
                     {slides.map((_, i) => (
                       <button
                         key={i}
@@ -226,7 +226,7 @@ export default function Popup() {
                         aria-label={`Go to slide ${i + 1}`}
                         onClick={() => go(i)}
                         className={`h-1.5 rounded-full transition-all ${
-                          i === cur ? "w-4 bg-white" : "w-1.5 bg-white/50"
+                          i === cur ? "w-5 bg-[#e1ff83]" : "w-1.5 bg-white/50 hover:bg-white/80"
                         }`}
                       />
                     ))}
@@ -234,15 +234,6 @@ export default function Popup() {
                 </>
               )}
             </div>
-
-            {active.href && (
-              <a
-                href={active.href}
-                className="block w-full bg-black py-3 text-center text-sm font-semibold text-[#e1ff83] transition-colors hover:bg-[#181818]"
-              >
-                Book / Enquire now →
-              </a>
-            )}
           </motion.div>
         </motion.div>
       )}
