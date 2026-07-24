@@ -42,6 +42,44 @@ function slotRange(ts: string): { s: number; e: number } | null {
 }
 const eligibleFor = (plan: string) => (PLANS[plan]?.group ? [2] : [1, 2]);
 const overlaps = (s1: number, e1: number, s2: number, e2: number) => s1 < e2 && e1 > s2;
+
+/**
+ * Pack a lane's bookings so overlapping ones sit side-by-side (never stacked).
+ * Returns each booking with its sub-column index `col` and the total number of
+ * sub-columns `cols` in its overlap cluster.
+ */
+type Packed = { b: Booking; r: { s: number; e: number }; col: number; cols: number };
+function packLanes(list: Booking[]): Packed[] {
+  const items = list
+    .map((b) => ({ b, r: slotRange(b.timeSlot) }))
+    .filter((x): x is { b: Booking; r: { s: number; e: number } } => x.r !== null)
+    .sort((a, b) => a.r.s - b.r.s || a.r.e - b.r.e);
+  const out: Packed[] = [];
+  let cluster: Array<{ b: Booking; r: { s: number; e: number }; col: number }> = [];
+  let clusterEnd = -1;
+  const flush = () => {
+    if (!cluster.length) return;
+    const colEnds: number[] = [];
+    for (const it of cluster) {
+      let c = 0;
+      for (; c < colEnds.length; c++) if (it.r.s >= colEnds[c]) break;
+      if (c === colEnds.length) colEnds.push(it.r.e);
+      else colEnds[c] = it.r.e;
+      it.col = c;
+    }
+    const cols = colEnds.length;
+    for (const it of cluster) out.push({ ...it, cols });
+    cluster = [];
+    clusterEnd = -1;
+  };
+  for (const it of items) {
+    if (cluster.length && it.r.s >= clusterEnd) flush();
+    cluster.push({ ...it, col: 0 });
+    clusterEnd = Math.max(clusterEnd, it.r.e);
+  }
+  flush();
+  return out;
+}
 function breakdown(plan: string, addons: string[]) {
   const base = PLANS[plan]?.price ?? 0, add = addons.length * ADDON, sub = base + add;
   const gst = Math.round(sub * GST); return { base, add, sub, gst, total: sub + gst };
@@ -119,11 +157,11 @@ export default function PoolCalendarPage() {
               if (!c) return <div key={i} />;
               const md = month[c.id];
               const l1 = md ? Math.min(1, md.pool1Mins / 720) : 0, l2 = md ? Math.min(1, md.pool2Mins / 720) : 0;
-              const isToday = c.id === todayISO(), isSel = c.id === sel;
+              const isToday = c.id === todayISO(), isSel = c.id === sel, isPast = c.id < todayISO();
               return (
-                <button key={i} onClick={() => setSel(c.id)}
-                  style={{ aspectRatio: "1/1.08", border: isToday ? "1.5px solid var(--brand)" : "1px solid transparent", borderRadius: 10, background: isSel ? "var(--ink)" : "var(--ground)", color: isSel ? "var(--surface)" : "inherit", cursor: "pointer", padding: "5px 0 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{c.d}</span>
+                <button key={i} onClick={() => !isPast && setSel(c.id)} disabled={isPast} title={isPast ? "Past date — bookings can't be taken in the past" : undefined}
+                  style={{ aspectRatio: "1/1.08", border: isToday ? "1.5px solid var(--brand)" : "1px solid transparent", borderRadius: 10, background: isSel ? "var(--ink)" : "var(--ground)", color: isSel ? "var(--surface)" : "inherit", cursor: isPast ? "not-allowed" : "pointer", opacity: isPast ? 0.4 : 1, padding: "5px 0 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, textDecoration: isPast ? "line-through" : "none" }}>{c.d}</span>
                   <div style={{ width: "60%", marginTop: "auto", marginBottom: 6, display: "flex", flexDirection: "column", gap: 2 }}>
                     {(l1 > 0 || l2 > 0) && <>
                       <div style={{ height: 3, borderRadius: 2, background: "rgba(120,140,140,.25)", overflow: "hidden" }}><div style={{ height: "100%", width: `${Math.max(l1 > 0 ? 18 : 0, l1 * 100)}%`, background: P1 }} /></div>
@@ -217,18 +255,21 @@ function DayGrid({ day, onBooking, onGap }: { day: CalData | null; onBooking: (b
             onGap(c.pool, Math.max(OPEN, start));
           }} style={{ position: "relative", borderLeft: "1px solid var(--line)", cursor: "copy" }}>
             {Array.from({ length: 12 }, (_, i) => <div key={i} style={{ height: ROW, borderBottom: "1px solid var(--line)" }} />)}
-            {c.list.map((b) => {
-              const r = slotRange(b.timeSlot); if (!r) return null;
+            {packLanes(c.list).map(({ b, r, col, cols: nCols }) => {
               const cancelled = b.status === "CANCELLED";
+              const multi = nCols > 1;
+              const pos = multi
+                ? { left: `calc(5px + ${col} * (100% - 10px) / ${nCols})`, width: `calc((100% - 10px) / ${nCols} - 3px)` }
+                : { left: 5, right: 5 };
               return (
-                <button key={b.id} className="bkblock" onClick={() => onBooking(b)}
-                  style={{ position: "absolute", left: 5, right: 5, top: (r.s - OPEN) * PXMIN, height: (r.e - r.s) * PXMIN, borderRadius: 8, padding: "6px 9px", cursor: "pointer", overflow: "hidden", textAlign: "left", border: `1px solid ${c.color}55`, background: `${c.color}22`, opacity: cancelled ? 0.5 : 1 }}>
+                <button key={b.id} className="bkblock" onClick={() => onBooking(b)} title={`${b.reference} · ${b.guestName} · ${b.poolType} · ${fmt(r.s)}–${fmt(r.e)}`}
+                  style={{ position: "absolute", ...pos, top: (r.s - OPEN) * PXMIN, height: (r.e - r.s) * PXMIN, borderRadius: 8, padding: multi ? "5px 6px" : "6px 9px", cursor: "pointer", overflow: "hidden", textAlign: "left", border: `1px solid ${c.color}55`, background: `${c.color}22`, opacity: cancelled ? 0.5 : 1 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 6 }}>
-                    <span style={{ fontFamily: "var(--mono,monospace)", fontSize: 10.5, fontWeight: 650, opacity: 0.85 }}>{b.reference}</span>
-                    <span style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", color: statusColor[b.status] }}>{b.status[0] + b.status.slice(1).toLowerCase()}</span>
+                    <span style={{ fontFamily: "var(--mono,monospace)", fontSize: 10.5, fontWeight: 650, opacity: 0.85, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.reference}</span>
+                    {!multi && <span style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", color: statusColor[b.status] }}>{b.status[0] + b.status.slice(1).toLowerCase()}</span>}
                   </div>
                   <div style={{ fontWeight: 700, fontSize: 12.5, marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textDecoration: cancelled ? "line-through" : "none" }}>{b.guestName}</div>
-                  <div style={{ fontSize: 10.5, opacity: 0.8 }}>{b.poolType} · {fmt(r.s)}–{fmt(r.e)}</div>
+                  <div style={{ fontSize: 10.5, opacity: 0.8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{multi ? `${fmt(r.s)}–${fmt(r.e)}` : `${b.poolType} · ${fmt(r.s)}–${fmt(r.e)}`}</div>
                 </button>
               );
             })}
