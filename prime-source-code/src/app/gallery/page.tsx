@@ -140,40 +140,28 @@ export default function GalleryPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3 lg:gap-8">
+        {/* Masonry — each tile keeps the image's natural height (no crop, no bars). */}
+        <div className="columns-2 gap-4 sm:gap-5 lg:columns-3 lg:gap-6 [column-fill:_balance]">
           {galleryImages.map((image, index) => (
-            <motion.button
+            <button
               key={image.src}
               type="button"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.15 }}
-              transition={{ delay: (index % 6) * 0.06, duration: 0.55 }}
               onClick={() => setSelectedImage(index)}
-              className="group relative overflow-hidden rounded-[18px] bg-[#f1f1ed] p-2 text-left focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-4 md:rounded-[24px] md:p-3"
+              className="group relative mb-4 block w-full break-inside-avoid overflow-hidden rounded-[16px] bg-[#f1f1ed] focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:mb-5 md:rounded-[20px]"
               aria-label={`Open ${image.alt}`}
             >
-              <div className="relative aspect-[3/4] overflow-hidden rounded-[14px] bg-[#111] md:rounded-[18px]">
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  sizes="(max-width: 639px) 50vw, (max-width: 1023px) 50vw, 33vw"
-                  className="object-contain transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                  priority={index < 3}
-                />
-                <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
-                <span className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform duration-300 group-hover:scale-110 md:h-10 md:w-10">
-                  <Expand className="h-4 w-4 md:h-5 md:w-5" aria-hidden="true" />
-                </span>
-              </div>
-              <div className="flex items-center justify-between px-1.5 pb-1 pt-3 md:px-2 md:pt-4">
-                <p className="text-sm font-medium md:text-base">Prime Promenade</p>
-                <span className="text-xs text-black/45 md:text-sm">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-              </div>
-            </motion.button>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={image.src}
+                alt={image.alt}
+                loading={index < 4 ? "eager" : "lazy"}
+                className="block h-auto w-full transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/15" />
+              <span className="absolute right-3 top-3 flex h-9 w-9 scale-90 items-center justify-center rounded-full bg-white text-black shadow-lg opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100 md:h-10 md:w-10">
+                <Expand className="h-4 w-4 md:h-5 md:w-5" aria-hidden="true" />
+              </span>
+            </button>
           ))}
         </div>
       </section>
