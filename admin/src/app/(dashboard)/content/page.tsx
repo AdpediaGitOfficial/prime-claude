@@ -5,7 +5,6 @@ import { api } from "@/lib/api";
 import { titleCase } from "@/lib/format";
 import { Toast } from "@/components/Toast";
 import BannersManager from "@/components/BannersManager";
-import GalleryManager from "@/components/GalleryManager";
 
 interface Setting {
   id: string;
@@ -109,7 +108,6 @@ function SettingsSection() {
 const TABS = [
   { key: "settings", label: "Settings" },
   { key: "banners", label: "Banners" },
-  { key: "gallery", label: "Gallery" },
 ] as const;
 
 export default function ContentPage() {
@@ -126,7 +124,6 @@ export default function ContentPage() {
       </div>
       {tab === "settings" && <SettingsSection />}
       {tab === "banners" && <BannersManager />}
-      {tab === "gallery" && <GalleryManager />}
     </>
   );
 }

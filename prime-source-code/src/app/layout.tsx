@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "../components/Header";
 import ContactSection from "../components/ContactSection";
 import ScrollTopArrow from "../components/ScrollTopArrow";
+import Popup from "../components/Popup";
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from "../utils/site";
 
 const instrumentSans = Instrument_Sans({
@@ -96,6 +97,7 @@ export default function RootLayout({
         <main className="min-h-[60vh]">{children}</main>
         <ContactSection />
         <ScrollTopArrow />
+        <Popup />
       </body>
     </html>
   );

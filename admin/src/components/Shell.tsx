@@ -28,7 +28,14 @@ const NAV: Array<{ group: string; items: Array<{ href: string; label: string; ic
       { href: "/gym", label: "Gym", icon: "🏋" },
     ],
   },
-  { group: "Website", items: [{ href: "/content", label: "Content & Settings", icon: "◨" }] },
+  {
+    group: "Website",
+    items: [
+      { href: "/content", label: "Content & Settings", icon: "◨" },
+      { href: "/gallery", label: "Gallery", icon: "🖼" },
+      { href: "/popup", label: "Pop-up", icon: "📣" },
+    ],
+  },
 ];
 
 const TITLES: Record<string, [string, string]> = {
@@ -44,6 +51,8 @@ const TITLES: Record<string, [string, string]> = {
   "/courses": ["Courses", "Course details & enrollments"],
   "/gym": ["Gym Enquiries", "Manage gym membership enquiries"],
   "/content": ["Website", "Content, banners & settings"],
+  "/gallery": ["Gallery", "Event gallery images shown on the site"],
+  "/popup": ["Pop-up", "Announcement pop-up shown to visitors"],
 };
 
 function ThemeToggle() {

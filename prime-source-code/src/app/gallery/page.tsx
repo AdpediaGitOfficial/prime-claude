@@ -140,7 +140,7 @@ export default function GalleryPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-10">
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3 lg:gap-8">
           {galleryImages.map((image, index) => (
             <motion.button
               key={image.src}
@@ -148,28 +148,28 @@ export default function GalleryPage() {
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.15 }}
-              transition={{ delay: index * 0.1, duration: 0.65 }}
+              transition={{ delay: (index % 6) * 0.06, duration: 0.55 }}
               onClick={() => setSelectedImage(index)}
-              className="group relative overflow-hidden rounded-[24px] bg-[#f1f1ed] p-3 text-left focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-4 md:rounded-[32px] md:p-5"
+              className="group relative overflow-hidden rounded-[18px] bg-[#f1f1ed] p-2 text-left focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-4 md:rounded-[24px] md:p-3"
               aria-label={`Open ${image.alt}`}
             >
-              <div className="relative aspect-[3/4] overflow-hidden rounded-[18px] bg-[#111] md:rounded-[24px]">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-[14px] bg-[#111] md:rounded-[18px]">
                 <Image
                   src={image.src}
                   alt={image.alt}
                   fill
-                  sizes="(max-width: 639px) 100vw, 50vw"
-                  className="object-contain transition-transform duration-700 ease-out group-hover:scale-[1.025]"
-                  priority={index === 0}
+                  sizes="(max-width: 639px) 50vw, (max-width: 1023px) 50vw, 33vw"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                  priority={index < 3}
                 />
                 <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
-                <span className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform duration-300 group-hover:scale-110 md:right-5 md:top-5">
-                  <Expand className="h-5 w-5" aria-hidden="true" />
+                <span className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform duration-300 group-hover:scale-110 md:h-10 md:w-10">
+                  <Expand className="h-4 w-4 md:h-5 md:w-5" aria-hidden="true" />
                 </span>
               </div>
-              <div className="flex items-center justify-between px-2 pb-2 pt-5 md:px-3 md:pt-6">
-                <p className="text-lg font-medium">Prime Promenade</p>
-                <span className="text-sm text-black/45">
+              <div className="flex items-center justify-between px-1.5 pb-1 pt-3 md:px-2 md:pt-4">
+                <p className="text-sm font-medium md:text-base">Prime Promenade</p>
+                <span className="text-xs text-black/45 md:text-sm">
                   {String(index + 1).padStart(2, "0")}
                 </span>
               </div>
