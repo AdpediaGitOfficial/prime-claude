@@ -406,8 +406,6 @@ export default function PoolBookingPage() {
               })}
             </div>
 
-            <p className="text-xs text-black/55 -mt-4">* GST extra as applicable.</p>
-
             {/* Add-ons — individual services, one toggle each */}
             <div className="flex flex-col gap-3">
               <div className="bg-white border border-black/10 rounded-[20px] px-4 py-3.5 flex items-center justify-between gap-4 shadow-sm">
