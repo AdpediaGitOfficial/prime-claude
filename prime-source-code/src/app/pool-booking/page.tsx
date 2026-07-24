@@ -387,7 +387,7 @@ export default function PoolBookingPage() {
                 </ul>
 
                 <div className="flex items-baseline gap-1.5 mt-auto">
-                  <span className="text-[28px] font-bold leading-none">{inr(plan.price)}</span>
+                  <span className="text-[28px] font-bold leading-none">{inr(plan.price)}<span className="align-super text-base font-semibold text-black/50">*</span></span>
                   <span className="text-sm font-medium text-black/60">/ session</span>
                 </div>
 
@@ -405,6 +405,8 @@ export default function PoolBookingPage() {
             );
               })}
             </div>
+
+            <p className="text-xs text-black/55 -mt-4">* GST extra as applicable.</p>
 
             {/* Add-ons — individual services, one toggle each */}
             <div className="flex flex-col gap-3">
@@ -507,7 +509,7 @@ export default function PoolBookingPage() {
               <div className="flex justify-between gap-3"><span className="text-black/60">Sauna Bath</span><span className={addons.sauna ? "font-semibold" : "text-black/40"}>{addons.sauna ? `+ ${inr(500)}` : "Not added"}</span></div>
               <div className="h-px bg-black/10" />
               <div className="flex justify-between items-baseline"><span className="text-black/60 uppercase tracking-wide text-xs">Total</span><span className="text-2xl font-bold text-black">{inr(bookingSubtotal)}<span className="align-super text-sm font-semibold text-black/40">*</span></span></div>
-              <p className="mt-1.5 text-xs text-black/55">* 18% GST will be extra.</p>
+              <p className="mt-1.5 text-xs text-black/55">* GST extra as applicable.</p>
             </div>
             <div className="px-6 pb-5">
               {message && !showMobileModal && (
