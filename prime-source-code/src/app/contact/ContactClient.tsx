@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
+import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
 
 type ContactForm = {
   fullName: string;
@@ -35,17 +36,31 @@ const fadeUp = {
 
 export default function ContactClient() {
   const [formData, setFormData] = useState<ContactForm>(initialFormData);
-  const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
+  const { isSubmitting, submitMessage, submitError, setSubmitError, runSubmit } = useFormSubmit();
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
-    setFormData((current) => ({ ...current, [name]: value }));
+    const nextValue =
+      name === "fullName"
+        ? sanitizeName(value)
+        : name === "phone"
+        ? sanitizePhone(value)
+        : value;
+    setFormData((current) => ({ ...current, [name]: nextValue }));
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!isValidName(formData.fullName)) {
+      setSubmitError(NAME_ERROR);
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      setSubmitError(PHONE_ERROR);
+      return;
+    }
     runSubmit(
       async () => {
         await apiCall(ENDPOINTS.CONTACT_ENQUIRIES, {
@@ -325,6 +340,8 @@ export default function ContactClient() {
                     type="tel"
                     name="phone"
                     required
+                    inputMode="numeric"
+                    maxLength={10}
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="Enter full phone number"

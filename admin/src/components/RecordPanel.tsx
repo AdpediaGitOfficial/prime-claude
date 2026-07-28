@@ -3,7 +3,31 @@
 import { useState } from "react";
 import { api } from "@/lib/api";
 import { dateTime, statusClass, titleCase } from "@/lib/format";
+import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/lib/validation";
 import { KIND_STATUSES, type FieldDef, type ResourceConfig, type RowRecord } from "./ResourceTable";
+
+/** Classify a field so the shared form can validate names & phones. */
+function fieldKind(f: FieldDef): "name" | "phone" | null {
+  if (f.type === "tel") return "phone";
+  if (f.type === "text" && /^(fullName|guestName)$/.test(f.name)) return "name";
+  return null;
+}
+
+/** Returns an error message if any name/phone field is invalid, else "". */
+function validateForm(fields: FieldDef[], values: Record<string, string>): string {
+  for (const f of fields) {
+    const kind = fieldKind(f);
+    if (!kind) continue;
+    const v = (values[f.name] ?? "").trim();
+    if (!v) {
+      if (f.required) return `${f.label} is required.`;
+      continue; // optional & blank (e.g. offline block guest name) → allowed
+    }
+    if (kind === "name" && !isValidName(v)) return `${f.label}: ${NAME_ERROR}`;
+    if (kind === "phone" && !isValidPhone(v)) return `${f.label}: ${PHONE_ERROR}`;
+  }
+  return "";
+}
 
 /** Coerce a stored value into a form input string. */
 function toInput(field: FieldDef, value: unknown): string {
@@ -50,7 +74,11 @@ function FormFields({
   const set = (name: string, v: string) => setValues({ ...values, [name]: v });
   return (
     <div className="form-grid">
-      {fields.map((f) => (
+      {fields.map((f) => {
+        const kind = fieldKind(f);
+        const onInput = (v: string) =>
+          set(f.name, kind === "name" ? sanitizeName(v) : kind === "phone" ? sanitizePhone(v) : v);
+        return (
         <div className="field" key={f.name} style={{ margin: 0 }}>
           <label htmlFor={f.name}>
             {f.label}
@@ -68,10 +96,17 @@ function FormFields({
               })}
             </select>
           ) : (
-            <input id={f.name} type={f.type} value={values[f.name] ?? ""} onChange={(e) => set(f.name, e.target.value)} />
+            <input
+              id={f.name}
+              type={f.type}
+              value={values[f.name] ?? ""}
+              onChange={(e) => onInput(e.target.value)}
+              {...(kind === "phone" ? { inputMode: "numeric" as const, maxLength: 10 } : {})}
+            />
           )}
         </div>
-      ))}
+        );
+      })}
       <div className="field" style={{ margin: 0 }}>
         <label htmlFor="__status">Status</label>
         <select id="__status" value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -108,6 +143,8 @@ export function RecordDrawer({
   const [status, setStatus] = useState(String(row.status));
 
   const save = async () => {
+    const invalid = validateForm(config.fields, values);
+    if (invalid) { setError(invalid); return; }
     setSaving(true);
     setError("");
     try {
@@ -205,6 +242,8 @@ export function CreateModal({
   const [error, setError] = useState("");
 
   const save = async () => {
+    const invalid = validateForm(config.fields, values);
+    if (invalid) { setError(invalid); return; }
     setSaving(true);
     setError("");
     try {

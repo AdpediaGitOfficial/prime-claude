@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
+import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/lib/validation";
 
 // ── Domain constants (mirror the backend + website) ──
 const OPEN = 600, CLOSE = 1320; // 10:00 AM – 10:00 PM
@@ -390,8 +391,8 @@ function BlockDrawer({ date, pool, start, poolFreeAt, onClose, onSaved }: {
 
   const save = async () => {
     if (startMin == null || poolId == null) { setErr("No available time — pick another plan or date."); return; }
-    if (!guest.trim()) { setErr("Guest name is required."); return; }
-    if (!/^\+?\d{10,15}$/.test(phone.replace(/\s/g, ""))) { setErr("A valid mobile number is required."); return; }
+    if (!isValidName(guest)) { setErr(NAME_ERROR); return; }
+    if (!isValidPhone(phone)) { setErr(PHONE_ERROR); return; }
     setBusy(true); setErr("");
     try {
       await api("/api/admin/pool-bookings", { method: "POST", body: JSON.stringify({
@@ -433,8 +434,8 @@ function BlockDrawer({ date, pool, start, poolFreeAt, onClose, onSaved }: {
           </label>
         ))}
       </div>
-      <div style={{ marginBottom: 12 }}>{lbl(<>Guest name <span style={{ color: "var(--bad)" }}>*</span></>)}<input value={guest} onChange={(e) => setGuest(e.target.value)} placeholder="Customer name" style={inputStyle} /></div>
-      <div style={{ marginBottom: 12 }}>{lbl(<>Mobile number <span style={{ color: "var(--bad)" }}>*</span></>)}<input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit mobile" inputMode="numeric" style={inputStyle} /></div>
+      <div style={{ marginBottom: 12 }}>{lbl(<>Guest name <span style={{ color: "var(--bad)" }}>*</span></>)}<input value={guest} onChange={(e) => setGuest(sanitizeName(e.target.value))} placeholder="Customer name" style={inputStyle} /></div>
+      <div style={{ marginBottom: 12 }}>{lbl(<>Mobile number <span style={{ color: "var(--bad)" }}>*</span></>)}<input value={phone} onChange={(e) => setPhone(sanitizePhone(e.target.value))} placeholder="10-digit mobile" inputMode="numeric" maxLength={10} style={inputStyle} /></div>
       <div style={{ marginBottom: 10 }}>{lbl("Amount")}<AmountBox plan={plan} addons={addons} /></div>
       {err && <div style={{ color: "var(--bad)", fontSize: 12.5 }}>{err}</div>}
     </Drawer>

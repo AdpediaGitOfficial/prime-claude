@@ -5,6 +5,7 @@ import Banner from "../../../public/ASSETS/vendor-main-banner.webp";
 import { MotionDiv } from "@/components/MotionWrappers";
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
+import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 
 type VendorInviteForm = {
@@ -29,13 +30,20 @@ const initialFormData: VendorInviteForm = {
 
 export default function VendorPage() {
   const [formData, setFormData] = useState<VendorInviteForm>(initialFormData);
-  const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
+  const { isSubmitting, submitMessage, submitError, setSubmitError, runSubmit } = useFormSubmit();
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = event.target;
-    const nextValue = type === "checkbox" ? (event.target as HTMLInputElement).checked : value;
+    const nextValue =
+      type === "checkbox"
+        ? (event.target as HTMLInputElement).checked
+        : name === "fullName"
+        ? sanitizeName(value)
+        : name === "phone"
+        ? sanitizePhone(value)
+        : value;
 
     setFormData((current) => ({
       ...current,
@@ -45,6 +53,15 @@ export default function VendorPage() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!isValidName(formData.fullName)) {
+      setSubmitError(NAME_ERROR);
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      setSubmitError(PHONE_ERROR);
+      return;
+    }
 
     runSubmit(
       async () => {
@@ -145,6 +162,8 @@ export default function VendorPage() {
                   value={formData.phone}
                   onChange={handleInputChange}
                   required
+                  inputMode="numeric"
+                  maxLength={10}
                   placeholder="Enter phone number"
                   className="w-full min-w-0 h-12 md:h-14 rounded-full bg-white px-5 text-sm md:text-base font-normal text-black outline-none placeholder:text-black/35 focus:ring-2 focus:ring-black/15"
                 />

@@ -12,6 +12,7 @@ import ManicurePedicure from "../../../public/SPA/manicure-pedicure.jpg"
 import { MotionDiv} from "@/components/MotionWrappers";
 import { apiCall, ENDPOINTS, assetUrl } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
+import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
 import { useState, useMemo, useEffect, type ChangeEvent, type FormEvent } from "react";
 
 // Hourly appointment times 10:00 AM – 9:00 PM
@@ -94,10 +95,16 @@ export default function SpaPage() {
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = event.target;
+    const nextValue =
+      name === "fullName"
+        ? sanitizeName(value)
+        : name === "phone"
+        ? sanitizePhone(value)
+        : value;
 
     setFormData((current) => ({
       ...current,
-      [name]: value,
+      [name]: nextValue,
     }));
   };
 
@@ -158,6 +165,14 @@ export default function SpaPage() {
     }
     if (!formData.preferredTime) {
       setSubmitError("Please select an appointment time.");
+      return;
+    }
+    if (!isValidName(formData.fullName)) {
+      setSubmitError(NAME_ERROR);
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      setSubmitError(PHONE_ERROR);
       return;
     }
 
@@ -323,7 +338,7 @@ export default function SpaPage() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <label htmlFor="spa-phone" className="text-sm md:text-base">Phone Number*</label>
-                      <input id="spa-phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Enter phone number" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black outline-none placeholder-black/40 focus:ring-2 focus:ring-[#5b2d82]/25 w-full" />
+                      <input id="spa-phone" type="tel" name="phone" inputMode="numeric" maxLength={10} value={formData.phone} onChange={handleInputChange} required placeholder="Enter phone number" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black outline-none placeholder-black/40 focus:ring-2 focus:ring-[#5b2d82]/25 w-full" />
                     </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-5">

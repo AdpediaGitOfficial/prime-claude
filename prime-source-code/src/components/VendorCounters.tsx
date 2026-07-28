@@ -2,6 +2,7 @@
 
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
+import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
 import {
   useEffect,
   useMemo,
@@ -53,7 +54,7 @@ export default function VendorCounters() {
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [bookedCounters, setBookedCounters] = useState<Set<number>>(new Set());
   const [formData, setFormData] = useState<EnquiryForm>(initialFormData);
-  const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
+  const { isSubmitting, submitMessage, submitError, setSubmitError, runSubmit } = useFormSubmit();
 
   // Load live availability. Counters flagged unavailable in the admin become
   // "booked" here; if the API is unreachable the grid falls back to all-available.
@@ -107,7 +108,8 @@ export default function VendorCounters() {
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = event.target;
-    setFormData((current) => ({ ...current, [name]: value }));
+    const next = name === "fullName" ? sanitizeName(value) : name === "phone" ? sanitizePhone(value) : value;
+    setFormData((current) => ({ ...current, [name]: next }));
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -117,6 +119,9 @@ export default function VendorCounters() {
       scrollToGrid();
       return;
     }
+
+    if (!isValidName(formData.fullName)) { setSubmitError(NAME_ERROR); return; }
+    if (!isValidPhone(formData.phone)) { setSubmitError(PHONE_ERROR); return; }
 
     const chosen = selected.map(counterLabel);
 
@@ -324,6 +329,8 @@ export default function VendorCounters() {
                 id="v-phone"
                 name="phone"
                 type="tel"
+                inputMode="numeric"
+                maxLength={10}
                 required
                 value={formData.phone}
                 onChange={handleInputChange}

@@ -331,12 +331,12 @@ const PrimexArenaPage = () => {
                 <div className="form-row flex flex-col md:flex-row items-center gap-5 md:gap-6">
                   <div className="w-full">
                     <label htmlFor="fullName" className="text-[14px] md:text-[15px] font-medium text-gray-700 block mb-2">Full Name*</label>
-                    <input type="text" id="fullName" placeholder="Enter full name" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
+                    <input type="text" id="fullName" required pattern="[A-Za-z .'\-]{2,}" title="Letters only" placeholder="Enter full name" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
                   </div>
 
                   <div className="w-full">
                     <label htmlFor="phone" className="text-[14px] md:text-[15px] font-medium text-gray-700 block mb-2">Phone Number*</label>
-                    <input type="tel" id="phone" placeholder="Enter phone number" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
+                    <input type="tel" id="phone" required inputMode="numeric" maxLength={10} pattern="[6-9][0-9]{9}" title="10-digit mobile number" placeholder="Enter phone number" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
                   </div>
                 </div>
 

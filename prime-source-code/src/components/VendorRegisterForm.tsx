@@ -2,6 +2,7 @@
 
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
+import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 
 type VendorRegisterFields = {
@@ -29,17 +30,20 @@ const initialFormData: VendorRegisterFields = {
  */
 export default function VendorRegisterForm() {
   const [formData, setFormData] = useState<VendorRegisterFields>(initialFormData);
-  const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
+  const { isSubmitting, submitMessage, submitError, setSubmitError, runSubmit } = useFormSubmit();
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = event.target;
-    setFormData((current) => ({ ...current, [name]: value }));
+    const next = name === "fullName" ? sanitizeName(value) : name === "phone" ? sanitizePhone(value) : value;
+    setFormData((current) => ({ ...current, [name]: next }));
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!isValidName(formData.fullName)) { setSubmitError(NAME_ERROR); return; }
+    if (!isValidPhone(formData.phone)) { setSubmitError(PHONE_ERROR); return; }
     runSubmit(
       async () => {
         await apiCall(ENDPOINTS.VENDOR_INVITES, {
@@ -101,6 +105,8 @@ export default function VendorRegisterForm() {
             <input
               type="tel"
               name="phone"
+              inputMode="numeric"
+              maxLength={10}
               required
               value={formData.phone}
               onChange={handleInputChange}

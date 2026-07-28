@@ -5,6 +5,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { FaStarOfLife, FaCrown } from "react-icons/fa6";
 import { apiCall, ENDPOINTS } from "@/utils/api";
+import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
 
 type PlanId = "solo" | "duo" | "session" | "group";
 
@@ -219,8 +220,8 @@ export default function PoolBookingPage() {
   };
 
   const handlePlaceBooking = async () => {
-    if (!guestName.trim()) return setMessage("Please enter your name.");
-    if (!/^\d{10}$/.test(mobile)) return setMessage("Enter a valid 10-digit mobile number.");
+    if (!isValidName(guestName)) return setMessage(NAME_ERROR);
+    if (!isValidPhone(mobile)) return setMessage(PHONE_ERROR);
     if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
       return setMessage("Enter a valid email, or leave it blank.");
     setLoading(true);
@@ -691,7 +692,7 @@ export default function PoolBookingPage() {
               type="text"
               className="w-full border border-black/20 rounded-xl px-4 py-3 text-base mb-3 focus:outline-none focus:ring-2 focus:ring-black/30"
               value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
+              onChange={(e) => setGuestName(sanitizeName(e.target.value))}
               placeholder="Your name"
             />
             <input
@@ -699,7 +700,8 @@ export default function PoolBookingPage() {
               maxLength={10}
               className="w-full border border-black/20 rounded-xl px-4 py-3 text-base mb-3 focus:outline-none focus:ring-2 focus:ring-black/30"
               value={mobile}
-              onChange={(e) => setMobile(e.target.value.replace(/\D/g, ""))}
+              onChange={(e) => setMobile(sanitizePhone(e.target.value))}
+              inputMode="numeric"
               placeholder="Mobile number (e.g. 9876543210)"
             />
             <input

@@ -8,6 +8,7 @@ import { PiStarFourFill } from "react-icons/pi";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
+import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
 
 type HallBookingForm = {
   fullName: string;
@@ -81,7 +82,14 @@ export default function ConferencePage() {
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = event.target;
-    const nextValue = type === "checkbox" ? (event.target as HTMLInputElement).checked : value;
+    const nextValue =
+      type === "checkbox"
+        ? (event.target as HTMLInputElement).checked
+        : name === "fullName"
+        ? sanitizeName(value)
+        : name === "phone"
+        ? sanitizePhone(value)
+        : value;
 
     setFormData((current) => ({
       ...current,
@@ -101,6 +109,14 @@ export default function ConferencePage() {
 
     if (!selectedSlot) {
       setSubmitError("Please select a time slot.");
+      return;
+    }
+    if (!isValidName(formData.fullName)) {
+      setSubmitError(NAME_ERROR);
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      setSubmitError(PHONE_ERROR);
       return;
     }
 
@@ -469,7 +485,7 @@ export default function ConferencePage() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <label htmlFor="hall-phone" className="text-sm md:text-base text-black">Phone Number*</label>
-                      <input id="hall-phone" type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Enter phone number" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
+                      <input id="hall-phone" type="tel" name="phone" inputMode="numeric" maxLength={10} value={formData.phone} onChange={handleInputChange} required placeholder="Enter phone number" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
                     </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-5">

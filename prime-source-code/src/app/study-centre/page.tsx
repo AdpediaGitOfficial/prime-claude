@@ -3,6 +3,14 @@
 import { PiStudent, PiHourglassHigh } from "react-icons/pi";
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
+import {
+  sanitizeName,
+  sanitizePhone,
+  isValidName,
+  isValidPhone,
+  NAME_ERROR,
+  PHONE_ERROR,
+} from "@/utils/validation";
 import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 
 type CourseForm = {
@@ -67,7 +75,8 @@ function mergeCourse(base: CourseContent, l: {
 
 export default function StudyCentrePage() {
   const [formData, setFormData] = useState<CourseForm>(initialForm);
-  const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
+  const { isSubmitting, submitMessage, submitError, setSubmitError, runSubmit } =
+    useFormSubmit();
 
   // Live course content from the admin (falls back to defaults if unreachable).
   const [tekla, setTekla] = useState<CourseContent>(DEFAULT_TEKLA);
@@ -95,7 +104,13 @@ export default function StudyCentrePage() {
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = event.target;
-    setFormData((current) => ({ ...current, [name]: value }));
+    const nextValue =
+      name === "fullName"
+        ? sanitizeName(value)
+        : name === "phone"
+        ? sanitizePhone(value)
+        : value;
+    setFormData((current) => ({ ...current, [name]: nextValue }));
   };
 
   const handleEnroll = (course: string) => {
@@ -107,6 +122,16 @@ export default function StudyCentrePage() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!isValidName(formData.fullName)) {
+      setSubmitError(NAME_ERROR);
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      setSubmitError(PHONE_ERROR);
+      return;
+    }
+
     runSubmit(
       async () => {
         const reg = await apiCall(ENDPOINTS.COURSE_REGISTRATIONS, {
@@ -607,6 +632,8 @@ export default function StudyCentrePage() {
                     value={formData.phone}
                     onChange={handleInputChange}
                     required
+                    inputMode="numeric"
+                    maxLength={10}
                     placeholder="Enter full phone number"
                     className="w-full bg-transparent text-base md:text-[18px] text-black outline-none placeholder-black/40"
                   />

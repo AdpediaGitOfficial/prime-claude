@@ -10,6 +10,14 @@ import {
 import { PiSparkleFill } from "react-icons/pi";
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
+import {
+  sanitizeName,
+  sanitizePhone,
+  isValidName,
+  isValidPhone,
+  NAME_ERROR,
+  PHONE_ERROR,
+} from "@/utils/validation";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 
 type GymMembershipForm = {
@@ -62,21 +70,38 @@ function CheckIconSm() {
 
 export default function GymPage() {
   const [formData, setFormData] = useState<GymMembershipForm>(initialFormData);
-  const { isSubmitting, submitMessage, submitError, runSubmit } = useFormSubmit();
+  const { isSubmitting, submitMessage, submitError, setSubmitError, runSubmit } =
+    useFormSubmit();
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
 
+    const nextValue =
+      name === "fullName"
+        ? sanitizeName(value)
+        : name === "phone"
+        ? sanitizePhone(value)
+        : value;
+
     setFormData((current) => ({
       ...current,
-      [name]: value,
+      [name]: nextValue,
     }));
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!isValidName(formData.fullName)) {
+      setSubmitError(NAME_ERROR);
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      setSubmitError(PHONE_ERROR);
+      return;
+    }
 
     runSubmit(
       async () => {
@@ -433,6 +458,8 @@ export default function GymPage() {
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
+                      inputMode="numeric"
+                      maxLength={10}
                       placeholder="Enter phone number"
                       className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none placeholder:capitalize"
                     />
