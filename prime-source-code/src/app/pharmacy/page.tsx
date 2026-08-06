@@ -10,7 +10,7 @@ export default function PharmacyPage() {
       {/* ═══ HERO ═══ */}
       <section className="relative w-full overflow-hidden h-[450px] md:min-h-[100vh] lg:min-h-[100vh]">
         <img
-          src="/ASSETS/pharmacy-main-banner.webp"
+          src="/ASSETS/banner-pharma.jpg"
           alt="Pharmacy"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
@@ -55,19 +55,19 @@ export default function PharmacyPage() {
             {/* Desktop mosaic */}
             <div className="img-mosaic hidden lg:block">
               <img
-                src="/ASSETS/pharmacy-sub-3.webp"
+                src="/ASSETS/3.jpg"
                 alt=""
                 className="main-img"
               />
               <div className="top-right">
                 <img
-                  src="/ASSETS/pharmacy-sub-1.webp"
+                  src="/ASSETS/1.jpg"
                   alt=""
                 />
               </div>
               <div className="bottom-right">
                 <img
-                  src="/ASSETS/pharmacy-sub-2.webp"
+                  src="/ASSETS/diet.png"
                   alt=""
                 />
               </div>
@@ -75,21 +75,21 @@ export default function PharmacyPage() {
             {/* Mobile: stacked */}
             <div className="lg:hidden flex flex-col gap-4">
               <img
-                src="/ASSETS/pharmacy-sub-3-1.webp"
+                src="/ASSETS/3.jpg"
                 alt="Pharmacy"
                 className="w-full object-cover rounded-[16px] md:rounded-[20px]"
                 style={{ aspectRatio: "585/539" }}
               />
               <div className="flex gap-4">
                 <img
-                  src="/ASSETS/pharmacy-sub-1.webp"
-                  alt="Pharmacy"
+                  src="/ASSETS/1.jpg"
+                  alt="Opticals"
                   className="w-1/2 object-cover rounded-[16px] md:rounded-[20px]"
                   style={{ aspectRatio: "283/270" }}
                 />
                 <img
-                  src="/ASSETS/pharmacy-sub-2.webp"
-                  alt="Pharmacy"
+                  src="/ASSETS/diet.png"
+                  alt="Diabetes & Diet"
                   className="w-1/2 object-cover rounded-[16px] md:rounded-[20px]"
                   style={{ aspectRatio: "381/256" }}
                 />
