@@ -12,10 +12,11 @@ import { ChevronDown, X } from "lucide-react";
     ];
 
     const dotLinks: { label: string; href?: string; hasMega?: boolean }[] = [
-      { label: "Prime X Arena", href: "/prime-x-arena" },
       { label: "Lifestyle", hasMega: true },
       { label: "Wellness", hasMega: true },
+      { label: "Prime Pharmas", href: "/pharmacy" },
       { label: "Steel Tek", hasMega: true },
+      { label: "Prime X Arena", href: "/prime-x-arena" },
       { label: "Vendor Invite", href: "/vendor-invite" },
       { label: "Gallery", href: "/gallery" },
       { label: "Contact Us", href: "/contact" },
