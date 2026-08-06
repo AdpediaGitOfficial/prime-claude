@@ -104,7 +104,7 @@ const EveryLevelSlider = () => {
 
       <style dangerouslySetInnerHTML={{ __html: `
         .exp-track {
-          animation: exp-scroll 55s linear infinite;
+          animation: exp-scroll 55s linear infinite reverse;
           padding: 8px 20px 16px;
           will-change: transform;
         }
