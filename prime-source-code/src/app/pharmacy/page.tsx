@@ -22,7 +22,7 @@ const SERVICES = [
   "Optical Care & Vision Products",
   "Dedicated Food Products for Diet-Conscious Individuals",
   "Dedicated Food Products for People with Diabetes",
-  "Diabetic-Friendly Juices, Soft Drinks & Ice Creams",
+  "A Wide Selection of Diabetic-Friendly Juices, Soft Drinks & Ice Creams",
 ];
 
 const COMPLIANCE = [
@@ -40,7 +40,7 @@ const COMPLIANCE = [
   },
   {
     t: "Quality Assurance",
-    s: "Proper storage, regular quality checks and professional handling ensure product integrity.",
+    s: "Proper storage, regular quality checks, and professional handling ensure product integrity.",
   },
 ];
 
@@ -107,7 +107,7 @@ export default function PharmacyPage() {
           {/* Left: Image mosaic */}
           <div className="w-full lg:w-[53%] flex-shrink-0">
             {/* Desktop mosaic */}
-            <div className="img-mosaic hidden lg:block">
+            <div className="img-mosaic hidden lg:grid">
               <img
                 src="/ASSETS/3.jpg"
                 alt=""
