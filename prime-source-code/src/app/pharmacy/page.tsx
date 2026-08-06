@@ -51,7 +51,7 @@ export default function PharmacyPage() {
       {/* ═══ HERO ═══ */}
       <section className="relative w-full overflow-hidden h-[450px] md:min-h-[100vh] lg:min-h-[100vh]">
         <img
-          src="/ASSETS/banner-pharma.jpg"
+          src="/ASSETS/pharma-banner.jpg"
           alt="Prime Pharmas"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
@@ -109,19 +109,19 @@ export default function PharmacyPage() {
             {/* Desktop mosaic */}
             <div className="img-mosaic hidden lg:grid">
               <img
-                src="/ASSETS/3.jpg"
+                src="/ASSETS/Pharmas_1.jpg"
                 alt=""
                 className="main-img"
               />
               <div className="top-right">
                 <img
-                  src="/ASSETS/1.jpg"
+                  src="/ASSETS/Pharmas_3.jpg"
                   alt=""
                 />
               </div>
               <div className="bottom-right">
                 <img
-                  src="/ASSETS/diet.png"
+                  src="/ASSETS/Pharmas_2.jpg"
                   alt=""
                 />
               </div>
@@ -129,20 +129,20 @@ export default function PharmacyPage() {
             {/* Mobile: stacked */}
             <div className="lg:hidden flex flex-col gap-4">
               <img
-                src="/ASSETS/3.jpg"
+                src="/ASSETS/Pharmas_1.jpg"
                 alt="Pharmacy"
                 className="w-full object-cover rounded-[16px] md:rounded-[20px]"
                 style={{ aspectRatio: "585/539" }}
               />
               <div className="flex gap-4">
                 <img
-                  src="/ASSETS/1.jpg"
+                  src="/ASSETS/Pharmas_3.jpg"
                   alt="Opticals"
                   className="w-1/2 object-cover rounded-[16px] md:rounded-[20px]"
                   style={{ aspectRatio: "283/270" }}
                 />
                 <img
-                  src="/ASSETS/diet.png"
+                  src="/ASSETS/Pharmas_2.jpg"
                   alt="Diabetes & Diet"
                   className="w-1/2 object-cover rounded-[16px] md:rounded-[20px]"
                   style={{ aspectRatio: "381/256" }}
@@ -213,8 +213,8 @@ export default function PharmacyPage() {
             </div>
             <div className="w-full lg:flex-1 mt-2 lg:mt-0">
               <img
-                src="/ASSETS/diet-2.jpg"
-                alt="Healthcare and wellness consultation"
+                src="/ASSETS/wellness-solution.jpg"
+                alt="Complete pharmacy and wellness solutions"
                 className="w-full h-[250px] sm:h-[380px] lg:h-[440px] object-cover rounded-[20px] md:rounded-[36px]"
               />
             </div>

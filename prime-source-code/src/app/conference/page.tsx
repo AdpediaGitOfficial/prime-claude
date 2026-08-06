@@ -1,6 +1,6 @@
 "use client";
 
-import Banner from "../../../public/ASSETS/hall-about.webp";
+import Banner from "../../../public/ASSETS/regal.jpg";
 import { FiSun, FiSunrise } from "react-icons/fi";
 import { FiMonitor, FiVolume2, FiMic, FiWifi } from "react-icons/fi";
 import { MdOutlineChair } from "react-icons/md";
@@ -208,7 +208,7 @@ export default function ConferencePage() {
         <div className="grid lg:grid-cols-2 gap-8 md:gap-14 items-center">
           <div className="rounded-[20px] lg:rounded-[26px] overflow-hidden h-[300px] sm:h-[400px] lg:h-[554px]">
             <img
-              src="/ASSETS/regal-about-2.jpeg"
+              src="/ASSETS/regal-2.jpg"
               alt="Conference Hall Interior"
               className="w-full h-full object-cover"
             />

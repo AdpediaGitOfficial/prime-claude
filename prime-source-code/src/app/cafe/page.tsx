@@ -16,7 +16,7 @@ const page = () => {
         {/* --- Hero Banner Section --- */}
         <section className="relative w-full overflow-hidden h-[450px] md:h-screen lg:min-h-[100vh] site-container">
           <img
-            src="/ASSETS/cafe-BANNER.jpeg"
+            src="/ASSETS/cafe.jpg"
             alt="cafe"
             className="absolute inset-0 w-full h-full object-cover"
           />

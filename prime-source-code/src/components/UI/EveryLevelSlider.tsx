@@ -6,15 +6,15 @@ import { MotionH2 } from "@/components/MotionWrappers"
 // Each card links to that brand's inner page. Images are existing repo
 // photos for now; the 5 confirmed brand banners can be swapped in later.
 const cards = [
-  { img: "/SWIMMING/swimming_banner.webp",         brand: "Hideaway",      sub: "Swimsuites",             tagline: "Pool · Sauna · Jacuzzi",                 href: "/pool-booking" },
-  { img: "/ASSETS/hall.webp",                       brand: "The Regal",     sub: "At the Promenade",       tagline: "Your perfect event begins here",         href: "/conference" },
+  { img: "/ASSETS/hideaway.jpg",                    brand: "Hideaway",      sub: "Swimsuites",             tagline: "Pool · Sauna · Jacuzzi",                 href: "/pool-booking" },
+  { img: "/ASSETS/regal.jpg",                       brand: "The Regal",     sub: "At the Promenade",       tagline: "Your perfect event begins here",         href: "/conference" },
   { img: "/ASSETS/gym.webp",                        brand: "Oxy Gym",       sub: "",                       tagline: "Your comeback starts here",              href: "/gym" },
   { img: "/SPA/meglow-banner.jpeg",                 brand: "Me Glow",       sub: "Wellness Lounge",        tagline: "Spa · Hair · Beauty · Skin",             href: "/spa" },
-  { img: "/ASSETS/cafe-banner.webp",                brand: "The Venetian",  sub: "Bistro",                 tagline: "Per amore del cibo",                     href: "/cafe" },
+  { img: "/ASSETS/cafe.jpg",                        brand: "The Venetian",  sub: "Bistro",                 tagline: "Per amore del cibo",                     href: "/cafe" },
   { img: "/ASSETS/prime-x-arena.jpg",               brand: "Prime X",       sub: "Arena",                  tagline: "",                                       href: "/prime-x-arena" },
   { img: "/ASSETS/study-center-main-banner.webp",   brand: "Steel Tek",     sub: "Study Centre",           tagline: "",                                       href: "/study-centre" },
   { img: "/ASSETS/vendor-main-banner.webp",         brand: "Forever 4 You", sub: "Fashion & Gifts",        tagline: "",                                       href: "/vendor" },
-  { img: "/ASSETS/banner-pharma.jpg",               brand: "Prime Pharmas", sub: "Diet & Diabetic Centre", tagline: "Pharmacy · Opticals · Diabetes & Diet",  href: "/pharmacy" },
+  { img: "/ASSETS/pharma-banner.jpg",               brand: "Prime Pharmas", sub: "Diet & Diabetic Centre", tagline: "Pharmacy · Opticals · Diabetes & Diet",  href: "/pharmacy" },
 ]
 
 const EveryLevelSlider = () => {

@@ -264,7 +264,7 @@ export default function PoolBookingPage() {
       {/* ═══ HERO ═══ */}
       <section className="relative w-full overflow-hidden h-[450px] md:h-screen md:min-h-[600px]">
         <img
-          src="/SWIMMING/main-banner.jpg"
+          src="/ASSETS/hideaway.jpg"
           alt="Pool"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
@@ -290,7 +290,7 @@ export default function PoolBookingPage() {
      
           <div className="relative rounded-[20px] overflow-hidden w-full h-[380px] md:h-[400px] lg:h-[400px]">
             <img
-              src="/SWIMMING/main-banner.jpg"
+              src="/ASSETS/hideaway-2.jpg"
               alt="Hideaway Swimsuite"
               className="absolute inset-0 w-full h-full object-cover"
             />
