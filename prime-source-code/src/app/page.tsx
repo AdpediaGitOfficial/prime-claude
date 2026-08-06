@@ -10,7 +10,6 @@ import {
   MotionP,
   MotionDiv,
 } from "@/components/MotionWrappers";
-import StackCard from "@/components/UI/StackCard";
 import ServiceCarousel from "@/components/UI/ServiceCarousel";
 import HomeLogoSlider from "@/components/UI/HomeLogoSlider";
 import EveryLevelSlider from "@/components/UI/EveryLevelSlider";
@@ -299,7 +298,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <StackCard />
 
    
       <section className="py-20 lg:py-28 site-container">
