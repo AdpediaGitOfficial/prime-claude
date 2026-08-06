@@ -13,6 +13,7 @@ import {
 import StackCard from "@/components/UI/StackCard";
 import ServiceCarousel from "@/components/UI/ServiceCarousel";
 import HomeLogoSlider from "@/components/UI/HomeLogoSlider";
+import EveryLevelSlider from "@/components/UI/EveryLevelSlider";
 
 const DEFAULT_HERO = "/ASSETS/banner-main.jpg";
 
@@ -84,6 +85,7 @@ export default function HomePage() {
         </div>
       </section>
       <HomeLogoSlider />
+      <EveryLevelSlider />
 
 
       {/* Four Floors of Unmatched Excellence */}
