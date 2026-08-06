@@ -363,6 +363,7 @@ export default function Header() {
                     <Link
                       key={link.label}
                       href={link.href}
+                      onMouseEnter={() => setHoveredLink(null)}
                       onClick={() => { setOpen(false); setExpanded(null); }}
                       className="text-white text-[20px] font-light hover:opacity-60 transition-opacity"
                     >
@@ -373,7 +374,7 @@ export default function Header() {
                   {dotLinks.map((link) => (
                     <div
                       key={link.label}
-                      onMouseEnter={link.hasMega ? () => setHoveredLink(link.label) : undefined}
+                      onMouseEnter={link.hasMega ? () => setHoveredLink(link.label) : () => setHoveredLink(null)}
                       className="w-full"
                     >
                       {link.href ? (
