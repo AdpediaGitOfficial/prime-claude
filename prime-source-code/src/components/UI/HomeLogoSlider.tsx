@@ -97,7 +97,7 @@ const HomeLogoSlider = () => {
       
       <style dangerouslySetInnerHTML={{__html: `
         .marquee-track {
-          animation: marquee 35s linear infinite;
+          animation: marquee 25s linear infinite;
           transform: translateZ(0);
         }
         
