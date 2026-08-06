@@ -8,7 +8,7 @@ const FEATURES = [
   "Optical Care",
   "Diabetes & Diet Centre",
   "Genuine Medicines",
-  "Health Monitoring",
+  "Home Delivery",
   "Expert Guidance",
 ];
 
@@ -280,10 +280,12 @@ export default function PharmacyPage() {
               regulations.
             </p>
             <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] mb-3 md:mb-4">
-              Online ordering and medicine delivery are not available through
-              this website. For purchasing medicines, optical products, diabetes
-              &amp; diet essentials, or any healthcare needs, please visit Prime
-              Pharmas directly.
+              For your convenience,{" "}
+              <span className="font-medium text-[#4a3a86]">
+                Prescription Medicine Home Delivery is available within a 2 km
+                radius between 9:00 AM and 9:00 PM
+              </span>
+              , subject to a valid doctor&apos;s prescription.
             </p>
             <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
               Our team is always available to assist you with pharmacy services,
@@ -302,9 +304,9 @@ export default function PharmacyPage() {
           </h2>
           <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] max-w-3xl mx-auto">
             Visit Prime Pharmas at Prime Promenade for genuine medicines,
-            optical care, diabetes &amp; diet solutions, and trusted healthcare
-            services — all in one convenient location. Open every day, 9:00 AM –
-            9:00 PM.
+            optical care, diabetes &amp; diet solutions, home delivery, and
+            trusted healthcare services — all in one convenient location. Open
+            every day, 9:00 AM – 9:00 PM.
           </p>
         </div>
 
