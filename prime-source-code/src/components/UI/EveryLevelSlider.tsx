@@ -65,6 +65,7 @@ const EveryLevelSlider = () => {
                   alt={`${c.brand} ${c.sub}`.trim()}
                   className="absolute inset-0 w-full h-full object-cover"
                   loading="eager"
+                  fetchPriority="low"
                   decoding="async"
                 />
                 <div

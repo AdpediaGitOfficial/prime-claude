@@ -14,7 +14,7 @@ import ServiceCarousel from "@/components/UI/ServiceCarousel";
 import HomeLogoSlider from "@/components/UI/HomeLogoSlider";
 import EveryLevelSlider from "@/components/UI/EveryLevelSlider";
 
-const DEFAULT_HERO = "/ASSETS/banner-main.jpg";
+const DEFAULT_HERO = "/ASSETS/opt/banner-main.webp";
 
 export default function HomePage() {
   // Hero image from the "home-hero" banner (falls back to the default).
@@ -40,10 +40,12 @@ export default function HomePage() {
 
       {/* Hero */}
       <section className="relative w-full h-[450px] md:h-screen md:min-h-[600px] overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={heroImg}
           alt="Prime Promenade"
           className="absolute inset-0 w-full h-full object-cover"
+          fetchPriority="high"
         />
 
         {/* Changed gradient to bottom-to-top on mobile for better text readability when stacked, and left-to-right on larger screens */}
@@ -100,8 +102,9 @@ export default function HomePage() {
             transition={{ delay: 0.12, duration: 0.6 }}
           >
             <img
-              src="/ASSETS/destination_1.jpg"
+              src="/ASSETS/opt/destination_1.webp"
               alt="Prime Promenade Interior"
+              loading="lazy"
               className="absolute inset-0 w-full h-full object-cover"
               style={{ objectPosition: "center center" }}
             />
@@ -129,8 +132,9 @@ export default function HomePage() {
               transition={{ delay: 0.18, duration: 0.6 }}
             >
               <img
-                src="/ASSETS/destination_2.webp"
+                src="/ASSETS/opt/destination_2.webp"
                 alt="Designer Interiors"
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[45%] to-black/70 rounded-[24px]"></div>
@@ -177,8 +181,9 @@ export default function HomePage() {
             transition={{ delay: 0.24, duration: 0.6 }}
           >
             <img
-              src="/ASSETS/ev.jpg"
+              src="/ASSETS/opt/ev.webp"
               alt="Premium Security"
+              loading="lazy"
               className="absolute inset-0 w-full h-full object-cover object-left"
             />
 
@@ -285,8 +290,9 @@ export default function HomePage() {
               transition={{ delay: 0.15, duration: 0.7 }}
             >
               <img
-                src="/ASSETS/prime-x-arena.jpg"
+                src="/ASSETS/opt/prime-x-arena.webp"
                 alt="Prime X Arena Indoor Entertainment"
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover"
               />
               {/* Refined Overlays: Smoother blending into the dark card */}

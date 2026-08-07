@@ -3,15 +3,15 @@ import React from 'react'
 import { MotionSpan, MotionH2, MotionP } from "@/components/MotionWrappers"
 import Image from 'next/image'
 import Link from 'next/link'
-import LogoPrimeX from "../../../public/LOGO/final-out-02.webp"
-import LogoSpa from "../../../public/LOGO/me-glow.jpg.jpeg"
-import LogoStudy from "../../../public/LOGO/final-out-04.webp"
-import LogoCafe from "../../../public/LOGO/final-out-05.png"
-import LogoConference from "../../../public/LOGO/final-out-06.webp"
-import LogoVendor from "../../../public/LOGO/final-out-07.webp"
-import LogoPharmacy from "../../../public/LOGO/final-out-08.webp"
-import LogoPool from "../../../public/LOGO/final-out-09.webp"
-import LogoGym from "../../../public/LOGO/final-out-03.webp"
+import LogoPrimeX from "../../../public/LOGO/opt/final-out-02.webp"
+import LogoSpa from "../../../public/LOGO/opt/me-glow.webp"
+import LogoStudy from "../../../public/LOGO/opt/final-out-04.webp"
+import LogoCafe from "../../../public/LOGO/opt/final-out-05.webp"
+import LogoConference from "../../../public/LOGO/opt/final-out-06.webp"
+import LogoVendor from "../../../public/LOGO/opt/final-out-07.webp"
+import LogoPharmacy from "../../../public/LOGO/opt/final-out-08.webp"
+import LogoPool from "../../../public/LOGO/opt/final-out-09.webp"
+import LogoGym from "../../../public/LOGO/opt/final-out-03.webp"
 
 const HomeLogoSlider = () => {
   // Each logo links to its own brand's inner page.
