@@ -40,9 +40,7 @@ import { ChevronDown, X } from "lucide-react";
     ];
 
     const steelTekItems = [
-      { title: "Structural Steel Designing", img: "/ASSETS/study-sub-2.webp", href: "/study-centre#structural-steel" },
-      { title: "Tekla Training", img: "/ASSETS/study-sub-1.webp", href: "/study-centre#tekla-structures" },
-      
+      { title: "Our Courses", img: "/ASSETS/steeltek-1.jpeg", href: "/study-centre" },
     ];
 
     const getMegaItems = (label: string) => {
