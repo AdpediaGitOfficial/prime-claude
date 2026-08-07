@@ -158,6 +158,29 @@ body {
       padding-right: var(--site-padding-x-lg);
     }
   }
+
+  /* Standard vertical section rhythm — one reusable step so sections don't drift.
+     64px (mobile) / 96px (md) / 120px (lg). Equivalent to the
+     `!py-16 md:!py-24 lg:!py-[120px]` pattern already used across the service pages;
+     pair with `site-container` for horizontal padding. */
+  .section-y {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+
+  @screen md {
+    .section-y {
+      padding-top: 96px;
+      padding-bottom: 96px;
+    }
+  }
+
+  @screen lg {
+    .section-y {
+      padding-top: 120px;
+      padding-bottom: 120px;
+    }
+  }
 }
 
   /* Make booking and form spans black with 40% opacity (scoped) */

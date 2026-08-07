@@ -86,7 +86,7 @@ export default function GalleryPage() {
 
   return (
     <main className="min-h-screen bg-white text-black">
-      <section className="relative overflow-hidden bg-[#111] pb-16 pt-36 text-white md:pb-24 md:pt-44">
+      <section className="relative overflow-hidden bg-[#111] pb-16 pt-32 text-white md:pb-24 md:pt-40">
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#e1ff83]/10 blur-3xl" />
         <div className="absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
 
@@ -125,7 +125,7 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      <section className="site-container py-16 md:py-24 lg:py-28">
+      <section className="site-container section-y">
         <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between md:mb-14">
           <div>
             <p className="mb-3 text-sm font-medium uppercase tracking-[0.22em] text-black/45">

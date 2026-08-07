@@ -88,7 +88,7 @@ export default function HomePage() {
 
 
       {/* Four Floors of Unmatched Excellence */}
-      <section className="py-20 lg:py-28 site-container">
+      <section className="section-y site-container">
         {/* Image Grid: 3 columns (2:1:1) */}
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] gap-5 items-start">
           {/* Col 1: Large tall image */}
@@ -197,7 +197,7 @@ export default function HomePage() {
       </section>
 
 
-      <section className="py-12 md:py-16 site-container">
+      <section className="py-12 md:py-16 lg:py-20 site-container">
         <div className="bg-[#111] rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl border border-white/5 relative">
           {/* Prime X logo in top-right */}
             <img
@@ -300,7 +300,7 @@ export default function HomePage() {
 
 
    
-      <section className="py-20 lg:py-28 site-container">
+      <section className="section-y site-container">
         <MotionH2
           className="text-3xl font-normal leading-[1.2] text-center mb-5"
           initial={{ opacity: 0, y: 20 }}

@@ -163,7 +163,7 @@ export default function GymPage() {
       </section>
 
       {/* ═══ ABOUT OUR GYM ═══ */}
-      <section className="site-container pt-[60px]">
+      <section className="site-container section-y">
         {/* 1. Changed items-center to items-stretch so the columns match heights */}
         <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-stretch">
           {/* Image LEFT */}
@@ -381,7 +381,7 @@ export default function GymPage() {
 
 
       {/* ═══ JOIN US TODAY ═══ */}
-      <section className="site-container pt-[30px] md:pt-0 pb-[60px]">
+      <section className="site-container section-y">
         <MotionDiv
           className="text-center mb-8 md:mb-10"
           initial={{ opacity: 0 }}

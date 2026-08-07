@@ -64,7 +64,7 @@ const page = () => {
         
 
         {/* --- About Café Section (Screenshot Design) --- */}
-        <section className="py-20 lg:py-28 site-container bg-white">
+        <section className="section-y site-container bg-white">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Column: Image Grid Layout */}
             <MotionDiv
@@ -227,7 +227,7 @@ const page = () => {
         </section>
 
         {/* --- Moments / Gallery Section (added last) --- */}
-       <section className="py-20 lg:py-28 site-container">
+       <section className="section-y site-container">
         <div className="bg-[#FEF6E8] rounded-[24px] p-6 md:p-10">
     
 

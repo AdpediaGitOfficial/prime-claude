@@ -34,7 +34,7 @@ const EveryLevelSlider = () => {
   }, [])
 
   return (
-    <section className="w-full pt-6 md:pt-10 pb-16 md:pb-24 overflow-hidden bg-white relative"
+    <section className="w-full pt-6 md:pt-10 overflow-hidden bg-white relative"
       style={{ contain: 'layout style' }}
     >
       <div className="site-container">

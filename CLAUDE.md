@@ -109,6 +109,13 @@ export is static, **masonry / natural-height images use a plain `<img>`** (with 
 
 Brand look: black `#111`, lime accent **`#e1ff83`**, generous rounded corners.
 
+**Vertical section rhythm:** use the reusable **`.section-y`** utility (in `globals.css`) for a
+section's top/bottom padding — **64px / 96px (md) / 120px (lg)**, the same scale the service
+pages express inline as `!py-16 md:!py-24 lg:!py-[120px]`. Pair with `site-container` for the
+horizontal padding. Prefer `.section-y` over ad-hoc `py-*` so sections don't drift apart;
+keep deliberate exceptions explicit (e.g. a banner tucked flush under the section above uses
+`pb-0`/no top padding on purpose).
+
 Key files:
 - `src/utils/api.ts` — `apiCall()`, `assetUrl()`, and `ENDPOINTS` (POOL_BOOKINGS, HALL_BOOKINGS,
   SPA_BOOKINGS, GYM_MEMBERSHIPS, VENDOR_INVITES, COURSE_REGISTRATIONS, CONTACT_ENQUIRIES,
