@@ -197,18 +197,6 @@ export default function ContactClient() {
             </p>
             <div className="text-[13px] leading-[1.35] flex flex-col gap-1">
               <a
-                href="tel:+919562837777"
-                className="text-black hover:text-[#604b9e] hover:underline transition-colors"
-              >
-                +91- 956 283 7777
-              </a>
-              <a
-                href="tel:18001212365"
-                className="text-black hover:text-[#604b9e] hover:underline transition-colors"
-              >
-                Toll Free: 1800 1212 365
-              </a>
-              <a
                 href={telHref(contact.generalEnquiry)}
                 className="text-black hover:text-[#604b9e] hover:underline transition-colors"
               >
