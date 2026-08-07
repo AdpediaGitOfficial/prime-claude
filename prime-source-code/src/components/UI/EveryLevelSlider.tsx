@@ -5,19 +5,18 @@ import { MotionH2 } from "@/components/MotionWrappers"
 
 // Each card links to that brand's inner page. Images are existing repo
 // photos for now; the 5 confirmed brand banners can be swapped in later.
-// Slider uses lightweight 800px webp variants (public/ASSETS/exp) so the
-// marquee stays smooth on mobile — the originals are 1920px and only shown
-// at ~320-475px here, which made the compositor re-rasterize heavily.
+// Lightweight mobile-sized images (≤600px) keep the marquee smooth — big
+// source photos made the compositor re-rasterize heavily on mobile.
 const cards = [
-  { img: "/ASSETS/exp/hideaway.webp",     brand: "Hideaway",      sub: "Swimsuites",             tagline: "Pool · Sauna · Jacuzzi",                 href: "/pool-booking" },
-  { img: "/ASSETS/exp/regal.webp",        brand: "The Regal",     sub: "At the Promenade",       tagline: "Your perfect event begins here",         href: "/conference" },
-  { img: "/ASSETS/exp/gym.webp",          brand: "Oxy Gym",       sub: "",                       tagline: "Your comeback starts here",              href: "/gym" },
-  { img: "/ASSETS/exp/meglow.webp",       brand: "Me Glow",       sub: "Wellness Lounge",        tagline: "Spa · Hair · Beauty · Skin",             href: "/spa" },
-  { img: "/ASSETS/exp/cafe.webp",         brand: "The Venetian",  sub: "Bistro",                 tagline: "Per amore del cibo",                     href: "/cafe" },
-  { img: "/ASSETS/exp/prime-x-arena.webp", brand: "Prime X",      sub: "Arena",                  tagline: "",                                       href: "/prime-x-arena" },
-  { img: "/ASSETS/exp/study.webp",        brand: "Steel Tek",     sub: "Study Centre",           tagline: "",                                       href: "/study-centre" },
-  { img: "/ASSETS/exp/vendor.webp",       brand: "Forever 4 You", sub: "Fashion & Gifts",        tagline: "",                                       href: "/vendor" },
-  { img: "/ASSETS/exp/pharma.webp",       brand: "Prime Pharmas", sub: "Diet & Diabetic Centre", tagline: "Pharmacy · Opticals · Diabetes & Diet",  href: "/pharmacy" },
+  { img: "/ASSETS/hide-mob.jpg",     brand: "Hideaway",      sub: "Swimsuites",             tagline: "Pool · Sauna · Jacuzzi",                 href: "/pool-booking" },
+  { img: "/ASSETS/regal-mob.jpg",    brand: "The Regal",     sub: "At the Promenade",       tagline: "Your perfect event begins here",         href: "/conference" },
+  { img: "/ASSETS/oxy-mob.jpg",      brand: "Oxy Gym",       sub: "",                       tagline: "Your comeback starts here",              href: "/gym" },
+  { img: "/ASSETS/meglow-mob.jpg",   brand: "Me Glow",       sub: "Wellness Lounge",        tagline: "Spa · Hair · Beauty · Skin",             href: "/spa" },
+  { img: "/ASSETS/exp/cafe.webp",    brand: "The Venetian",  sub: "Bistro",                 tagline: "Per amore del cibo",                     href: "/cafe" },
+  { img: "/ASSETS/primex-mob.jpg",   brand: "Prime X",       sub: "Arena",                  tagline: "",                                       href: "/prime-x-arena" },
+  { img: "/ASSETS/steeltek-mob.jpg", brand: "Steel Tek",     sub: "Study Centre",           tagline: "",                                       href: "/study-centre" },
+  { img: "/ASSETS/forever-mob.jpg",  brand: "Forever 4 You", sub: "Fashion & Gifts",        tagline: "",                                       href: "/vendor" },
+  { img: "/ASSETS/pharma-mob.jpg",   brand: "Prime Pharmas", sub: "Diet & Diabetic Centre", tagline: "Pharmacy · Opticals · Diabetes & Diet",  href: "/pharmacy" },
 ]
 
 const EveryLevelSlider = () => {
@@ -68,11 +67,13 @@ const EveryLevelSlider = () => {
             >
               <div className="relative w-full aspect-[16/10] rounded-[22px] overflow-hidden border border-black/10 shadow-sm transition-transform duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                {/* eager: marquee images sit off-screen and move in via
+                    transform, so lazy-loading leaves them blank on mobile */}
                 <img
                   src={c.img}
                   alt={`${c.brand} ${c.sub}`.trim()}
                   className="absolute inset-0 w-full h-full object-cover"
-                  loading="lazy"
+                  loading="eager"
                   decoding="async"
                 />
                 <div

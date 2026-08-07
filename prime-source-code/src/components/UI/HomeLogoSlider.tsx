@@ -85,7 +85,7 @@ const HomeLogoSlider = () => {
                           alt={item.label}
                           width={400}
                           height={300}
-                          loading="lazy"
+                          loading="eager"
                           decoding="async"
                           className="object-contain h-full w-auto max-w-full"
                         />
