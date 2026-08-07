@@ -241,7 +241,7 @@ export default function GymPage() {
                   <PiSparkleFill className="text-[#6CB443] text-2xl md:text-[32px]" />
                 </div>
                 <MotionP className="text-base sm:text-lg md:text-xl leading-[1.35]">
-                CrossFit.
+                CrossFit
                 <span className="block text-sm md:text-base text-black/50 mt-0.5">(Dedicated area for Kid&apos;s Gym, Zumba, Yoga)</span>
                 </MotionP>
               </div>
