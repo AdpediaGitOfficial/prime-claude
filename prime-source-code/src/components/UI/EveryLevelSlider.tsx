@@ -70,6 +70,7 @@ const EveryLevelSlider = () => {
                   alt={`${c.brand} ${c.sub}`.trim()}
                   className="absolute inset-0 w-full h-full object-cover"
                   loading="lazy"
+                  decoding="async"
                 />
                 <div
                   className="absolute inset-0"
@@ -104,9 +105,19 @@ const EveryLevelSlider = () => {
 
       <style dangerouslySetInnerHTML={{ __html: `
         .exp-track {
-          animation: exp-scroll 55s linear infinite reverse;
+          /* Faster on small screens so it never reads as "stuck", a touch
+             calmer on large screens. Constant (linear) speed = smoothest flow. */
+          animation: exp-scroll 32s linear infinite reverse;
           padding: 8px 20px 16px;
+          /* Force a dedicated GPU layer so scrolling stays on the compositor
+             (off the main thread) — this is what keeps it smooth on mobile. */
           will-change: transform;
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+        @media (min-width: 1024px) {
+          .exp-track { animation-duration: 48s; }
         }
         .exp-track:hover { animation-play-state: paused; }
 
