@@ -27,7 +27,9 @@ const HomeLogoSlider = () => {
     { src: LogoGym, href: '/gym', label: 'Oxy Gym' },
   ]
 
-  const extendedLogos = [...logos, ...logos, ...logos, ...logos]
+  // Two copies is all a seamless -50% loop needs; the previous four copies
+  // rendered 36 images and made the marquee heavy/janky on mobile.
+  const extendedLogos = [...logos, ...logos]
 
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -83,7 +85,8 @@ const HomeLogoSlider = () => {
                           alt={item.label}
                           width={400}
                           height={300}
-                          priority={true}
+                          loading="lazy"
+                          decoding="async"
                           className="object-contain h-full w-auto max-w-full"
                         />
                     </div>
@@ -97,10 +100,17 @@ const HomeLogoSlider = () => {
       
       <style dangerouslySetInnerHTML={{__html: `
         .marquee-track {
-          animation: marquee 25s linear infinite;
+          /* Two copies now, so keep the same on-screen speed at ~half duration. */
+          animation: marquee 13s linear infinite;
           transform: translateZ(0);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          will-change: transform;
         }
-        
+        @media (min-width: 1024px) {
+          .marquee-track { animation-duration: 20s; }
+        }
+
         .marquee-track:hover {
           animation-play-state: paused;
         }
