@@ -260,25 +260,25 @@ export default function ConferencePage() {
       {/* Col 1 */}
       <div className="flex flex-col gap-3 md:gap-5">
         <div className="rounded-[16px] md:rounded-[20px] overflow-hidden aspect-[4/3] lg:aspect-auto lg:h-[279px]">
-          <img src="/ASSETS/hall-portfolio-6.webp" alt="Seating arrangement" className="w-full h-full object-cover" />
+          <img src="/ASSETS/r-1.jpg" alt="Seating arrangement" className="w-full h-full object-cover" />
         </div>
         <div className="rounded-[16px] md:rounded-[20px] overflow-hidden aspect-[4/3] lg:aspect-auto lg:h-[488px]">
-          <img src="/ASSETS/hall-portfolio-5.webp" alt="Conference setup" className="w-full h-full object-cover" />
+          <img src="/ASSETS/r-7.jpg" alt="Conference setup" className="w-full h-full object-cover" />
         </div>
       </div>
 
       {/* Col 2 - Brought to top on tablet, spans 2 columns */}
       <div className="flex flex-col gap-3 md:gap-5 md:col-span-2 lg:col-span-1 md:order-first lg:order-none">
         <div className="rounded-[16px] md:rounded-[20px] overflow-hidden aspect-video lg:aspect-auto lg:h-[488px]">
-          <img src="/ASSETS/hall-portfolio-4.webp" alt="Event hall" className="w-full h-full object-cover" />
+          <img src="/ASSETS/r-5.jpg" alt="Event hall" className="w-full h-full object-cover" />
         </div>
         {/* Nested Grid: Forced to 2 columns even on mobile to save vertical space */}
         <div className="grid grid-cols-2 gap-3 md:gap-5 lg:h-[279px] lg:grid-cols-[382fr_392fr]">
           <div className="rounded-[16px] md:rounded-[20px] overflow-hidden aspect-square lg:aspect-auto h-full">
-            <img src="/ASSETS/hall-portfolio-3.webp" alt="Meeting room" className="w-full h-full object-cover" />
+            <img src="/ASSETS/r-4.jpg" alt="Meeting room" className="w-full h-full object-cover" />
           </div>
           <div className="rounded-[16px] md:rounded-[20px] overflow-hidden aspect-square lg:aspect-auto h-full">
-            <img src="/ASSETS/regal-6.jpeg" alt="Training room" className="w-full h-full object-cover" />
+            <img src="/ASSETS/r-2.jpg" alt="Training room" className="w-full h-full object-cover" />
           </div>
         </div>
       </div>
@@ -286,10 +286,10 @@ export default function ConferencePage() {
       {/* Col 3 */}
       <div className="flex flex-col gap-3 md:gap-5">
         <div className="rounded-[16px] md:rounded-[20px] overflow-hidden aspect-[4/3] lg:aspect-auto lg:h-[488px]">
-          <img src="/ASSETS/regal-7.jpeg" alt="Seminar room" className="w-full h-full object-cover" />
+          <img src="/ASSETS/r-6.jpg" alt="Seminar room" className="w-full h-full object-cover" />
         </div>
         <div className="rounded-[16px] md:rounded-[20px] overflow-hidden aspect-[4/3] lg:aspect-auto lg:h-[279px]">
-          <img src="/ASSETS/hall-portfolio-7.webp" alt="Workshop space" className="w-full h-full object-cover" />
+          <img src="/ASSETS/r-3.jpg" alt="Workshop space" className="w-full h-full object-cover" />
         </div>
       </div>
 
