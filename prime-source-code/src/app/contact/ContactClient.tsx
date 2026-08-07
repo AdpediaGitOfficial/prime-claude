@@ -3,7 +3,7 @@
 import Banner from "../../../public/ASSETS/contact-banner-1.webp";
 import { FiMapPin, FiPhone, FiMail, FiClock } from "react-icons/fi";
 import { motion } from "framer-motion";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
 import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
@@ -24,6 +24,18 @@ const initialFormData: ContactForm = {
   message: "",
 };
 
+// Department phone numbers — kept in sync with the site footer / "Visit Us"
+// block by reading the same SITE_SETTINGS.contact source (admin-editable).
+const DEFAULT_CONTACT = {
+  generalEnquiry: "+91- 90707 99 700",
+  primePharma: "+91- 90707 99 770",
+  arenaBooking: "+91- 90707 99 079",
+  oxygymBooking: "+91- 90707 99 709",
+  email: "info@primepromenade.com",
+};
+
+const telHref = (v: string) => `tel:${v.replace(/[^\d+]/g, "")}`;
+
 const containerVariants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12 } },
@@ -37,6 +49,25 @@ const fadeUp = {
 export default function ContactClient() {
   const [formData, setFormData] = useState<ContactForm>(initialFormData);
   const { isSubmitting, submitMessage, submitError, setSubmitError, runSubmit } = useFormSubmit();
+
+  // Pull the department phone numbers from site settings so the contact page
+  // always matches the footer / "Visit Us" block (falls back to defaults).
+  const [contact, setContact] = useState(DEFAULT_CONTACT);
+  useEffect(() => {
+    let active = true;
+    apiCall(ENDPOINTS.SITE_SETTINGS)
+      .then((data) => {
+        if (!active || !data || typeof data !== "object") return;
+        const c = (data as { contact?: Partial<typeof DEFAULT_CONTACT> }).contact;
+        if (c) setContact({ ...DEFAULT_CONTACT, ...c });
+      })
+      .catch(() => {
+        /* keep defaults */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -178,28 +209,28 @@ export default function ContactClient() {
                 Toll Free: 1800 1212 365
               </a>
               <a
-                href="tel:+919070799700"
+                href={telHref(contact.generalEnquiry)}
                 className="text-black hover:text-[#604b9e] hover:underline transition-colors"
               >
-                General Enquiry: +91- 90707 99 700
+                General Enquiry: {contact.generalEnquiry}
               </a>
               <a
-                href="tel:+919070799770"
+                href={telHref(contact.primePharma)}
                 className="text-black hover:text-[#604b9e] hover:underline transition-colors"
               >
-                Prime Pharma: +91- 90707 99 770
+                Prime Pharma: {contact.primePharma}
               </a>
               <a
-                href="tel:+919070799079"
+                href={telHref(contact.arenaBooking)}
                 className="text-black hover:text-[#604b9e] hover:underline transition-colors"
               >
-                Primex Arena Booking: +91- 90707 99 079
+                Primex Arena Booking: {contact.arenaBooking}
               </a>
               <a
-                href="tel:+919070799709"
+                href={telHref(contact.oxygymBooking)}
                 className="text-black hover:text-[#604b9e] hover:underline transition-colors"
               >
-                OXYGYM Booking: +91- 90707 99 709
+                OXYGYM Booking: {contact.oxygymBooking}
               </a>
             </div>
           </motion.div>
