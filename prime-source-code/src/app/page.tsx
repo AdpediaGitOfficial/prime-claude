@@ -253,7 +253,7 @@ export default function HomePage() {
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
                 {[
                   "Bowling Alley",
-                  "Cricket Pitch",
+                  "Shooting Range",
                   "Race Grid F1 Simulator",
                   "Flight Simulator",
                   "PS5 Lounge",
