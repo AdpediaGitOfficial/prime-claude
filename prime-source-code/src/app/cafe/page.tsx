@@ -77,7 +77,7 @@ const page = () => {
               {/* Single feature image (kept only the first image) */}
               <div className="relative rounded-[20px] md:rounded-[24px] overflow-hidden h-full w-full group">
                 <Image
-                  src="/ASSETS/about-image-1.jpeg"
+                  src="/ASSETS/cafe-abut-2.jpg"
                   fill
                   alt="Cafe Experience"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
