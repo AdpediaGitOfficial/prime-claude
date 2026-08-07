@@ -328,7 +328,7 @@ export default function ConferencePage() {
           <div className="bg-[#d9e1e0] rounded-[24px] md:rounded-[30px] p-6 md:p-8 flex flex-col justify-between min-h-[250px] md:min-h-[369px]">
             <FiWifi className="text-[#00372f] w-10 h-10 md:w-12 md:h-12 mb-6" strokeWidth={1.5} />
             <div>
-              <p className="text-xl md:text-[22px] font-medium leading-[1.35] mb-2">High-Speed Internet</p>
+              <p className="text-xl md:text-[22px] font-medium leading-[1.35] mb-2">High-Speed Internet<sup className="text-[#00372f] font-semibold ml-0.5">*</sup></p>
               <p className="text-base md:text-xl text-black/70 leading-[1.35]">Reliable WiFi connectivity throughout the venue</p>
             </div>
           </div>
