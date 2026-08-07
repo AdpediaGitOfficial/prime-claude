@@ -36,8 +36,8 @@ import { ChevronDown, X } from "lucide-react";
 
     const primePharmasItems = [
       { title: "Pharma", img: "/ASSETS/sub-menu-pharmacy.webp", href: "/pharmacy" },
-      { title: "Diet and Diabetic Centre", img: "/ASSETS/sub-menu-diet.webp", href: "/pharmacy" },
-      { title: "Prime Opticals", img: "/ASSETS/Pharmas_3.jpg", href: "/pharmacy" },
+      { title: "Diet and Diabetic Centre", img: "/ASSETS/diet-3.jpg", href: "/pharmacy" },
+      { title: "Prime Opticals", img: "/ASSETS/1.jpg", href: "/pharmacy" },
     ];
 
     const educationItems = [
