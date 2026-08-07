@@ -48,7 +48,7 @@ import { ChevronDown, X } from "lucide-react";
     ];
 
     const steelTekItems: MenuItem[] = [
-      { title: "Our Courses", img: "/ASSETS/steeltek-1.jpeg", href: "/study-centre" },
+      { title: "Educational Institute and Research Centre", img: "/ASSETS/steeltek-1.jpeg", href: "/study-centre" },
     ];
 
     const getMegaItems = (label: string) => {
