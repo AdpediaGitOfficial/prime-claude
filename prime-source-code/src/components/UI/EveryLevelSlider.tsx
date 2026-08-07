@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import { MotionH2 } from "@/components/MotionWrappers"
 
@@ -21,19 +21,10 @@ const cards = [
 
 const EveryLevelSlider = () => {
   const extended = [...cards, ...cards]  // duplicate for a seamless -50% loop
-  const trackRef = useRef<HTMLDivElement>(null)
 
-  // Pause the animation while the section is off-screen (perf, matches logo strip).
-  useEffect(() => {
-    const el = trackRef.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => { el.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused' },
-      { threshold: 0 }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
+  // No IntersectionObserver play-state toggling: pausing/resuming a CSS
+  // animation hitches on iOS Safari (worse for a `reverse` loop), and an
+  // off-screen compositor transform is essentially free, so we let it run.
 
   return (
     <section className="w-full pt-6 md:pt-10 overflow-hidden bg-white relative"
@@ -57,7 +48,7 @@ const EveryLevelSlider = () => {
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 md:w-28 bg-gradient-to-r from-white to-transparent z-10"></div>
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 md:w-28 bg-gradient-to-l from-white to-transparent z-10"></div>
 
-        <div ref={trackRef} className="exp-track flex w-max gap-5">
+        <div className="exp-track flex w-max gap-5">
           {extended.map((c, i) => (
             <Link
               key={i}
@@ -109,9 +100,9 @@ const EveryLevelSlider = () => {
 
       <style dangerouslySetInnerHTML={{ __html: `
         .exp-track {
-          /* Faster on small screens so it never reads as "stuck", a touch
-             calmer on large screens. Constant (linear) speed = smoothest flow. */
-          animation: exp-scroll 32s linear infinite reverse;
+          /* Faster on phones (iOS read as sluggish); calmer on large screens.
+             Constant (linear) speed = smoothest flow. */
+          animation: exp-scroll 20s linear infinite reverse;
           padding: 8px 20px 16px;
           /* Force a dedicated GPU layer so scrolling stays on the compositor
              (off the main thread) — this is what keeps it smooth on mobile. */
@@ -125,8 +116,9 @@ const EveryLevelSlider = () => {
         }
         .exp-track:hover { animation-play-state: paused; }
 
-        /* 3 cards per screen on desktop, 2 on tablet, ~1.3 on mobile */
-        .exp-card { flex: 0 0 80vw; }
+        /* Phones: ~2 cards/screen so the full track stays under iOS Safari's
+           compositor layer-size budget (a wider track janks/evicts on iOS). */
+        .exp-card { flex: 0 0 52vw; }
         @media (min-width: 640px)  { .exp-card { flex: 0 0 46vw; } }
         @media (min-width: 1024px) { .exp-card { flex: 0 0 calc(33.333vw - 27px); } }
 

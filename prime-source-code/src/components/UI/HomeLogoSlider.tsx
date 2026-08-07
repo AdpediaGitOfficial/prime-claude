@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import { MotionSpan, MotionH2, MotionP } from "@/components/MotionWrappers"
 import Image from 'next/image'
 import Link from 'next/link'
@@ -31,22 +31,8 @@ const HomeLogoSlider = () => {
   // rendered 36 images and made the marquee heavy/janky on mobile.
   const extendedLogos = [...logos, ...logos]
 
-  const trackRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        el.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused';
-      },
-      { threshold: 0 }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  // No IntersectionObserver play-state toggling — pausing/resuming a CSS
+  // animation hitches on iOS Safari; a compositor transform off-screen is free.
 
   return (
     <section className="w-full pt-12 overflow-hidden bg-white relative"
@@ -74,7 +60,7 @@ const HomeLogoSlider = () => {
           <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
           {/* Increased gap from gap-x-5 to gap-x-6 (24px) for better spacing of large cards */}
-          <div ref={trackRef} className="marquee-track flex w-max gap-x-6 will-change-transform">
+          <div className="marquee-track flex w-max gap-x-6 will-change-transform">
             {extendedLogos.map((item, i) => {
               return (
                 <div key={i} className="marquee-slot shrink-0 flex items-center justify-center">
@@ -126,7 +112,10 @@ const HomeLogoSlider = () => {
 
         @keyframes marquee {
           0% { transform: translate3d(0, 0, 0); }
-          100% { transform: translate3d(-50%, 0, 0); } 
+          100% { transform: translate3d(-50%, 0, 0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-track { animation: none; }
         }
       `}} />
     </section>
