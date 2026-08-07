@@ -14,7 +14,7 @@ import { ChevronDown, X } from "lucide-react";
     const dotLinks: { label: string; href?: string; hasMega?: boolean }[] = [
       { label: "Lifestyle", hasMega: true },
       { label: "Wellness", hasMega: true },
-      { label: "Prime Pharmas", href: "/pharmacy" },
+      { label: "Prime Pharmas", hasMega: true },
       { label: "Steel Tek", hasMega: true },
       { label: "Prime X Arena", href: "/prime-x-arena" },
       { label: "Vendor Invite", href: "/vendor-invite" },
@@ -34,6 +34,12 @@ import { ChevronDown, X } from "lucide-react";
       { title: "Oxy Gym", img: "/ASSETS/sub-menu-gym.webp", href: "/gym" },
     ];
 
+    const primePharmasItems = [
+      { title: "Pharma", img: "/ASSETS/sub-menu-pharmacy.webp", href: "/pharmacy" },
+      { title: "Diet and Diabetic Centre", img: "/ASSETS/sub-menu-diet.webp", href: "/pharmacy" },
+      { title: "Prime Opticals", img: "/ASSETS/Pharmas_3.jpg", href: "/pharmacy" },
+    ];
+
     const educationItems = [
       { title: "Tekla Structures", img: "/ASSETS/study-sub-1.webp", href: "/study-centre#tekla-structures" },
       { title: "Professional Programs", img: "/ASSETS/study-sub-2.webp", href: "/study-centre#advanced-bim-technology" },
@@ -46,6 +52,7 @@ import { ChevronDown, X } from "lucide-react";
     const getMegaItems = (label: string) => {
       if (label === "Lifestyle") return lifestyleItems;
       if (label === "Wellness") return wellnessItems;
+      if (label === "Prime Pharmas") return primePharmasItems;
       if (label === "Education") return educationItems;
       if (label === "Steel Tek") return steelTekItems;
       return [];
@@ -283,6 +290,38 @@ export default function Header() {
                           ))}
                         </div>
 
+                      </motion.div>
+                    )}
+                    {hoveredLink === "Prime Pharmas" && (
+                      <motion.div
+                        layout
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ layout: { duration: 0.22 }, type: "spring", stiffness: 300, damping: 28 }}
+                        className="flex flex-col gap-6 pr-8 border-r border-white/30 min-w-[600px] justify-start self-start mb-[-50px]"
+                      >
+                        <h2 className="text-white text-[32px] font-semi mb-[-20px]">Prime Pharmas</h2>
+                        <div className="grid grid-cols-3 gap-5">
+                          {primePharmasItems.map((item) => (
+                            <Link
+                              key={item.title}
+                              href={item.href}
+                              onClick={() => { setOpen(false); setExpanded(null); }}
+                              className="group block"
+                            >
+                              <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-3 border border-white/10">
+                                <Image
+                                  src={item.img}
+                                  alt={item.title}
+                                  fill
+                                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                              </div>
+                              <p className="text-white font-light text-[18px]">{item.title}</p>
+                            </Link>
+                          ))}
+                        </div>
                       </motion.div>
                     )}
                     {hoveredLink === "Education" && (
