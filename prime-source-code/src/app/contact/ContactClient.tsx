@@ -280,8 +280,7 @@ export default function ContactClient() {
               Working Hours
             </p>
             <p className="text-[13px] leading-[1.35] text-black">
-              Monday - Friday:
-              <br className="md:hidden" /> 9:00 AM - 10:00 PM
+              9:00 AM - 10:00 PM
             </p>
           </motion.div>
         </motion.div>
