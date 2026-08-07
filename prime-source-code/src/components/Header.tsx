@@ -23,9 +23,9 @@ import { ChevronDown, X } from "lucide-react";
     ];
 
     const lifestyleItems = [
-      { title: "FOREVER 4 YOU", img: "/ASSETS/sub-menu-multi-brand.webp", href: "/vendor" },
-      { title: "Café", img: "/ASSETS/sub-menu-cafe.webp", href: "/cafe" },
+      { title: "Venetian Bistro", img: "/ASSETS/sub-menu-cafe.webp", href: "/cafe" },
       { title: "Regal", img: "/ASSETS/regal.jpeg", href: "/conference" },
+      { title: "FOREVER 4 YOU", img: "/ASSETS/sub-menu-multi-brand.webp", href: "/vendor" },
     ];
 
     const wellnessItems = [
