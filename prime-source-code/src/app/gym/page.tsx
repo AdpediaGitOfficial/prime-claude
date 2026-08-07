@@ -236,6 +236,26 @@ export default function GymPage() {
                 </MotionP>
               </div>
 
+                  <div className="flex items-start gap-4 md:gap-6">
+                <div className="flex-shrink-0 mt-1">
+                  <PiSparkleFill className="text-[#6CB443] text-2xl md:text-[32px]" />
+                </div>
+                <MotionP className="text-base sm:text-lg md:text-xl leading-[1.35]">
+                CrossFit. Dedicated area for Kid&apos;s Gym, Zumba, Yoga
+                <span className="block text-sm md:text-base text-black/50 mt-0.5">(Break time 12.00 Noon to 02.00 PM)</span>
+                </MotionP>
+              </div>
+
+                  <div className="flex items-start gap-4 md:gap-6">
+                <div className="flex-shrink-0 mt-1">
+                  <PiSparkleFill className="text-[#6CB443] text-2xl md:text-[32px]" />
+                </div>
+                <MotionP className="text-base sm:text-lg md:text-xl leading-[1.35]">
+                Physiotherapy with Hydrotherapy
+                <span className="block text-sm md:text-base text-black/50 mt-0.5">(Coming Soon)</span>
+                </MotionP>
+              </div>
+
                   <div className="flex items-start md:items-center gap-4 md:gap-6">
                 <div className="flex-shrink-0 mt-1 md:mt-0">
                   {/* 4. Added React Icon with matching green color and sizing */}
