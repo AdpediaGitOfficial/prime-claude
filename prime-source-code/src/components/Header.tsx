@@ -26,7 +26,7 @@ import { ChevronDown, X } from "lucide-react";
 
     const lifestyleItems: MenuItem[] = [
       { title: "Venetian Bistro", sub: "Italian Restaurant", img: "/ASSETS/sub-menu-cafe.webp", href: "/cafe" },
-      { title: "Regal", sub: "Multipurpose Hall", img: "/ASSETS/regal.jpeg", href: "/conference" },
+      { title: "Regal", sub: "Multipurpose Hall", img: "/ASSETS/regal.jpg", href: "/conference" },
       { title: "FOREVER 4 YOU", sub: "Multi Brand Store", img: "/ASSETS/sub-menu-multi-brand.webp", href: "/vendor" },
     ];
 
