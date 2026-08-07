@@ -22,30 +22,32 @@ import { ChevronDown, X } from "lucide-react";
       { label: "Contact Us", href: "/contact" },
     ];
 
-    const lifestyleItems = [
-      { title: "Venetian Bistro", img: "/ASSETS/sub-menu-cafe.webp", href: "/cafe" },
-      { title: "Regal", img: "/ASSETS/regal.jpeg", href: "/conference" },
-      { title: "FOREVER 4 YOU", img: "/ASSETS/sub-menu-multi-brand.webp", href: "/vendor" },
+    type MenuItem = { title: string; img: string; href: string; sub?: string };
+
+    const lifestyleItems: MenuItem[] = [
+      { title: "Venetian Bistro", sub: "Italian Restaurant", img: "/ASSETS/sub-menu-cafe.webp", href: "/cafe" },
+      { title: "Regal", sub: "Multipurpose Hall", img: "/ASSETS/regal.jpeg", href: "/conference" },
+      { title: "FOREVER 4 YOU", sub: "Multi Brand Store", img: "/ASSETS/sub-menu-multi-brand.webp", href: "/vendor" },
     ];
 
-    const wellnessItems = [
-      { title: "Me Glow Wellness", img: "/ASSETS/sub-menu-spa.webp", href: "/spa" },
-      { title: "Hideaway Swimsuit", img: "/ASSETS/sub-menu-swimming-pool.webp", href: "/pool-booking" },
-      { title: "Oxy Gym", img: "/ASSETS/sub-menu-gym.webp", href: "/gym" },
+    const wellnessItems: MenuItem[] = [
+      { title: "Me Glow Wellness", sub: "SPA & Salon", img: "/ASSETS/sub-menu-spa.webp", href: "/spa" },
+      { title: "Hideaway Swimsuit", sub: "Pool", img: "/ASSETS/sub-menu-swimming-pool.webp", href: "/pool-booking" },
+      { title: "Oxy Gym", sub: "Fitness", img: "/ASSETS/sub-menu-gym.webp", href: "/gym" },
     ];
 
-    const primePharmasItems = [
+    const primePharmasItems: MenuItem[] = [
       { title: "Pharma", img: "/ASSETS/sub-menu-pharmacy.webp", href: "/pharmacy" },
       { title: "Diet and Diabetic Centre", img: "/ASSETS/diet-3.jpg", href: "/pharmacy" },
       { title: "Prime Opticals", img: "/ASSETS/1.jpg", href: "/pharmacy" },
     ];
 
-    const educationItems = [
+    const educationItems: MenuItem[] = [
       { title: "Tekla Structures", img: "/ASSETS/study-sub-1.webp", href: "/study-centre#tekla-structures" },
       { title: "Professional Programs", img: "/ASSETS/study-sub-2.webp", href: "/study-centre#advanced-bim-technology" },
     ];
 
-    const steelTekItems = [
+    const steelTekItems: MenuItem[] = [
       { title: "Our Courses", img: "/ASSETS/steeltek-1.jpeg", href: "/study-centre" },
     ];
 
@@ -252,6 +254,9 @@ export default function Header() {
                                 />
                               </div>
                               <p className="text-white font-light text-[18px]">{item.title}</p>
+                              {item.sub && (
+                                <p className="text-white/50 font-light text-[14px] mt-0.5">{item.sub}</p>
+                              )}
                             </Link>
                           ))}
                         </div>
@@ -286,6 +291,9 @@ export default function Header() {
                                 />
                               </div>
                               <p className="text-white font-light text-[18px]">{item.title}</p>
+                              {item.sub && (
+                                <p className="text-white/50 font-light text-[14px] mt-0.5">{item.sub}</p>
+                              )}
                             </Link>
                           ))}
                         </div>
@@ -319,6 +327,9 @@ export default function Header() {
                                 />
                               </div>
                               <p className="text-white font-light text-[18px]">{item.title}</p>
+                              {item.sub && (
+                                <p className="text-white/50 font-light text-[14px] mt-0.5">{item.sub}</p>
+                              )}
                             </Link>
                           ))}
                         </div>
@@ -351,6 +362,9 @@ export default function Header() {
                                 />
                               </div>
                               <p className="text-white font-light text-[18px]">{item.title}</p>
+                              {item.sub && (
+                                <p className="text-white/50 font-light text-[14px] mt-0.5">{item.sub}</p>
+                              )}
                             </Link>
                           ))}
                         </div>
@@ -383,6 +397,9 @@ export default function Header() {
                                 />
                               </div>
                               <p className="text-white font-light text-[18px]">{item.title}</p>
+                              {item.sub && (
+                                <p className="text-white/50 font-light text-[14px] mt-0.5">{item.sub}</p>
+                              )}
                             </Link>
                           ))}
                         </div>
@@ -529,7 +546,12 @@ export default function Header() {
                                     <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg border border-white/10">
                                       <Image src={item.img} alt={item.title} fill className="object-cover" />
                                     </div>
-                                    <span className="text-base font-light leading-snug text-white">{item.title}</span>
+                                    <span className="flex flex-col">
+                                      <span className="text-base font-light leading-snug text-white">{item.title}</span>
+                                      {item.sub && (
+                                        <span className="text-sm font-light leading-snug text-white/50">{item.sub}</span>
+                                      )}
+                                    </span>
                                   </Link>
                                 ))}
                               </motion.div>
