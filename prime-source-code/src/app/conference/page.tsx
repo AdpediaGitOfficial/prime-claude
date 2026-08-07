@@ -5,7 +5,7 @@ import { FiSun, FiSunrise } from "react-icons/fi";
 import { FiMonitor, FiVolume2, FiMic, FiWifi } from "react-icons/fi";
 import { MdOutlineChair } from "react-icons/md";
 import { PiStarFourFill } from "react-icons/pi";
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
 import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
@@ -44,7 +44,6 @@ export default function ConferencePage() {
   // --- Booking Slot State ---
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [formData, setFormData] = useState<HallBookingForm>(initialFormData);
-  const [bookedDateStrings, setBookedDateStrings] = useState<string[]>([]);
   const { isSubmitting, submitMessage, submitError, setSubmitMessage, setSubmitError, runSubmit } =
     useFormSubmit();
 
@@ -55,28 +54,6 @@ export default function ConferencePage() {
     return new Date(today.getFullYear(), today.getMonth(), 1);
   });
   const [selectedDateStr, setSelectedDateStr] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    apiCall(ENDPOINTS.HALL_BOOKINGS)
-      .then((bookings) => {
-        if (!isMounted || !Array.isArray(bookings)) return;
-
-        const bookedDates = bookings
-          .map((booking) => (typeof booking?.date === "string" ? booking.date.slice(0, 10) : ""))
-          .filter(Boolean);
-
-        setBookedDateStrings(Array.from(new Set(bookedDates)));
-      })
-      .catch((error) => {
-        console.error("Failed to load hall bookings", error);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -140,7 +117,6 @@ export default function ConferencePage() {
           body: JSON.stringify(payload),
         });
 
-        setBookedDateStrings((current) => Array.from(new Set([...current, createdBooking?.date?.slice(0, 10) || selectedDateStr])));
         setFormData(initialFormData);
         setSelectedDateStr(null);
         setSelectedSlot(null);
@@ -361,7 +337,7 @@ export default function ConferencePage() {
                 <span className="flex-none w-7 h-7 rounded-full bg-[#00372f] text-white text-sm font-bold flex items-center justify-center">1</span>
                 <h3 className="text-xl md:text-2xl font-medium">Choose date &amp; time slot</h3>
               </div>
-              <p className="text-sm text-black/60 mb-6 pl-10">Grey struck-through dates are already booked; faint dates are in the past.</p>
+              <p className="text-sm text-black/60 mb-6 pl-10">Faint dates are in the past. Pick any upcoming date and slot to send an enquiry.</p>
 
               {/* Calendar */}
               <div className="max-w-[440px] mx-auto flex flex-col items-center">
@@ -390,14 +366,12 @@ export default function ConferencePage() {
                       const dateStr = formatCalendarDate(year, month, day);
                       const cellDate = new Date(year, month, day);
                       const isPast = cellDate < todayStart;
-                      const isBooked = !isPast && bookedDateStrings.includes(dateStr);
                       const isSelected = selectedDateStr === dateStr;
-                      const disabled = isPast || isBooked;
+                      const disabled = isPast;
 
                       let dayClasses = "flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full mx-auto text-base sm:text-lg md:text-[19px] transition-all select-none ";
                       if (isSelected) dayClasses += "bg-[#6cbd45] text-white font-medium shadow-md cursor-pointer active:scale-95";
                       else if (isPast) dayClasses += "text-black/30 cursor-not-allowed";
-                      else if (isBooked) dayClasses += "bg-[#d9e1e0] text-black/50 line-through cursor-not-allowed";
                       else dayClasses += "text-black cursor-pointer hover:bg-[#e3e9e8] active:scale-95";
 
                       return (
@@ -406,7 +380,7 @@ export default function ConferencePage() {
                             type="button"
                             disabled={disabled}
                             aria-pressed={isSelected}
-                            aria-label={`${day} ${monthName} ${year}${isBooked ? " — already booked" : ""}`}
+                            aria-label={`${day} ${monthName} ${year}`}
                             onClick={() => { if (!disabled) setSelectedDateStr(isSelected ? null : dateStr); }}
                             className={dayClasses}
                           >
@@ -416,12 +390,6 @@ export default function ConferencePage() {
                       );
                     })}
                   </div>
-                </div>
-
-                <div className="flex items-center justify-center flex-wrap gap-x-6 gap-y-3 mt-6 text-sm">
-                  <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-white border-[1.5px] border-[#00372f] inline-block" /><span className="text-black/70 select-none">Available</span></div>
-                  <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-[#6cbd45] inline-block" /><span className="text-black/70 select-none">Selected</span></div>
-                  <div className="flex items-center gap-2"><span className="w-4 h-4 rounded-full bg-[#d9e1e0] inline-block" /><span className="text-black/70 select-none">Booked</span></div>
                 </div>
               </div>
 
