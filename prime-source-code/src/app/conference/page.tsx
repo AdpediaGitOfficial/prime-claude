@@ -143,7 +143,7 @@ export default function ConferencePage() {
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const slotLabel = (slot: string | null) =>
-    slot === "morning" ? "Morning · 9 AM – 1 PM" : slot === "evening" ? "Evening · 2 – 6 PM" : null;
+    slot === "morning" ? "Morning · 11 AM – 2 PM" : slot === "evening" ? "Evening · 5 – 9 PM" : null;
 
   // Generate grid array (null for empty prefix slots, numbers for actual days)
   const calendarDays = [];
@@ -411,7 +411,7 @@ export default function ConferencePage() {
                       </span>
                       <span className="text-lg font-medium text-black">Morning Slot</span>
                     </div>
-                    <span className="text-sm text-black/60 pl-[30px]">9:00 AM – 1:00 PM · 4 hours</span>
+                    <span className="text-sm text-black/60 pl-[30px]">11:00 AM – 2:00 PM · 3 hours</span>
                   </div>
                 </button>
 
@@ -431,7 +431,7 @@ export default function ConferencePage() {
                       </span>
                       <span className="text-lg font-medium text-black">Evening Slot</span>
                     </div>
-                    <span className="text-sm text-black/60 pl-[30px]">2:00 PM – 6:00 PM · 4 hours</span>
+                    <span className="text-sm text-black/60 pl-[30px]">5:00 PM – 9:00 PM · 4 hours</span>
                   </div>
                 </button>
               </div>
@@ -463,25 +463,14 @@ export default function ConferencePage() {
                       <input id="hall-email" type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="your@email.com (optional)" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="hall-org" className="text-sm md:text-base text-black">Organisation Name*</label>
-                      <input id="hall-org" type="text" name="organisationName" value={formData.organisationName} onChange={handleInputChange} required placeholder="Enter organisation name" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
+                      <label htmlFor="hall-org" className="text-sm md:text-base text-black">Organisation Name</label>
+                      <input id="hall-org" type="text" name="organisationName" value={formData.organisationName} onChange={handleInputChange} placeholder="Enter organisation name (optional)" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
                     </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div className="flex flex-col gap-2">
                       <label htmlFor="hall-eventType" className="text-sm md:text-base text-black">Event Type*</label>
-                      <div className="relative">
-                        <select id="hall-eventType" name="eventType" value={formData.eventType} onChange={handleInputChange} required className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black/80 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full appearance-none cursor-pointer pr-10">
-                          <option value="" disabled>Select event type</option>
-                          <option>Corporate Meeting</option>
-                          <option>Seminar</option>
-                          <option>Workshop</option>
-                          <option>Training Session</option>
-                          <option>Product Launch</option>
-                          <option>Conference</option>
-                        </select>
-                        <svg className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none w-3 h-4 text-black" viewBox="0 0 13 7" fill="none"><path d="M1 1L6.5 6L12 1" stroke="currentColor" strokeWidth="1.5" /></svg>
-                      </div>
+                      <input id="hall-eventType" type="text" name="eventType" value={formData.eventType} onChange={handleInputChange} required placeholder="e.g. Wedding, Corporate meeting, Birthday…" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black placeholder-black/40 outline-none focus:ring-2 focus:ring-[#00372f]/20 w-full" />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label htmlFor="hall-attendance" className="text-sm md:text-base text-black">Expected Attendance*</label>
