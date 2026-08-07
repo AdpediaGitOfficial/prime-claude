@@ -3,7 +3,7 @@
 import PoolTimeSlots, { type Slot } from "@/components/PoolTimeSlots";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { FaStarOfLife, FaCrown } from "react-icons/fa6";
+import { FaStarOfLife } from "react-icons/fa6";
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
 

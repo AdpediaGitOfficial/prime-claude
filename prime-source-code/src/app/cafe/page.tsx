@@ -4,7 +4,6 @@ import {
   MotionDiv,
   MotionH2,
   MotionP,
-  MotionSpan,
 } from "@/components/MotionWrappers";
 import Image from "next/image";
 

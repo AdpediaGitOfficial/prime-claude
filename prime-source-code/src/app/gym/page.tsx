@@ -5,7 +5,6 @@ import {
   MotionDiv,
   MotionH2,
   MotionP,
-  MotionSpan,
 } from "@/components/MotionWrappers";
 import { PiSparkleFill } from "react-icons/pi";
 import { apiCall, ENDPOINTS } from "@/utils/api";
@@ -35,38 +34,6 @@ const initialFormData: GymMembershipForm = {
   age: "",
   message: "",
 };
-
-function CheckIconGym() {
-  return (
-    <span className="inline-block flex-shrink-0 w-[33px] h-[33px] rounded-full bg-gym/20 flex items-center justify-center">
-      <svg
-        className="w-4 h-4 text-gym"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={3}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-      </svg>
-    </span>
-  );
-}
-
-function CheckIconSm() {
-  return (
-    <span className="inline-flex flex-shrink-0 w-[19px] h-[19px] items-center justify-center">
-      <svg
-        className="w-[19px] h-[19px] text-gym"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={3}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-      </svg>
-    </span>
-  );
-}
 
 export default function GymPage() {
   const [formData, setFormData] = useState<GymMembershipForm>(initialFormData);

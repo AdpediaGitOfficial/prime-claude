@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { MotionSpan, MotionH2, MotionP } from "@/components/MotionWrappers"
+import { MotionH2 } from "@/components/MotionWrappers"
 import Image from 'next/image'
 import Link from 'next/link'
 import LogoPrimeX from "../../../public/LOGO/opt/final-out-02.webp"

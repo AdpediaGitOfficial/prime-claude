@@ -5,12 +5,10 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { apiCall, ENDPOINTS, assetUrl } from "@/utils/api";
 import {
-  MotionSpan,
   MotionH2,
   MotionP,
   MotionDiv,
 } from "@/components/MotionWrappers";
-import ServiceCarousel from "@/components/UI/ServiceCarousel";
 import HomeLogoSlider from "@/components/UI/HomeLogoSlider";
 import EveryLevelSlider from "@/components/UI/EveryLevelSlider";
 

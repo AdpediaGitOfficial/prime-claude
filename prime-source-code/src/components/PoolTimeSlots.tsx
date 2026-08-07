@@ -35,13 +35,6 @@ const generateSlots = (durationMinutes: number): Slot[] => {
   return out;
 };
 
-const durationLabel = (minutes: number) => {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (h && m) return `${h}h ${m}m`;
-  if (h) return `${h}h`;
-  return `${m}m`;
-};
 
 const busy = (ivs: Interval[], win: Interval) =>
   ivs.some((iv) => iv.start < win.end && iv.end > win.start);
@@ -61,7 +54,6 @@ export default function PoolTimeSlots({
 }) {
   const slots = useMemo(() => generateSlots(durationMinutes), [durationMinutes]);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
-  const label = durationLabel(durationMinutes);
 
   // Free pools for each slot, honouring the pool roles:
   //   Group  → only Pool 2 counts (0 or 1).
