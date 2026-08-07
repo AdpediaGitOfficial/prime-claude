@@ -307,7 +307,7 @@ export default function ConferencePage() {
           <div className="bg-[#d9e1e0] rounded-[24px] md:rounded-[30px] p-6 md:p-8 flex flex-col justify-between min-h-[250px] md:min-h-[369px]">
             <FiMonitor className="text-[#00372f] w-10 h-10 md:w-12 md:h-12 mb-6" strokeWidth={1.5} />
             <div>
-              <p className="text-xl md:text-[22px] font-medium leading-[1.35] mb-2">LED Projector</p>
+              <p className="text-xl md:text-[22px] font-medium leading-[1.35] mb-2">LED Projector<sup className="text-[#00372f] font-semibold ml-0.5">*</sup></p>
               <p className="text-base md:text-xl text-black/70 leading-[1.35]">High-definition presentation screens</p>
             </div>
           </div>
@@ -340,6 +340,7 @@ export default function ConferencePage() {
             </div>
           </div>
         </div>
+        <p className="text-sm md:text-base text-black/50 mt-6 md:mt-8">* Subject to extra cost</p>
       </section>
 
       {/* ═══ BOOK THE HALL (unified booking) ═══ */}
