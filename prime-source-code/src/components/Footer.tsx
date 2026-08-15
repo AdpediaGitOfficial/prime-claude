@@ -6,6 +6,7 @@ import Logo from "../../public/LOGO/FOOTER-LOGO.svg"
 import { FaFacebookF, FaInstagram } from 'react-icons/fa';
 import { useState, useEffect } from "react";
 import { apiCall, ENDPOINTS } from "@/utils/api";
+import { safeUrl } from "@/utils/safeUrl";
 
 const DEFAULT_SOCIAL = {
   facebook: "https://www.facebook.com/61588610401388/",
@@ -40,10 +41,10 @@ export default function Footer() {
             A world-class lifestyle destination uniting fitness, wellness, business, and curated experiences under one iconic roof.
           </p>
           <div className="flex items-center gap-4">
-            <a href={social.facebook} aria-label="Facebook" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
+            <a href={safeUrl(social.facebook)} aria-label="Facebook" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
               <FaFacebookF size={20} />
             </a>
-            <a href={social.instagram} aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
+            <a href={safeUrl(social.instagram)} aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
               <FaInstagram size={20} />
             </a>
           </div>

@@ -1,5 +1,26 @@
 import { z } from "zod";
 
+/**
+ * A URL-ish string that rejects script-capable schemes (javascript:, data:,
+ * vbscript:, file:, blob:). Allows http(s)/mailto/tel and scheme-less
+ * (relative/anchor) values. Prevents stored-XSS payloads in CMS link fields.
+ */
+export const safeHref = z
+  .string()
+  .trim()
+  .refine((v) => {
+    if (!v) return true;
+    const deobf = Array.from(v)
+      .filter((ch) => ch.charCodeAt(0) > 0x20)
+      .join("")
+      .toLowerCase();
+    if (/^(javascript|data|vbscript|file|blob):/.test(deobf)) return false;
+    if (/^(https?:|mailto:|tel:)/i.test(v)) return true;
+    // any other explicit scheme → reject; scheme-less (relative/anchor) → allow
+    return !/^[a-z][a-z0-9+.-]*:/.test(deobf);
+  }, "Unsafe URL scheme")
+  .optional();
+
 // ─── Pages ───
 export const createPageSchema = z.object({
   slug: z.string().trim().min(1),
@@ -18,7 +39,7 @@ export const createBannerSchema = z.object({
   subtitle: z.string().trim().optional(),
   imagePath: z.string().trim().optional(),
   ctaLabel: z.string().trim().optional(),
-  ctaHref: z.string().trim().optional(),
+  ctaHref: safeHref,
   order: z.coerce.number().int().optional(),
   isActive: z.boolean().optional(),
 });
