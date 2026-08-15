@@ -6,6 +6,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { apiCall, ENDPOINTS, assetUrl } from "@/utils/api";
+import { safeUrl } from "@/utils/safeUrl";
 
 type Slide = { src: string; href: string; alt: string };
 
@@ -75,7 +76,7 @@ export default function Popup() {
               .filter((b) => b && b.imagePath)
               .map((b) => ({
                 src: assetUrl(b.imagePath),
-                href: (b.ctaHref as string) || "",
+                href: safeUrl(b.ctaHref as string),
                 alt: (b.title as string) || "Prime Promenade announcement",
               }))
           : [];

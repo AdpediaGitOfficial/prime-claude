@@ -20,9 +20,10 @@ export function signRefreshToken(payload: { sub: string }): string {
 }
 
 export function verifyAccessToken(token: string): AccessTokenPayload {
-  return jwt.verify(token, env.jwt.accessSecret) as AccessTokenPayload;
+  // Pin the algorithm to prevent algorithm-confusion attacks.
+  return jwt.verify(token, env.jwt.accessSecret, { algorithms: ["HS256"] }) as AccessTokenPayload;
 }
 
 export function verifyRefreshToken(token: string): { sub: string } {
-  return jwt.verify(token, env.jwt.refreshSecret) as { sub: string };
+  return jwt.verify(token, env.jwt.refreshSecret, { algorithms: ["HS256"] }) as { sub: string };
 }

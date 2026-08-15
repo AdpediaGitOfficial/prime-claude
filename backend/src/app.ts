@@ -36,8 +36,18 @@ export function createApp(): Application {
   app.use(morgan(env.isProd ? "combined" : "dev"));
   app.use(globalLimiter);
 
-  // Static file storage (uploaded assets)
-  app.use(`/${env.uploadDir}`, express.static(path.resolve(process.cwd(), env.uploadDir)));
+  // Static file storage (uploaded assets). Harden the response so a file can
+  // never execute active content in our origin: forbid MIME-sniffing and apply
+  // a locked-down CSP (sandbox) to every served upload.
+  app.use(
+    `/${env.uploadDir}`,
+    express.static(path.resolve(process.cwd(), env.uploadDir), {
+      setHeaders: (res) => {
+        res.setHeader("X-Content-Type-Options", "nosniff");
+        res.setHeader("Content-Security-Policy", "default-src 'none'; img-src 'self'; sandbox");
+      },
+    })
+  );
 
   // Health check
   app.get("/health", (_req: Request, res: Response) =>

@@ -29,12 +29,17 @@ async function issueTokens(admin: { id: string; email: string; role: string }) {
   return { accessToken, refreshToken };
 }
 
+// A valid bcrypt hash of a random value — compared against when the account
+// does not exist so login timing does not reveal which emails are registered.
+const DUMMY_HASH = "$2a$10$CwTycUXWue0Thq9StjUM0uJ8Q2xj0Q1r9mS6bWQwZ8b7l8m6oXeK";
+
 export async function login(email: string, password: string) {
   const admin = await prisma.adminUser.findUnique({ where: { email } });
-  if (!admin || !admin.isActive) throw AppError.unauthorized("Invalid credentials");
 
-  const ok = await comparePassword(password, admin.passwordHash);
-  if (!ok) throw AppError.unauthorized("Invalid credentials");
+  // Always run a bcrypt comparison (real or dummy) to keep timing constant
+  // and avoid user enumeration via response time.
+  const ok = await comparePassword(password, admin?.passwordHash ?? DUMMY_HASH);
+  if (!admin || !admin.isActive || !ok) throw AppError.unauthorized("Invalid credentials");
 
   await prisma.adminUser.update({
     where: { id: admin.id },
