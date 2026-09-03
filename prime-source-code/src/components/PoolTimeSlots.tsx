@@ -46,22 +46,45 @@ const durationLabel = (minutes: number) => {
 const busy = (ivs: Interval[], win: Interval) =>
   ivs.some((iv) => iv.start < win.end && iv.end > win.start);
 
+/** Local yyyy-mm-dd for a Date (matches the date chips in pool-booking page). */
+const localIso = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
 export default function PoolTimeSlots({
   durationMinutes = 90,
   pool1 = [],
   pool2 = [],
   groupPlan = false,
+  selectedDate,
   onSlotChange,
 }: {
   durationMinutes?: number;
   pool1?: Interval[];
   pool2?: Interval[];
   groupPlan?: boolean;
+  selectedDate?: string;
   onSlotChange?: (slot: Slot | null) => void;
 }) {
   const slots = useMemo(() => generateSlots(durationMinutes), [durationMinutes]);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
   const label = durationLabel(durationMinutes);
+
+  // Current wall-clock minute, ticked every 30s so a slot becomes unbookable
+  // the moment its start time passes — no page reload needed.
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // When the selected date is today, any slot whose start time is now or in the
+  // past can no longer be booked (no lead-time buffer). Other dates: never past.
+  const pastBySlot = useMemo(() => {
+    const isToday = !!selectedDate && selectedDate === localIso(now);
+    if (!isToday) return slots.map(() => false);
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    return slots.map((s) => s.startMin <= nowMin);
+  }, [slots, selectedDate, now]);
 
   // Free pools for each slot, honouring the pool roles:
   //   Group  → only Pool 2 counts (0 or 1).
@@ -84,15 +107,15 @@ export default function PoolTimeSlots({
   }, [durationMinutes]);
 
   useEffect(() => {
-    if (activeSlot !== null && freeBySlot[activeSlot] <= 0) {
+    if (activeSlot !== null && (freeBySlot[activeSlot] <= 0 || pastBySlot[activeSlot])) {
       setActiveSlot(null);
       onSlotChange?.(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [freeBySlot]);
+  }, [freeBySlot, pastBySlot]);
 
   const handleSelect = (index: number) => {
-    if (freeBySlot[index] <= 0) return;
+    if (freeBySlot[index] <= 0 || pastBySlot[index]) return;
     setActiveSlot(index);
     onSlotChange?.(slots[index]);
   };
@@ -101,37 +124,48 @@ export default function PoolTimeSlots({
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {slots.map((slot, index) => {
         const free = freeBySlot[index];
+        const isPast = pastBySlot[index];
         const isActive = activeSlot === index;
         const isFull = free <= 0;
+        // A slot is unbookable when its start has passed (today) or it is full.
+        const disabled = isPast || isFull;
         // Group shows Available / Fully booked (no "1 pool left").
-        const availText = isFull
+        const availText = isPast
+          ? "Unavailable"
+          : isFull
           ? "Fully booked"
           : groupPlan
           ? "Available"
           : free === 1
           ? "1 pool left"
           : "2 pools available";
-        const availClass = isFull ? "text-red-600" : free === 1 && !groupPlan ? "text-amber-600" : "text-emerald-600";
+        const availClass = isPast
+          ? "text-black/40"
+          : isFull
+          ? "text-red-600"
+          : free === 1 && !groupPlan
+          ? "text-amber-600"
+          : "text-emerald-600";
         return (
           <button
             key={`${slot.start}-${slot.end}`}
             type="button"
             onClick={() => handleSelect(index)}
-            disabled={isFull}
+            disabled={disabled}
             aria-pressed={isActive}
-            aria-disabled={isFull}
+            aria-disabled={disabled}
             className={`w-full text-left rounded-lg px-4 py-3 text-sm transition-all border ${
               isActive
                 ? "bg-black text-white border-black"
-                : isFull
+                : disabled
                 ? "border-black/10 bg-black/[0.04] text-black/40 cursor-not-allowed line-through decoration-black/30"
                 : "border-black/20 hover:bg-[#cff9ff]"
             }`}
           >
-            <div className={`font-medium ${isActive ? "text-white" : isFull ? "text-black/40" : "text-black"}`}>
+            <div className={`font-medium ${isActive ? "text-white" : disabled ? "text-black/40" : "text-black"}`}>
               {slot.start}
             </div>
-            <div className={`text-xs ${isActive ? "text-white/80" : isFull ? "text-black/35" : "text-black/60"}`}>
+            <div className={`text-xs ${isActive ? "text-white/80" : disabled ? "text-black/35" : "text-black/60"}`}>
               to {slot.end}
             </div>
             <div className={`text-[11px] mt-1 font-medium no-underline ${isActive ? "text-white/90" : availClass}`}>

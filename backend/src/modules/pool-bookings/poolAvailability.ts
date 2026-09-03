@@ -56,6 +56,26 @@ export function parseSlot(timeSlot: string): Interval | null {
 const overlaps = (a: Interval, b: Interval) => a.start < b.end && a.end > b.start;
 const poolBusy = (ivs: Interval[], win: Interval) => ivs.some((iv) => overlaps(iv, win));
 
+/**
+ * Current date (yyyy-mm-dd) and minute-of-day in the business timezone
+ * (Asia/Kolkata). Used to reject a slot whose start has already passed today —
+ * the UI must never be trusted, so the server enforces it too.
+ */
+function nowInBusinessTz(): { date: string; minute: number } {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(new Date());
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  let hour = parseInt(get("hour"), 10);
+  if (hour === 24) hour = 0; // some engines emit 24 at midnight
+  return {
+    date: `${get("year")}-${get("month")}-${get("day")}`,
+    minute: hour * 60 + parseInt(get("minute"), 10),
+  };
+}
+
 /** Occupied intervals for a date, grouped by pool (excludes CANCELLED). */
 export async function occupiedByPool(date: string): Promise<PoolOccupancy> {
   const rows = await prisma.poolBooking.findMany({
@@ -88,6 +108,9 @@ export async function assignPool(
   if (!win) throw AppError.badRequest("Invalid time slot.");
   if (win.start < OPEN_MIN || win.end > CLOSE_MIN)
     throw AppError.badRequest("Bookings are available 10:00 AM – 10:00 PM only.");
+  const now = nowInBusinessTz();
+  if (date === now.date && win.start <= now.minute)
+    throw AppError.badRequest("That start time has already passed. Please choose a later slot.");
   const eligible = eligiblePools(poolType);
   const occ = await occupiedByPool(date);
   const isFree = (p: number) => !poolBusy(occ[p as 1 | 2], win);

@@ -471,6 +471,7 @@ export default function PoolBookingPage() {
                 pool1={pool1}
                 pool2={pool2}
                 groupPlan={selectedPool === "group"}
+                selectedDate={selectedDate}
                 onSlotChange={setSelectedSlot}
               />
             </div>
