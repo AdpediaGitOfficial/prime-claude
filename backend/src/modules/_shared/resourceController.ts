@@ -4,11 +4,16 @@ import { prisma } from "../../config/prisma";
 import { AppError } from "../../utils/AppError";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { sendSuccess, buildPageMeta } from "../../utils/apiResponse";
+import { recordAudit } from "../../utils/audit";
 import {
   parseListQuery,
   buildSearchFilter,
   buildDateRangeFilter,
 } from "../../utils/queryParser";
+
+/** Best-effort id of a just-written record (records are typed `unknown`). */
+const recId = (r: unknown): string | undefined =>
+  (r as { id?: string })?.id;
 
 type PrismaDelegate = {
   findMany: (args: unknown) => Promise<unknown[]>;
@@ -88,6 +93,7 @@ export function createResourceController(config: ResourceConfig) {
 
   const create = asyncHandler(async (req: Request, res: Response) => {
     const record = await delegate().create({ data: req.body });
+    recordAudit(req, "create", config.label, recId(record));
     return sendSuccess(res, record, `${config.label} created`, 201);
   });
 
@@ -98,6 +104,7 @@ export function createResourceController(config: ResourceConfig) {
       where: { id: req.params.id },
       data: req.body,
     });
+    recordAudit(req, "update", config.label, req.params.id);
     return sendSuccess(res, record, `${config.label} updated`);
   });
 
@@ -115,6 +122,7 @@ export function createResourceController(config: ResourceConfig) {
       where: { id: req.params.id },
       data: { status },
     });
+    recordAudit(req, "status", config.label, req.params.id, { status });
     return sendSuccess(res, updated, `${config.label} status updated`);
   });
 
@@ -122,6 +130,7 @@ export function createResourceController(config: ResourceConfig) {
     const existing = await delegate().findUnique({ where: { id: req.params.id } });
     if (!existing) throw AppError.notFound(`${config.label} not found`);
     await delegate().delete({ where: { id: req.params.id } });
+    recordAudit(req, "delete", config.label, req.params.id);
     return sendSuccess(res, { id: req.params.id }, `${config.label} deleted`);
   });
 

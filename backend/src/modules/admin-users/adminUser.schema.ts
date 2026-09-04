@@ -16,3 +16,8 @@ export const updateAdminSchema = z.object({
   role: z.enum(roles).optional(),
   isActive: z.boolean().optional(),
 });
+
+// Optional explicit password; when omitted the server generates a strong one.
+export const resetPasswordSchema = z.object({
+  password: z.string().min(8, "Password must be at least 8 characters").optional(),
+});

@@ -6,7 +6,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import BrandLogo from "@/components/BrandLogo";
 
-const NAV: Array<{ group: string; items: Array<{ href: string; label: string; icon: string }> }> = [
+type NavSection = {
+  group: string;
+  items: Array<{ href: string; label: string; icon: string }>;
+  superAdminOnly?: boolean;
+};
+
+const NAV: NavSection[] = [
   { group: "Overview", items: [{ href: "/", label: "Dashboard", icon: "▤" }] },
   {
     group: "Manage",
@@ -36,6 +42,14 @@ const NAV: Array<{ group: string; items: Array<{ href: string; label: string; ic
       { href: "/popup", label: "Pop-up", icon: "📣" },
     ],
   },
+  {
+    group: "Admin",
+    superAdminOnly: true,
+    items: [
+      { href: "/users", label: "Users", icon: "👥" },
+      { href: "/activity", label: "Activity Log", icon: "🕑" },
+    ],
+  },
 ];
 
 const TITLES: Record<string, [string, string]> = {
@@ -53,6 +67,8 @@ const TITLES: Record<string, [string, string]> = {
   "/content": ["Website", "Content, banners & settings"],
   "/gallery": ["Gallery", "Event gallery images shown on the site"],
   "/popup": ["Pop-up", "Announcement pop-up shown to visitors"],
+  "/users": ["Users", "Admin accounts & password resets"],
+  "/activity": ["Activity Log", "Admin login history & action audit"],
 };
 
 function ThemeToggle() {
@@ -113,7 +129,7 @@ export default function Shell({ children }: { children: ReactNode }) {
           <div className="brand-sub">Admin</div>
         </div>
 
-        {NAV.map((section) => (
+        {NAV.filter((section) => !section.superAdminOnly || admin.role === "SUPER_ADMIN").map((section) => (
           <div key={section.group}>
             <div className="nav-label">{section.group}</div>
             {section.items.map((item) => {

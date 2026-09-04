@@ -7,7 +7,10 @@ import * as service from "./adminAuth.service";
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body as { email: string; password: string };
-  const result = await service.login(email, password);
+  const result = await service.login(email, password, {
+    ip: req.ip || req.socket?.remoteAddress || undefined,
+    userAgent: typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"].slice(0, 512) : undefined,
+  });
   return sendSuccess(res, result, "Logged in");
 });
 

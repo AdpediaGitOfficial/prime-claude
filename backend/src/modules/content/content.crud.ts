@@ -3,6 +3,7 @@ import { prisma } from "../../config/prisma";
 import { AppError } from "../../utils/AppError";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { sendSuccess, buildPageMeta } from "../../utils/apiResponse";
+import { recordAudit } from "../../utils/audit";
 import { parseListQuery, buildSearchFilter } from "../../utils/queryParser";
 
 type Delegate = {
@@ -43,6 +44,7 @@ export function createCrudController(config: CrudConfig) {
 
   const create = asyncHandler(async (req: Request, res: Response) => {
     const record = await delegate().create({ data: req.body });
+    recordAudit(req, "create", config.label, (record as { id?: string })?.id);
     return sendSuccess(res, record, `${config.label} created`, 201);
   });
 
@@ -50,6 +52,7 @@ export function createCrudController(config: CrudConfig) {
     const existing = await delegate().findUnique({ where: { id: req.params.id } });
     if (!existing) throw AppError.notFound(`${config.label} not found`);
     const record = await delegate().update({ where: { id: req.params.id }, data: req.body });
+    recordAudit(req, "update", config.label, req.params.id);
     return sendSuccess(res, record, `${config.label} updated`);
   });
 
@@ -57,6 +60,7 @@ export function createCrudController(config: CrudConfig) {
     const existing = await delegate().findUnique({ where: { id: req.params.id } });
     if (!existing) throw AppError.notFound(`${config.label} not found`);
     await delegate().delete({ where: { id: req.params.id } });
+    recordAudit(req, "delete", config.label, req.params.id);
     return sendSuccess(res, { id: req.params.id }, `${config.label} deleted`);
   });
 

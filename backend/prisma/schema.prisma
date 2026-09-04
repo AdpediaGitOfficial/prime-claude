@@ -62,6 +62,7 @@ model AdminUser {
 
   refreshTokens RefreshToken[]
   auditLogs     AuditLog[]
+  loginEvents   LoginEvent[]
 
   @@map("admin_users")
 }
@@ -104,7 +105,26 @@ model AuditLog {
   createdAt  DateTime   @default(now())
 
   @@index([entity])
+  @@index([adminId])
+  @@index([createdAt])
   @@map("audit_logs")
+}
+
+/// One row per admin login attempt (success or failure), for the SUPER_ADMIN
+/// login-tracking view. Failures keep the typed email but no account link.
+model LoginEvent {
+  id        String     @id @default(cuid())
+  admin     AdminUser? @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  adminId   String?
+  email     String
+  success   Boolean
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime   @default(now())
+
+  @@index([adminId])
+  @@index([createdAt])
+  @@map("login_events")
 }
 
 // ─────────────────────────────────────────────────────────────

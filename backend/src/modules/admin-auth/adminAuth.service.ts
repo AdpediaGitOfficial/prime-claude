@@ -29,17 +29,53 @@ async function issueTokens(admin: { id: string; email: string; role: string }) {
   return { accessToken, refreshToken };
 }
 
-export async function login(email: string, password: string) {
+/** Request context captured for the login-tracking view. */
+export interface LoginContext {
+  ip?: string;
+  userAgent?: string;
+}
+
+/** Record one login attempt (success or failure). Best-effort — a logging
+ *  failure must never block or leak into the auth flow. */
+async function recordLoginEvent(
+  adminId: string | null,
+  email: string,
+  success: boolean,
+  ctx: LoginContext,
+): Promise<void> {
+  try {
+    await prisma.loginEvent.create({
+      data: {
+        adminId,
+        email,
+        success,
+        ipAddress: ctx.ip ?? null,
+        userAgent: ctx.userAgent ?? null,
+      },
+    });
+  } catch {
+    /* swallow — auditing must not affect login behaviour */
+  }
+}
+
+export async function login(email: string, password: string, ctx: LoginContext = {}) {
   const admin = await prisma.adminUser.findUnique({ where: { email } });
-  if (!admin || !admin.isActive) throw AppError.unauthorized("Invalid credentials");
+  if (!admin || !admin.isActive) {
+    await recordLoginEvent(admin?.id ?? null, email, false, ctx);
+    throw AppError.unauthorized("Invalid credentials");
+  }
 
   const ok = await comparePassword(password, admin.passwordHash);
-  if (!ok) throw AppError.unauthorized("Invalid credentials");
+  if (!ok) {
+    await recordLoginEvent(admin.id, email, false, ctx);
+    throw AppError.unauthorized("Invalid credentials");
+  }
 
   await prisma.adminUser.update({
     where: { id: admin.id },
     data: { lastLoginAt: new Date() },
   });
+  await recordLoginEvent(admin.id, email, true, ctx);
 
   const tokens = await issueTokens(admin);
   return {
