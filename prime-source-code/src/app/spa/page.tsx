@@ -23,6 +23,18 @@ const TIME_OPTIONS = Array.from({ length: 12 }, (_, i) => {
   return `${h12}:00 ${ampm}`;
 });
 
+/** Parse a "h:00 AM/PM" label to minutes-since-midnight (-1 if unparseable). */
+const timeToMinutes = (label: string): number => {
+  const m = label.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m) return -1;
+  let h = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  const ap = m[3].toUpperCase();
+  if (ap === "PM" && h !== 12) h += 12;
+  if (ap === "AM" && h === 12) h = 0;
+  return h * 60 + min;
+};
+
 type SpaBookingForm = {
   fullName: string;
   email: string;
@@ -135,6 +147,29 @@ export default function SpaPage() {
       };
     });
   }, []);
+
+  // Current wall-clock minute, ticked every 30s so a slot becomes unbookable
+  // the moment its start time passes (only matters when today is selected).
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // The first chip is always today. When it is the chosen date, any slot whose
+  // start time is now or earlier can no longer be booked (no buffer).
+  const isToday = !!formData.date && formData.date === dateOptions[0]?.label;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const isPastTime = (time: string) => isToday && timeToMinutes(time) <= nowMinutes;
+
+  // If the chosen slot elapses (or the user switches to today after picking a
+  // now-past time), clear it so a stale past time can't be submitted.
+  useEffect(() => {
+    if (formData.preferredTime && isPastTime(formData.preferredTime)) {
+      setFormData((current) => ({ ...current, preferredTime: "" }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [now, formData.date, formData.preferredTime]);
 
   const handleDateChange = (date: string) => {
     setFormData((current) => ({
@@ -307,17 +342,29 @@ export default function SpaPage() {
 
               <p className="text-sm font-semibold mt-6 mb-3">Available times</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-                {TIME_OPTIONS.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => handleSlotChange(t)}
-                    aria-pressed={formData.preferredTime === t}
-                    className={`rounded-[12px] border px-3 py-2.5 text-sm font-semibold text-center transition-colors ${formData.preferredTime === t ? "bg-[#5b2d82] text-white border-[#5b2d82]" : "bg-white border-black/15 hover:bg-[#f1eaf3]"}`}
-                  >
-                    {t}
-                  </button>
-                ))}
+                {TIME_OPTIONS.map((t) => {
+                  const past = isPastTime(t);
+                  const selected = formData.preferredTime === t;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      disabled={past}
+                      aria-disabled={past}
+                      onClick={() => !past && handleSlotChange(t)}
+                      aria-pressed={selected}
+                      className={`rounded-[12px] border px-3 py-2.5 text-sm font-semibold text-center transition-colors ${
+                        selected
+                          ? "bg-[#5b2d82] text-white border-[#5b2d82]"
+                          : past
+                          ? "bg-black/[0.04] border-black/10 text-black/35 line-through cursor-not-allowed"
+                          : "bg-white border-black/15 hover:bg-[#f1eaf3]"
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
