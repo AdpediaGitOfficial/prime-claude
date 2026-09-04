@@ -1,7 +1,5 @@
 "use client";
 
-import SpaTimeSlots from "@/components/SpaTimeSlots";
-import DatePicker from "@/components/DatePicker";
 import Banner from "../../../public/SPA/meglow-banner.jpeg"
 import Facialtreatment from "../../../public/SPA/spa-card-3.webp"
 import Manicure from "../../../public/SPA/spa-card-4.webp"
@@ -12,8 +10,30 @@ import Aromatherapy from "../../../public/SPA/spa-card-5.webp"
 import Saloon from "../../../public/SPA/spa-card-2.webp"
 import ManicurePedicure from "../../../public/SPA/manicure-pedicure.jpg"
 import { MotionDiv} from "@/components/MotionWrappers";
-import { apiCall, ENDPOINTS } from "@/utils/api";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { apiCall, ENDPOINTS, assetUrl } from "@/utils/api";
+import { useFormSubmit } from "@/utils/useFormSubmit";
+import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
+import { useState, useMemo, useEffect, type ChangeEvent, type FormEvent } from "react";
+
+// Hourly appointment times 10:00 AM – 9:00 PM
+const TIME_OPTIONS = Array.from({ length: 12 }, (_, i) => {
+  const h = 10 + i;
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = ((h + 11) % 12) + 1;
+  return `${h12}:00 ${ampm}`;
+});
+
+/** Parse a "h:00 AM/PM" label to minutes-since-midnight (-1 if unparseable). */
+const timeToMinutes = (label: string): number => {
+  const m = label.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m) return -1;
+  let h = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  const ap = m[3].toUpperCase();
+  if (ap === "PM" && h !== 12) h += 12;
+  if (ap === "AM" && h === 12) h = 0;
+  return h * 60 + min;
+};
 
 type SpaBookingForm = {
   fullName: string;
@@ -29,13 +49,17 @@ const initialFormData: SpaBookingForm = {
   fullName: "",
   email: "",
   phone: "",
-  selectedService: "Spa Massage",
+  selectedService: "",
   date: "",
-  preferredTime: "10:00 am",
+  preferredTime: "",
   message: "",
 };
 
-const spaServices = [
+type SpaService = { name: string; img: string };
+
+// Default services (fallback if the API is unreachable). Their photos stay
+// keyed by name so admin-managed services keep the right image.
+const DEFAULT_SPA_SERVICES: SpaService[] = [
   { name: "Spa Massage", img: Luxurymessage.src },
   { name: "Salon and Hairstyling", img: Saloon.src },
   { name: "Facial and Skin Care", img: Facialtreatment.src },
@@ -46,20 +70,53 @@ const spaServices = [
   { name: "Manicure and Pedicure", img: ManicurePedicure.src },
 ];
 
+const SPA_IMAGE_BY_NAME: Record<string, string> = Object.fromEntries(
+  DEFAULT_SPA_SERVICES.map((s) => [s.name, s.img])
+);
+const SPA_FALLBACK_IMG = DEFAULT_SPA_SERVICES[0].img;
+
 export default function SpaPage() {
   const [formData, setFormData] = useState<SpaBookingForm>(initialFormData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
-  const [submitError, setSubmitError] = useState("");
+  // Live service list from the admin (falls back to defaults if unreachable).
+  const [spaServices, setSpaServices] = useState<SpaService[]>(DEFAULT_SPA_SERVICES);
+  useEffect(() => {
+    let active = true;
+    apiCall(`${ENDPOINTS.LISTINGS}?type=SPA_SERVICE`)
+      .then((rows) => {
+        if (!active || !Array.isArray(rows)) return;
+        const mapped = rows
+          .filter((r) => r && typeof r.name === "string")
+          .map((r) => ({
+            name: r.name as string,
+            // Admin-set image wins; else the photo for a known service; else fallback.
+            img: assetUrl(r.metadata?.image) || SPA_IMAGE_BY_NAME[r.name] || SPA_FALLBACK_IMG,
+          }));
+        if (mapped.length) setSpaServices(mapped);
+      })
+      .catch(() => {
+        /* keep DEFAULT_SPA_SERVICES */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+  const { isSubmitting, submitMessage, submitError, setSubmitMessage, setSubmitError, runSubmit } =
+    useFormSubmit();
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = event.target;
+    const nextValue =
+      name === "fullName"
+        ? sanitizeName(value)
+        : name === "phone"
+        ? sanitizePhone(value)
+        : value;
 
     setFormData((current) => ({
       ...current,
-      [name]: value,
+      [name]: nextValue,
     }));
   };
 
@@ -69,6 +126,50 @@ export default function SpaPage() {
       selectedService: serviceName,
     }));
   };
+
+  // "Book Now" on a service card: select it and jump to the date/time step.
+  const handleBookNow = (serviceName: string) => {
+    handleServiceSelect(serviceName);
+    document
+      .getElementById("spa-booking")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  // Next 7 selectable days as chips (value is a human-readable label).
+  const dateOptions = useMemo(() => {
+    const base = new Date();
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i);
+      return {
+        label: d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" }),
+        dow: i === 0 ? "Today" : d.toLocaleDateString("en-IN", { weekday: "short" }),
+        dnum: d.getDate(),
+      };
+    });
+  }, []);
+
+  // Current wall-clock minute, ticked every 30s so a slot becomes unbookable
+  // the moment its start time passes (only matters when today is selected).
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // The first chip is always today. When it is the chosen date, any slot whose
+  // start time is now or earlier can no longer be booked (no buffer).
+  const isToday = !!formData.date && formData.date === dateOptions[0]?.label;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const isPastTime = (time: string) => isToday && timeToMinutes(time) <= nowMinutes;
+
+  // If the chosen slot elapses (or the user switches to today after picking a
+  // now-past time), clear it so a stale past time can't be submitted.
+  useEffect(() => {
+    if (formData.preferredTime && isPastTime(formData.preferredTime)) {
+      setFormData((current) => ({ ...current, preferredTime: "" }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [now, formData.date, formData.preferredTime]);
 
   const handleDateChange = (date: string) => {
     setFormData((current) => ({
@@ -84,34 +185,50 @@ export default function SpaPage() {
     }));
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitError("");
     setSubmitMessage("");
 
+    if (!formData.selectedService) {
+      setSubmitError("Please choose a service.");
+      return;
+    }
     if (!formData.date) {
       setSubmitError("Please select an appointment date.");
       return;
     }
-
-    try {
-      setIsSubmitting(true);
-      await apiCall(ENDPOINTS.SPA_BOOKINGS, {
-        method: "POST",
-        body: JSON.stringify(formData),
-      });
-
-      setSubmitMessage("Spa booking request sent successfully.");
-      setFormData(initialFormData);
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Failed to send spa booking request.");
-    } finally {
-      setIsSubmitting(false);
+    if (!formData.preferredTime) {
+      setSubmitError("Please select an appointment time.");
+      return;
     }
+    if (!isValidName(formData.fullName)) {
+      setSubmitError(NAME_ERROR);
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      setSubmitError(PHONE_ERROR);
+      return;
+    }
+
+    runSubmit(
+      async () => {
+        const booking = await apiCall(ENDPOINTS.SPA_BOOKINGS, {
+          method: "POST",
+          body: JSON.stringify(formData),
+        });
+        setFormData(initialFormData);
+        return booking?.reference
+          ? `Spa booking request sent successfully. Your booking ID: ${booking.reference}`
+          : undefined;
+      },
+      "Spa booking request sent successfully.",
+      "Failed to send spa booking request."
+    );
   };
 
   return (
-    <div className="bg-white text-black overflow-x-hidden">
+    <div className="bg-white text-black overflow-x-clip">
 
       {/* ═══ HERO ═══ */}
       <section className="relative w-full overflow-hidden h-[450px] md:min-h-[100vh] lg:min-h-[100vh]">
@@ -186,7 +303,7 @@ export default function SpaPage() {
         </h3>
 
         {/* Button */}
-        <button type="button" onClick={() => handleServiceSelect(service.name)} className="w-full h-[48px] bg-black text-white rounded-full text-lg font-medium transition-all hover:scale-[0.98]">
+        <button type="button" onClick={() => handleBookNow(service.name)} className="w-full h-[48px] bg-black text-white rounded-full text-lg font-medium transition-all hover:scale-[0.98]">
           Book Now
         </button>
       </div>
@@ -194,116 +311,132 @@ export default function SpaPage() {
   </div>
 </section>
 
-      {/* ═══ CHOOSE YOUR TIME SLOT (Standard Padding) ═══ */}
-      <section className="site-container">
-        <h2 className="text-3xl md:text-[40px] font-normal leading-[1.2] mb-6 md:mb-8">Choose Your Time Slot</h2>
-        <div className="rounded-[24px] md:rounded-[30px] py-8 md:py-10 px-5 sm:px-8 lg:px-12" style={{ background: "#f1eaf3" }}>
-          <p className="text-lg md:text-[22px] capitalize leading-[1.2] mb-3 md:mb-4">Date</p>
-          <div className="mb-6 md:mb-8">
-            <DatePicker onDateChange={handleDateChange} />
+      {/* ═══ BOOK YOUR APPOINTMENT (date/time + details + summary) ═══ */}
+      <section id="spa-booking" className="site-container !py-16 md:!py-24 lg:!py-[120px]">
+        <div className="grid lg:grid-cols-[1fr_340px] gap-6 lg:gap-8 items-start">
+          {/* LEFT: steps */}
+          <div className="flex flex-col gap-6">
+            {/* Step 2: date & time */}
+            <div className="bg-white border border-black/10 rounded-[24px] md:rounded-[30px] p-5 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-3 mb-1">
+                <span className="flex-none w-7 h-7 rounded-full bg-[#5b2d82] text-white text-sm font-bold flex items-center justify-center">2</span>
+                <h3 className="text-xl md:text-2xl font-medium">Pick date &amp; time</h3>
+              </div>
+              <p className="text-sm text-black/55 mb-6 pl-10">Choose when you&rsquo;d like to visit.</p>
+
+              <p className="text-sm font-semibold mb-3">Date</p>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {dateOptions.map((o) => (
+                  <button
+                    key={o.label}
+                    type="button"
+                    onClick={() => handleDateChange(o.label)}
+                    aria-pressed={formData.date === o.label}
+                    className={`flex-none min-w-[62px] text-center rounded-[14px] px-3 py-2 border transition-colors ${formData.date === o.label ? "bg-[#5b2d82] text-white border-[#5b2d82]" : "bg-white border-black/15 hover:border-[#5b2d82]"}`}
+                  >
+                    <span className={`block text-[11px] uppercase tracking-wide ${formData.date === o.label ? "text-white/80" : "text-black/50"}`}>{o.dow}</span>
+                    <span className="block text-lg font-bold">{o.dnum}</span>
+                  </button>
+                ))}
+              </div>
+
+              <p className="text-sm font-semibold mt-6 mb-3">Available times</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                {TIME_OPTIONS.map((t) => {
+                  const past = isPastTime(t);
+                  const selected = formData.preferredTime === t;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      disabled={past}
+                      aria-disabled={past}
+                      onClick={() => !past && handleSlotChange(t)}
+                      aria-pressed={selected}
+                      className={`rounded-[12px] border px-3 py-2.5 text-sm font-semibold text-center transition-colors ${
+                        selected
+                          ? "bg-[#5b2d82] text-white border-[#5b2d82]"
+                          : past
+                          ? "bg-black/[0.04] border-black/10 text-black/35 line-through cursor-not-allowed"
+                          : "bg-white border-black/15 hover:bg-[#f1eaf3]"
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Step 3: details */}
+            <div className="bg-white border border-black/10 rounded-[24px] md:rounded-[30px] p-5 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-3 mb-1">
+                <span className="flex-none w-7 h-7 rounded-full bg-[#5b2d82] text-white text-sm font-bold flex items-center justify-center">3</span>
+                <h3 className="text-xl md:text-2xl font-medium">Your details</h3>
+              </div>
+              <p className="text-sm text-black/55 mb-6 pl-10">So we can confirm your appointment.</p>
+
+              <div className="bg-[#f1eaf3] rounded-[24px] p-5 sm:p-8">
+                <form id="spa-form" onSubmit={handleSubmit} className="flex flex-col gap-5">
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="spa-name" className="text-sm md:text-base">Full Name*</label>
+                      <input id="spa-name" type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} required placeholder="Enter full name" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black outline-none placeholder-black/40 focus:ring-2 focus:ring-[#5b2d82]/25 w-full" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="spa-phone" className="text-sm md:text-base">Phone Number*</label>
+                      <input id="spa-phone" type="tel" name="phone" inputMode="numeric" maxLength={10} value={formData.phone} onChange={handleInputChange} required placeholder="Enter phone number" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black outline-none placeholder-black/40 focus:ring-2 focus:ring-[#5b2d82]/25 w-full" />
+                    </div>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="spa-email" className="text-sm md:text-base">Email Address</label>
+                      <input id="spa-email" type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="your@email.com (optional)" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black outline-none placeholder-black/40 focus:ring-2 focus:ring-[#5b2d82]/25 w-full" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="spa-service" className="text-sm md:text-base">Selected Service*</label>
+                      <div className="relative">
+                        <select id="spa-service" name="selectedService" value={formData.selectedService} onChange={handleInputChange} required className="w-full bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black/80 outline-none appearance-none cursor-pointer pr-10 focus:ring-2 focus:ring-[#5b2d82]/25">
+                          <option value="" disabled>Select a service</option>
+                          {spaServices.map((s) => (
+                            <option key={s.name} value={s.name}>{s.name}</option>
+                          ))}
+                        </select>
+                        <svg className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none w-3 h-4 text-black" viewBox="0 0 13 7" fill="none"><path d="M1 1L6.5 6L12 1" stroke="currentColor" strokeWidth="1.5" /></svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="spa-message" className="text-sm md:text-base">Message (Optional)</label>
+                    <input id="spa-message" type="text" name="message" value={formData.message} onChange={handleInputChange} placeholder="Tell us about your goals and interest" className="bg-white rounded-[14px] h-12 md:h-14 px-4 text-base text-black outline-none placeholder-black/40 focus:ring-2 focus:ring-[#5b2d82]/25 w-full" />
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-          <SpaTimeSlots onSlotChange={handleSlotChange} />
-        </div>
-      </section>
 
-      {/* ═══ COMPLETE YOUR BOOKING (Alternating Section 2 - 120px Padding) ═══ */}
-      <section className="site-container !py-16 md:!py-24 lg:!py-[120px]">
-        <div className="text-center mb-8 md:mb-10">
-          <h2 className="text-3xl md:text-[40px] font-normal leading-[1.2] mb-3 md:mb-4">Complete Your Booking</h2>
-          <p className="text-base sm:text-lg md:text-xl leading-[1.35] max-w-[550px] mx-auto text-black/80">
-            Fill in your details to confirm the appointment
-          </p>
-        </div>
-        
-        <div className="rounded-[24px] md:rounded-[30px] p-5 sm:p-8 lg:p-12" style={{ background: "#f1eaf3" }}>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5 md:gap-6">
-            
-            {/* Row 1 */}
-            <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
-              <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Full Name*</p>
-                <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-[80px]">
-                  <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} required placeholder="Enter full name" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none placeholder:capitalize" />
-                </div>
-              </div>
-              <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Email Address*</p>
-                <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-[80px]">
-                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} required placeholder="your@email.com" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none" />
-                </div>
-              </div>
+          {/* RIGHT: appointment summary */}
+          <aside className="lg:sticky lg:top-24 self-start bg-white border border-black/10 rounded-[24px] overflow-hidden shadow-md">
+            <div className="bg-[#5b2d82] text-white px-6 py-5">
+              <p className="text-lg font-medium">Your appointment</p>
+              <p className="text-sm text-white/70 mt-0.5">Me Glow Wellness Lounge</p>
             </div>
-
-            {/* Row 2 */}
-            <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
-              <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Phone Number*</p>
-                <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-[80px]">
-                  <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Enter full phone number" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none placeholder:capitalize" />
-                </div>
-              </div>
-              <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Selected Service*</p>
-                <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 relative h-14 sm:h-16 md:h-[80px]">
-                  <select name="selectedService" value={formData.selectedService} onChange={handleInputChange} required className="w-full bg-transparent text-base md:text-lg text-black font-light outline-none capitalize appearance-none cursor-pointer pr-8">
-                    {spaServices.map((service) => (
-                      <option key={service.name}>{service.name}</option>
-                    ))}
-                  </select>
-                  <svg className="absolute right-5 md:right-6 w-3 h-4 md:h-5 pointer-events-none" viewBox="0 0 12 8" fill="none">
-                    <path d="M1 1L6 6L11 1" stroke="black" strokeWidth="1.5" />
-                  </svg>
-                </div>
-              </div>
+            <div className="px-6 py-5 flex flex-col gap-3.5 text-sm">
+              <div className="flex justify-between gap-3"><span className="text-black/55">Service</span><span className={formData.selectedService ? "font-semibold text-right" : "text-black/45"}>{formData.selectedService || "Not selected"}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-black/55">Date</span><span className={formData.date ? "font-semibold text-right" : "text-black/45"}>{formData.date || "Not selected"}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-black/55">Time</span><span className={formData.preferredTime ? "font-semibold text-right" : "text-black/45"}>{formData.preferredTime || "Not selected"}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-black/55">Name</span><span className={formData.fullName ? "font-semibold text-right" : "text-black/45"}>{formData.fullName || "—"}</span></div>
             </div>
-
-            {/* Row 3 */}
-            <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
-              <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Preferred Time*</p>
-                <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 relative h-14 sm:h-16 md:h-[80px]">
-                  <select name="preferredTime" value={formData.preferredTime} onChange={handleInputChange} required className="w-full bg-transparent text-base md:text-lg text-black font-light outline-none capitalize appearance-none cursor-pointer pr-8">
-                    <option>10:00 am</option>
-                    <option>11:00 am</option>
-                    <option>12:00 pm</option>
-                    <option>1:00 pm</option>
-                    <option>2:00 pm</option>
-                    <option>3:00 pm</option>
-                    <option>4:00 pm</option>
-                    <option>5:00 pm</option>
-                    <option>6:00 pm</option>
-                    <option>7:00 pm</option>
-                    <option>8:00 pm</option>
-                    <option>9:00 pm</option>
-                  </select>
-                  <svg className="absolute right-5 md:right-6 w-3 h-4 md:h-5 pointer-events-none" viewBox="0 0 12 8" fill="none">
-                    <path d="M1 1L6 6L11 1" stroke="black" strokeWidth="1.5" />
-                  </svg>
-                </div>
-              </div>
-              <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">Message (Optional)</p>
-                <div className="bg-white rounded-[20px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-[80px]">
-                  <input type="text" name="message" value={formData.message} onChange={handleInputChange} placeholder="Tell us about your goals and interest" className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none placeholder:capitalize" />
-                </div>
-              </div>
+            <div className="px-6 pb-5">
+              {(submitMessage || submitError) && (
+                <p className={`mb-3 text-sm ${submitError ? "text-red-600" : "text-[#5b2d82]"}`}>{submitError || submitMessage}</p>
+              )}
+              <button type="submit" form="spa-form" disabled={isSubmitting} className="w-full bg-[#5b2d82] text-white rounded-[16px] py-4 font-medium hover:bg-[#4a2069] transition-transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                {isSubmitting ? "Confirming…" : "Confirm Booking"}
+              </button>
+              <p className="mt-3 text-xs text-black/50">We&rsquo;ll confirm your appointment by phone or email. No payment is taken online.</p>
             </div>
-
-            {(submitMessage || submitError) && (
-              <p className={`text-sm md:text-lg ${submitError ? "text-red-600" : "text-black"}`}>
-                {submitError || submitMessage}
-              </p>
-            )}
-
-            <button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="bg-black text-white rounded-[24px] md:rounded-[30px] w-full flex items-center justify-center capitalize font-medium text-lg md:text-2xl leading-[1.2] mt-2 h-14 sm:h-16 md:h-[70px] transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {isSubmitting ? "Confirming..." : "Confirm Booking"}
-            </button>
-            
-          </form>
+          </aside>
         </div>
       </section>
 

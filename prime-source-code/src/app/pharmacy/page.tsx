@@ -1,7 +1,48 @@
 import { FiMapPin, FiClock, FiPhone } from "react-icons/fi";
 import { MotionDiv, MotionP } from "@/components/MotionWrappers";
 
-export const metadata = { title: "Pharmacy – Prime Promenade" };
+export const metadata = { title: "Prime Pharmas – Prime Promenade" };
+
+const FEATURES = [
+  "Licensed Pharmacists",
+  "Optical Care",
+  "Diabetes & Diet Centre",
+  "Genuine Medicines",
+  "Home Delivery",
+  "Expert Guidance",
+];
+
+const SERVICES = [
+  "Prescription & Over-the-Counter Medicines",
+  "Branded & Generic Medicines at Affordable Prices",
+  "Vitamins & Nutritional Supplements",
+  "Personal Care Products",
+  "First Aid Essentials",
+  "Health Monitoring Devices",
+  "Optical Care & Vision Products",
+  "Dedicated Food Products for Diet-Conscious Individuals",
+  "Dedicated Food Products for People with Diabetes",
+  "A Wide Selection of Diabetic-Friendly Juices, Soft Drinks & Ice Creams",
+];
+
+const COMPLIANCE = [
+  {
+    t: "Regulated Dispensing",
+    s: "Prescription medicines are dispensed strictly according to healthcare regulations.",
+  },
+  {
+    t: "Authorised Sources",
+    s: "All medicines and healthcare products are sourced exclusively from authorised distributors.",
+  },
+  {
+    t: "Prescription Required",
+    s: "Prescription medicines are supplied only with a valid doctor's prescription.",
+  },
+  {
+    t: "Quality Assurance",
+    s: "Proper storage, regular quality checks, and professional handling ensure product integrity.",
+  },
+];
 
 export default function PharmacyPage() {
   return (
@@ -10,8 +51,8 @@ export default function PharmacyPage() {
       {/* ═══ HERO ═══ */}
       <section className="relative w-full overflow-hidden h-[450px] md:min-h-[100vh] lg:min-h-[100vh]">
         <img
-          src="/ASSETS/pharmacy-main-banner.webp"
-          alt="Pharmacy"
+          src="/ASSETS/pharma-banner.jpg"
+          alt="Prime Pharmas"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div
@@ -21,53 +62,66 @@ export default function PharmacyPage() {
               "linear-gradient(rgba(0,0,0,0.3) 0%,rgba(0,0,0,0) 100%),linear-gradient(rgba(0,0,0,0) 47.9%,rgba(0,0,0,0.9) 100%)",
           }}
         />
-        
+
         <div className="site-container relative h-full md:min-h-[100vh] lg:min-h-[100vh] flex flex-col items-center justify-end !pb-16 md:!pb-24 !pt-32 md:!pt-40 text-center w-full">
-   
+
            <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.12, duration: 0.7 }}
-            className="mb-6"
+            className="mb-5"
           >
-            <img src="/Service-logo/final-out-08.png" alt="Pharmacy" className="mx-auto w-[200px] md:w-[250px] object-contain" />
+            <img src="/Service-logo/final-out-08.png" alt="Prime Pharmas" className="mx-auto w-[200px] md:w-[250px] object-contain" />
           </MotionDiv>
+
+          <MotionDiv
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.7 }}
+            className="mb-4"
+          >
+            <span className="inline-block bg-[#604b9e] text-white text-[11px] sm:text-xs md:text-sm font-medium tracking-[0.06em] uppercase rounded-full px-4 py-1.5">
+              Pharmacy • Opticals • Diabetes &amp; Diet Centre
+            </span>
+          </MotionDiv>
+
           <MotionP
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.24, duration: 0.7 }}
+            transition={{ delay: 0.28, duration: 0.7 }}
             className="text-white/90 text-base sm:text-lg lg:text-[20px] leading-[1.3] max-w-2xl px-2 sm:px-0"
           >
-            Your reliable partner in healthcare, providing essential medicines,
-            wellness products, and professional pharmaceutical guidance to
-            support your health journey.
+            Your trusted healthcare destination for medicines, optical care,
+            diabetes &amp; diet solutions, wellness products, and expert guidance —
+            all under one roof.
           </MotionP>
         </div>
       </section>
 
-      {/* ═══ YOUR HEALTH, OUR COMMITMENT (Standard Padding) ═══ */}
+      {/* ═══ YOUR HEALTH, OUR COMMITMENT ═══ */}
       <section className="site-container !py-[120px] ">
         <div className="flex flex-col lg:flex-row gap-8 md:gap-12 lg:gap-[5%] items-start">
           {/* Left: Image mosaic */}
           <div className="w-full lg:w-[53%] flex-shrink-0">
             {/* Desktop mosaic */}
-            <div className="img-mosaic hidden lg:block">
+            <div className="img-mosaic hidden lg:grid">
               <img
-                src="/ASSETS/pharmacy-sub-3.webp"
+                src="/ASSETS/Pharmas_1.jpg"
                 alt=""
                 className="main-img"
               />
               <div className="top-right">
                 <img
-                  src="/ASSETS/pharmacy-sub-1.webp"
+                  src="/ASSETS/Pharmas_3.jpg"
                   alt=""
                 />
               </div>
               <div className="bottom-right">
                 <img
-                  src="/ASSETS/pharmacy-sub-2.webp"
+                  src="/ASSETS/Pharmas_2.jpg"
                   alt=""
                 />
               </div>
@@ -75,21 +129,21 @@ export default function PharmacyPage() {
             {/* Mobile: stacked */}
             <div className="lg:hidden flex flex-col gap-4">
               <img
-                src="/ASSETS/pharmacy-sub-3-1.webp"
+                src="/ASSETS/Pharmas_1.jpg"
                 alt="Pharmacy"
                 className="w-full object-cover rounded-[16px] md:rounded-[20px]"
                 style={{ aspectRatio: "585/539" }}
               />
               <div className="flex gap-4">
                 <img
-                  src="/ASSETS/pharmacy-sub-1.webp"
-                  alt="Pharmacy"
+                  src="/ASSETS/Pharmas_3.jpg"
+                  alt="Opticals"
                   className="w-1/2 object-cover rounded-[16px] md:rounded-[20px]"
                   style={{ aspectRatio: "283/270" }}
                 />
                 <img
-                  src="/ASSETS/pharmacy-sub-2.webp"
-                  alt="Pharmacy"
+                  src="/ASSETS/Pharmas_2.jpg"
+                  alt="Diabetes & Diet"
                   className="w-1/2 object-cover rounded-[16px] md:rounded-[20px]"
                   style={{ aspectRatio: "381/256" }}
                 />
@@ -98,101 +152,82 @@ export default function PharmacyPage() {
           </div>
 
           {/* Right: Content */}
-          <div className="flex flex-col gap-4 md:gap-6 lg:pt-4">
+          <div className="flex flex-col gap-4 md:gap-6 lg:pt-4 flex-1">
             <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2]">
               Your Health, Our Commitment
             </h2>
             <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] text-black">
-              Our pharmacy is dedicated to providing safe, reliable, and
-              professional healthcare services. With licensed pharmacists and a
-              comprehensive range of genuine medicines, we&apos;re here to
-              support your wellness needs every day.
+              Quality healthcare, trusted medicines, expert advice, and
+              personalised support for every family.
             </p>
 
-            <div className="flex flex-col gap-6 md:gap-8 lg:gap-10 mt-4">
-              {/* Feature 1 */}
-              <div className="flex items-start gap-4">
-                <span className="star-icon text-xl md:text-[28px] mt-0.5 flex-shrink-0">
-                  ✦
-                </span>
-                <div>
-                  <p className="text-lg md:text-xl lg:text-[24px] font-medium leading-[1.35] mb-1">
-                    Licensed Pharmacists
-                  </p>
-                  <p className="text-base md:text-lg lg:text-[20px] text-black/60 leading-[1.35]">
-                    Expert guidance from qualified healthcare professionals
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 md:gap-y-6 mt-2 md:mt-4">
+              {FEATURES.map((f) => (
+                <div key={f} className="flex items-start gap-3">
+                  <span className="star-icon text-lg md:text-2xl mt-0.5 flex-shrink-0">
+                    ✦
+                  </span>
+                  <p className="text-lg lg:text-[21px] font-medium leading-[1.3]">
+                    {f}
                   </p>
                 </div>
-              </div>
-
-              {/* Feature 2 */}
-              <div className="flex items-start gap-4">
-                <span className="star-icon text-xl md:text-[28px] mt-0.5 flex-shrink-0">
-                  ✦
-                </span>
-                <div>
-                  <p className="text-lg md:text-xl lg:text-[24px] font-medium leading-[1.35] mb-1">
-                    Genuine Medicines
-                  </p>
-                  <p className="text-base md:text-lg lg:text-[20px] text-black/60 leading-[1.35]">
-                    100% authentic products from authorised distributors
-                  </p>
-                </div>
-              </div>
-
-              {/* Feature 3 */}
-              <div className="flex items-start gap-4">
-                <span className="star-icon text-xl md:text-[28px] mt-0.5 flex-shrink-0">
-                  ✦
-                </span>
-                <div>
-                  <p className="text-lg md:text-xl lg:text-[24px] font-medium leading-[1.35] mb-1">
-                    Professional Support
-                  </p>
-                  <p className="text-base md:text-lg lg:text-[20px] text-black/60 leading-[1.35]">
-                    Personalised care and consultation services
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ═══ COMPLETE PHARMACY & WELLNESS SOLUTIONS (Alternating Section 1: 120px Padding) ═══ */}
+      {/* ═══ COMPLETE HEALTHCARE & WELLNESS SOLUTIONS ═══ */}
       <section className="site-container !py-16 md:!py-24 lg:!py-[120px]">
         <div
           className="rounded-[24px] md:rounded-[30px] px-6 sm:px-10 lg:px-16 py-8 sm:py-10 lg:py-14"
           style={{ background: "rgba(96,75,158,0.15)" }}
         >
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
-            <div className="flex flex-col gap-6 md:gap-8 lg:w-[40%] flex-shrink-0">
-              <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2]">
-                Complete Pharmacy &amp; Wellness Solutions
-              </h2>
-              <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] text-black">
-                We provide a comprehensive range of pharmacy and healthcare
-                essentials to support your everyday well-being. From
-                prescription and over-the-counter medicines to vitamins,
-                supplements, first aid supplies, and personal care products, our
-                pharmacy ensures trusted access to quality health solutions. We
-                also offer reliable health monitoring devices and wellness
-                products to help you manage and maintain a healthier lifestyle
-                with confidence.
+          <div className="flex flex-col gap-4 md:gap-6">
+            <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2]">
+              Complete Healthcare &amp; Wellness Solutions
+            </h2>
+            <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] text-black max-w-3xl">
+              Prime Pharmas offers a complete range of healthcare products and
+              wellness solutions to support your everyday well-being.
+            </p>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center mt-8 lg:mt-10">
+            <div className="w-full lg:w-[55%] flex-shrink-0">
+              <p className="text-lg md:text-xl font-medium mb-4 md:mb-6">
+                Our services include:
               </p>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                {SERVICES.map((s) => (
+                  <li key={s} className="flex items-start gap-3">
+                    <span className="star-icon text-base md:text-lg mt-0.5 flex-shrink-0">
+                      ✦
+                    </span>
+                    <span className="text-base lg:text-[17px] leading-[1.35]">
+                      {s}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="w-full lg:flex-1 mt-4 lg:mt-0">
+            <div className="w-full lg:flex-1 mt-2 lg:mt-0">
               <img
-                src="/ASSETS/pharmacy-sub-4.webp"
-                alt="Pharmacy products"
-                className="w-full h-[250px] sm:h-auto object-cover rounded-[20px] md:rounded-[36px]"
+                src="/ASSETS/wellness-solution.jpg"
+                alt="Complete pharmacy and wellness solutions"
+                className="w-full h-[250px] sm:h-[380px] lg:h-[440px] object-cover rounded-[20px] md:rounded-[36px]"
               />
             </div>
           </div>
+
+          <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] text-black mt-8 lg:mt-10">
+            Everything you need for better health, conveniently available in one
+            place.
+          </p>
         </div>
       </section>
 
-      {/* ═══ COMPLIANCE & SAFETY (Standard Padding) ═══ */}
+      {/* ═══ COMPLIANCE & SAFETY ═══ */}
       <section className="site-container">
         <div
           className="rounded-[24px] md:rounded-[30px] px-6 sm:px-8 lg:px-20 py-10 md:py-12 lg:py-16"
@@ -202,115 +237,93 @@ export default function PharmacyPage() {
             <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2] mb-3 md:mb-5">
               Compliance &amp; Safety
             </h2>
-            <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] max-w-lg mx-auto">
-              Your safety is our priority. We adhere to the highest standards of
-              pharmaceutical regulations
+            <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] max-w-2xl mx-auto">
+              Your health and safety remain our highest priority. Every product
+              and service at Prime Pharmas follows stringent pharmaceutical and
+              healthcare standards to ensure quality, authenticity, and customer
+              confidence.
             </p>
           </div>
 
           {/* 2x2 grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-10 md:mb-12">
-            <div className="flex items-start gap-4 w-full">
-              <span className="star-icon text-xl md:text-[22px] mt-0.5 flex-shrink-0">
-                ✦
-              </span>
-              <div>
-                <p className="text-lg md:text-xl lg:text-[25px] font-medium leading-[1.2] mb-2 md:mb-4">
-                  Regulated Dispensing:
-                </p>
-                <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
-                  All medicines dispensed strictly as per healthcare regulations
-                  and guidelines
-                </p>
+            {COMPLIANCE.map((c) => (
+              <div key={c.t} className="flex items-start gap-4 w-full">
+                <span className="star-icon text-xl md:text-[22px] mt-0.5 flex-shrink-0">
+                  ✦
+                </span>
+                <div>
+                  <p className="text-lg md:text-xl lg:text-[25px] font-medium leading-[1.2] mb-2 md:mb-4">
+                    {c.t}:
+                  </p>
+                  <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
+                    {c.s}
+                  </p>
+                </div>
               </div>
-            </div>
-
-            <div className="flex items-start gap-4 w-full">
-              <span className="star-icon text-xl md:text-[22px] mt-0.5 flex-shrink-0">
-                ✦
-              </span>
-              <div>
-                <p className="text-lg md:text-xl lg:text-[25px] font-medium leading-[1.2] mb-2 md:mb-4">
-                  Prescription Required:
-                </p>
-                <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
-                  Prescription medicines require valid doctor&apos;s
-                  prescription
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 w-full">
-              <span className="star-icon text-xl md:text-[22px] mt-0.5 flex-shrink-0">
-                ✦
-              </span>
-              <div>
-                <p className="text-lg md:text-xl lg:text-[25px] font-medium leading-[1.2] mb-2 md:mb-4">
-                  Authorised Sources:
-                </p>
-                <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
-                  All medicines sourced exclusively from authorised distributors
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 w-full">
-              <span className="star-icon text-xl md:text-[22px] mt-0.5 flex-shrink-0">
-                ✦
-              </span>
-              <div>
-                <p className="text-lg md:text-xl lg:text-[25px] font-medium leading-[1.2] mb-2 md:mb-4">
-                  Quality Assurance:
-                </p>
-                <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
-                  Rigorous quality checks and proper storage conditions
-                  maintained
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
+
+          <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] text-center max-w-2xl mx-auto mb-10 md:mb-12">
+            Our commitment is to deliver quality healthcare you can trust for
+            every member of your family.
+          </p>
 
           {/* Important Notice white card */}
           <div className="bg-white rounded-[24px] md:rounded-[33px] px-6 sm:px-8 lg:px-12 py-8 lg:py-10">
             <p className="text-xl lg:text-[25px] font-medium leading-[1.2] mb-3 md:mb-5">
               Important Notice
             </p>
+            <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] mb-3 md:mb-4">
+              Prescription medicines are dispensed only against a valid
+              doctor&apos;s prescription and in accordance with healthcare
+              regulations.
+            </p>
+            <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] mb-3 md:mb-4">
+              For your convenience,{" "}
+              <span className="font-medium text-[#4a3a86]">
+                Prescription Medicine Home Delivery is available within a 2 km
+                radius between 9:00 AM and 9:00 PM
+              </span>
+              , subject to a valid doctor&apos;s prescription.
+            </p>
             <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
-              This pharmacy page is provided for informational purposes only.
-              Online ordering or medicine delivery services are not available
-              through this website. For purchasing medicines, consultations, or
-              any healthcare needs, please visit our pharmacy directly.
+              Our team is always available to assist you with pharmacy services,
+              optical products, diabetes care, diet essentials, and wellness
+              products.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ═══ VISIT OUR PHARMACY (Alternating Section 2: 120px Padding) ═══ */}
+      {/* ═══ VISIT PRIME PHARMAS ═══ */}
      <section className="site-container !py-16 md:!py-24 lg:!py-[120px]">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-4xl lg:text-[40px] font-normal leading-[1.2] mb-3 md:mb-4">
-            Visit Our Pharmacy
+            Visit Prime Pharmas
           </h2>
-          <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
-            Find us conveniently located within the building
+          <p className="text-base md:text-lg lg:text-[20px] leading-[1.35] max-w-3xl mx-auto">
+            Visit Prime Pharmas at Prime Promenade for genuine medicines,
+            optical care, diabetes &amp; diet solutions, home delivery, and
+            trusted healthcare services — all in one convenient location. Open
+            every day, 9:00 AM – 9:00 PM.
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
           {/* Location */}
           <div
             className="rounded-[24px] md:rounded-[30px] flex flex-col items-center text-center p-6 sm:p-8 md:p-10"
             style={{ background: "#e7e4f0", minHeight: "260px" }}
           >
-            {/* Changed justify-start to justify-center and removed pt- classes */}
             <div className="flex-1 flex flex-col items-center justify-center w-full">
               <FiMapPin className="text-[#604b9e] w-12 h-12 md:w-16 md:h-16 mb-5 md:mb-8" strokeWidth={1.5} />
               <p className="text-xl lg:text-[26px] font-medium leading-[1.2] mb-3 md:mb-4">
                 Location
               </p>
               <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
-                Ground Floor, West Wing Easily accessible from the main entrance
-                for your convenience.
+                Ground Floor, West Wing — easily accessible from the main
+                entrance.
               </p>
             </div>
           </div>
@@ -320,17 +333,16 @@ export default function PharmacyPage() {
             className="rounded-[24px] md:rounded-[30px] flex flex-col items-center text-center p-6 sm:p-8 md:p-10"
             style={{ background: "#e7e4f0", minHeight: "260px" }}
           >
-            {/* Changed justify-start to justify-center and removed pt- classes */}
             <div className="flex-1 flex flex-col items-center justify-center w-full">
               <FiClock className="text-[#604b9e] w-12 h-12 md:w-16 md:h-16 mb-5 md:mb-8" strokeWidth={1.5} />
               <p className="text-xl lg:text-[26px] font-medium leading-[1.2] mb-3 md:mb-4">
                 Opening Hours
               </p>
               <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
-                Mon-Sat: 8:00 AM – 9:00 PM
+                Open every day
               </p>
               <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
-                Sun: 9:00 AM – 6:00 PM
+                9:00 AM – 9:00 PM
               </p>
             </div>
           </div>
@@ -340,17 +352,13 @@ export default function PharmacyPage() {
             className="rounded-[24px] md:rounded-[30px] flex flex-col items-center text-center p-6 sm:p-8 md:p-10"
             style={{ background: "#e7e4f0", minHeight: "260px" }}
           >
-            {/* Changed justify-start to justify-center and removed pt- classes */}
             <div className="flex-1 flex flex-col items-center justify-center w-full">
               <FiPhone className="text-[#604b9e] w-12 h-12 md:w-14 md:h-14 mb-5 md:mb-8" strokeWidth={1.5} />
               <p className="text-xl lg:text-[26px] font-medium leading-[1.2] mb-3 md:mb-4">
                 Contact
               </p>
               <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
-                +1 (555) 123-4567
-              </p>
-              <p className="text-base md:text-lg lg:text-[20px] leading-[1.35]">
-                +1 (555) 123-4567
+                +91 90707 99770
               </p>
             </div>
           </div>

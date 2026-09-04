@@ -12,41 +12,49 @@ import { ChevronDown, X } from "lucide-react";
     ];
 
     const dotLinks: { label: string; href?: string; hasMega?: boolean }[] = [
-      { label: "Prime X Arena", href: "/prime-x-arena" },
       { label: "Lifestyle", hasMega: true },
       { label: "Wellness", hasMega: true },
+      { label: "Prime Pharmas", hasMega: true },
       { label: "Steel Tek", hasMega: true },
+      { label: "Prime X Arena", href: "/prime-x-arena" },
       { label: "Vendor Invite", href: "/vendor-invite" },
       { label: "Gallery", href: "/gallery" },
       { label: "Contact Us", href: "/contact" },
     ];
 
-    const lifestyleItems = [
-      { title: "FOREVER 4 YOU", img: "/ASSETS/sub-menu-multi-brand.webp", href: "/vendor" },
-      { title: "Café", img: "/ASSETS/sub-menu-cafe.webp", href: "/cafe" },
-      { title: "Regal", img: "/ASSETS/regal.jpeg", href: "/conference" },
+    type MenuItem = { title: string; img: string; href: string; sub?: string };
+
+    const lifestyleItems: MenuItem[] = [
+      { title: "Venetian Bistro", sub: "Italian Restaurant", img: "/ASSETS/sub-menu-cafe.webp", href: "/cafe" },
+      { title: "Regal", sub: "Multipurpose Hall", img: "/ASSETS/regal.jpg", href: "/conference" },
+      { title: "FOREVER 4 YOU", sub: "Multi Brand Store", img: "/ASSETS/sub-menu-multi-brand.webp", href: "/vendor" },
     ];
 
-    const wellnessItems = [
-      { title: "Me Glow Wellness", img: "/ASSETS/sub-menu-spa.webp", href: "/spa" },
-      { title: "Hideaway Swimsuit", img: "/ASSETS/sub-menu-swimming-pool.webp", href: "/pool-booking" },
-      { title: "Oxy Gym", img: "/ASSETS/sub-menu-gym.webp", href: "/gym" },
+    const wellnessItems: MenuItem[] = [
+      { title: "Me Glow Wellness", sub: "SPA & Salon", img: "/ASSETS/sub-menu-spa.webp", href: "/spa" },
+      { title: "Hideaway Swimsuit", sub: "Pool", img: "/ASSETS/sub-menu-swimming-pool.webp", href: "/pool-booking" },
+      { title: "Oxy Gym", sub: "Fitness", img: "/ASSETS/sub-menu-gym.webp", href: "/gym" },
     ];
 
-    const educationItems = [
+    const primePharmasItems: MenuItem[] = [
+      { title: "Pharma", img: "/ASSETS/sub-menu-pharmacy.webp", href: "/pharmacy" },
+      { title: "Diet and Diabetic Centre", img: "/ASSETS/diet-3.jpg", href: "/pharmacy" },
+      { title: "Prime Opticals", img: "/ASSETS/1.jpg", href: "/pharmacy" },
+    ];
+
+    const educationItems: MenuItem[] = [
       { title: "Tekla Structures", img: "/ASSETS/study-sub-1.webp", href: "/study-centre#tekla-structures" },
       { title: "Professional Programs", img: "/ASSETS/study-sub-2.webp", href: "/study-centre#advanced-bim-technology" },
     ];
 
-    const steelTekItems = [
-      { title: "Structural Steel Designing", img: "/ASSETS/study-sub-2.webp", href: "/study-centre#structural-steel" },
-      { title: "Tekla Training", img: "/ASSETS/study-sub-1.webp", href: "/study-centre#tekla-structures" },
-      
+    const steelTekItems: MenuItem[] = [
+      { title: "Educational Institute and Research Centre", img: "/ASSETS/steeltek-1.jpeg", href: "/study-centre" },
     ];
 
     const getMegaItems = (label: string) => {
       if (label === "Lifestyle") return lifestyleItems;
       if (label === "Wellness") return wellnessItems;
+      if (label === "Prime Pharmas") return primePharmasItems;
       if (label === "Education") return educationItems;
       if (label === "Steel Tek") return steelTekItems;
       return [];
@@ -246,6 +254,9 @@ export default function Header() {
                                 />
                               </div>
                               <p className="text-white font-light text-[18px]">{item.title}</p>
+                              {item.sub && (
+                                <p className="text-white/50 font-light text-[14px] mt-0.5">{item.sub}</p>
+                              )}
                             </Link>
                           ))}
                         </div>
@@ -280,10 +291,48 @@ export default function Header() {
                                 />
                               </div>
                               <p className="text-white font-light text-[18px]">{item.title}</p>
+                              {item.sub && (
+                                <p className="text-white/50 font-light text-[14px] mt-0.5">{item.sub}</p>
+                              )}
                             </Link>
                           ))}
                         </div>
 
+                      </motion.div>
+                    )}
+                    {hoveredLink === "Prime Pharmas" && (
+                      <motion.div
+                        layout
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ layout: { duration: 0.22 }, type: "spring", stiffness: 300, damping: 28 }}
+                        className="flex flex-col gap-6 pr-8 border-r border-white/30 min-w-[600px] justify-start self-start mb-[-50px]"
+                      >
+                        <h2 className="text-white text-[32px] font-semi mb-[-20px]">Prime Pharmas</h2>
+                        <div className="grid grid-cols-3 gap-5">
+                          {primePharmasItems.map((item) => (
+                            <Link
+                              key={item.title}
+                              href={item.href}
+                              onClick={() => { setOpen(false); setExpanded(null); }}
+                              className="group block"
+                            >
+                              <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-3 border border-white/10">
+                                <Image
+                                  src={item.img}
+                                  alt={item.title}
+                                  fill
+                                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                              </div>
+                              <p className="text-white font-light text-[18px]">{item.title}</p>
+                              {item.sub && (
+                                <p className="text-white/50 font-light text-[14px] mt-0.5">{item.sub}</p>
+                              )}
+                            </Link>
+                          ))}
+                        </div>
                       </motion.div>
                     )}
                     {hoveredLink === "Education" && (
@@ -313,6 +362,9 @@ export default function Header() {
                                 />
                               </div>
                               <p className="text-white font-light text-[18px]">{item.title}</p>
+                              {item.sub && (
+                                <p className="text-white/50 font-light text-[14px] mt-0.5">{item.sub}</p>
+                              )}
                             </Link>
                           ))}
                         </div>
@@ -345,6 +397,9 @@ export default function Header() {
                                 />
                               </div>
                               <p className="text-white font-light text-[18px]">{item.title}</p>
+                              {item.sub && (
+                                <p className="text-white/50 font-light text-[14px] mt-0.5">{item.sub}</p>
+                              )}
                             </Link>
                           ))}
                         </div>
@@ -362,6 +417,7 @@ export default function Header() {
                     <Link
                       key={link.label}
                       href={link.href}
+                      onMouseEnter={() => setHoveredLink(null)}
                       onClick={() => { setOpen(false); setExpanded(null); }}
                       className="text-white text-[20px] font-light hover:opacity-60 transition-opacity"
                     >
@@ -372,7 +428,7 @@ export default function Header() {
                   {dotLinks.map((link) => (
                     <div
                       key={link.label}
-                      onMouseEnter={link.hasMega ? () => setHoveredLink(link.label) : undefined}
+                      onMouseEnter={link.hasMega ? () => setHoveredLink(link.label) : () => setHoveredLink(null)}
                       className="w-full"
                     >
                       {link.href ? (
@@ -490,7 +546,12 @@ export default function Header() {
                                     <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg border border-white/10">
                                       <Image src={item.img} alt={item.title} fill className="object-cover" />
                                     </div>
-                                    <span className="text-base font-light leading-snug text-white">{item.title}</span>
+                                    <span className="flex flex-col">
+                                      <span className="text-base font-light leading-snug text-white">{item.title}</span>
+                                      {item.sub && (
+                                        <span className="text-sm font-light leading-snug text-white/50">{item.sub}</span>
+                                      )}
+                                    </span>
                                   </Link>
                                 ))}
                               </motion.div>

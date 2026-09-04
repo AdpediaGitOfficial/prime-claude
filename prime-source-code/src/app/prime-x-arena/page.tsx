@@ -1,84 +1,17 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import {
   MotionDiv,
   MotionH2,
   MotionP,
 } from "@/components/MotionWrappers";
 import Image from "next/image";
-import {
-  FiMonitor,
-  FiTarget,
-  FiCrosshair,
-  FiActivity,
-  FiLifeBuoy,
-  FiShield,
-  FiNavigation,
-} from "react-icons/fi";
 
 const PrimexArenaPage = () => {
-  // State for selections
-  // const [selectedZone, setSelectedZone] = useState<string>("race");
-  // const [selectedTime, setSelectedTime] = useState<string>("10:00 AM - 11:00 AM");
-
-  // Features
-  // const features = [
-  //   {
-  //     id: "bowling",
-  //     title: "Bowling Alley",
-  //     desc: "Premium lanes with dedicated seating and vibrant atmosphere for the perfect strike.",
-  //     icon: <FiLifeBuoy size={32} />,
-  //   },
-  //   {
-  //     id: "cricket",
-  //     title: "Cricket Pitch",
-  //     desc: "Equipped with an automatic bowling machine. Pick and choose preset bowlers, speed, or spin.",
-  //     icon: <FiActivity size={32} />,
-  //   },
-  //   {
-  //     id: "race",
-  //     title: "Race Grid F1 Simulator",
-  //     desc: "Experience the adrenaline of driving professional circuits in our dynamic racing simulators.",
-  //     icon: <FiCrosshair size={32} />,
-  //   },
-  //   {
-  //     id: "flight",
-  //     title: "Flight Simulator",
-  //     desc: "Take control of the cockpit and fly to your destination with realistic controls and physics.",
-  //     icon: <FiNavigation size={32} />,
-  //   },
-  //   {
-  //     id: "ps5",
-  //     title: "PS5 Zone",
-  //     desc: "A dedicated console gaming area featuring the latest next-gen titles to mingle and play.",
-  //     icon: <FiMonitor size={32} />,
-  //   },
-  //   {
-  //     id: "shooting",
-  //     title: "Shooting Range",
-  //     desc: "Test your precision and accuracy in our secure, auto-retrieval target shooting range.",
-  //     icon: <FiTarget size={32} />,
-  //   },
-  // ];
-
-  // const timeSlots = [
-  //   "10:00 AM - 11:00 AM",
-  //   "11:00 AM - 12:00 PM",
-  //   "12:00 PM - 01:00 PM",
-  //   "01:00 PM - 02:00 PM",
-  //   "02:00 PM - 03:00 PM",
-  //   "03:00 PM - 04:00 PM",
-  //   "04:00 PM - 05:00 PM",
-  //   "05:00 PM - 06:00 PM",
-  //   "06:00 PM - 07:00 PM",
-  //   "07:00 PM - 08:00 PM",
-  //   "08:00 PM - 09:00 PM",
-  //   "09:00 PM - 10:00 PM",
-  // ];
 
   return (
     <>
-      <div className=" bg-white text-black overflow-x-hidden selection:bg-[#7C3AED] selection:text-white">
+      <div className=" bg-white text-black overflow-x-clip selection:bg-[#7C3AED] selection:text-white">
         {/* --- Hero Banner Section --- */}
         <section className="relative w-full overflow-hidden h-[450px] md:min-h-[100svh] lg:min-h-[1060px]">
           <img
@@ -267,7 +200,7 @@ const PrimexArenaPage = () => {
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
                 {[
                   "Bowling Alley",
-                  "Cricket Pitch",
+                  "Shooting Range",
                   "Race Grid F1 Simulator",
                   "Flight Simulator",
                   "PS5 Lounge",
@@ -398,20 +331,20 @@ const PrimexArenaPage = () => {
                 <div className="form-row flex flex-col md:flex-row items-center gap-5 md:gap-6">
                   <div className="w-full">
                     <label htmlFor="fullName" className="text-[14px] md:text-[15px] font-medium text-gray-700 block mb-2">Full Name*</label>
-                    <input type="text" id="fullName" placeholder="Enter full name" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
+                    <input type="text" id="fullName" required pattern="[A-Za-z .'\-]{2,}" title="Letters only" placeholder="Enter full name" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
                   </div>
 
                   <div className="w-full">
                     <label htmlFor="phone" className="text-[14px] md:text-[15px] font-medium text-gray-700 block mb-2">Phone Number*</label>
-                    <input type="tel" id="phone" placeholder="Enter phone number" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
+                    <input type="tel" id="phone" required inputMode="numeric" maxLength={10} pattern="[6-9][0-9]{9}" title="10-digit mobile number" placeholder="Enter phone number" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
                   </div>
                 </div>
 
           
                 <div className="form-row flex flex-col md:flex-row items-center gap-5 md:gap-6">
                   <div className="w-full">
-                    <label htmlFor="email" className="text-[14px] md:text-[15px] font-medium text-gray-700 block mb-2">Email Address*</label>
-                    <input type="email" id="email" placeholder="Your@Email.Com" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
+                    <label htmlFor="email" className="text-[14px] md:text-[15px] font-medium text-gray-700 block mb-2">Email Address</label>
+                    <input type="email" id="email" placeholder="Your@Email.Com (optional)" className="w-full bg-[#F5F3FF] rounded-full px-5 py-3.5 md:px-6 md:py-4 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#7C3AED] text-black placeholder-gray-400" />
                   </div>
 
                   <div className="w-full">

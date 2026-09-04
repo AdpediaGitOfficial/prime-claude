@@ -4,8 +4,12 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Expand, X } from "lucide-react";
+import { apiCall, ENDPOINTS, assetUrl } from "@/utils/api";
 
-const galleryImages = [
+type GalleryItem = { src: string; alt: string; width: number; height: number };
+
+// Default images (fallback if the API is unreachable / has no gallery yet).
+const DEFAULT_GALLERY: GalleryItem[] = [
   {
     src: "/POSTER/popup-graphics.jpeg",
     alt: "Prime Promenade event announcement",
@@ -22,6 +26,30 @@ const galleryImages = [
 
 export default function GalleryPage() {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  // Live gallery from the admin (falls back to defaults if unreachable/empty).
+  const [galleryImages, setGalleryImages] = useState<GalleryItem[]>(DEFAULT_GALLERY);
+  useEffect(() => {
+    let active = true;
+    apiCall(ENDPOINTS.GALLERY)
+      .then((rows) => {
+        if (!active || !Array.isArray(rows)) return;
+        const mapped = rows
+          .filter((r) => r && r.imagePath)
+          .map((r) => ({
+            src: assetUrl(r.imagePath),
+            alt: (r.title as string) || "Prime Promenade gallery",
+            width: 1200,
+            height: 1600,
+          }));
+        if (mapped.length) setGalleryImages(mapped);
+      })
+      .catch(() => {
+        /* keep DEFAULT_GALLERY */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const showPrevious = () => {
     setSelectedImage((current) =>
@@ -58,7 +86,7 @@ export default function GalleryPage() {
 
   return (
     <main className="min-h-screen bg-white text-black">
-      <section className="relative overflow-hidden bg-[#111] pb-16 pt-36 text-white md:pb-24 md:pt-44">
+      <section className="relative overflow-hidden bg-[#111] pb-16 pt-32 text-white md:pb-24 md:pt-40">
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#e1ff83]/10 blur-3xl" />
         <div className="absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
 
@@ -97,7 +125,7 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      <section className="site-container py-16 md:py-24 lg:py-28">
+      <section className="site-container section-y">
         <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between md:mb-14">
           <div>
             <p className="mb-3 text-sm font-medium uppercase tracking-[0.22em] text-black/45">
@@ -112,40 +140,28 @@ export default function GalleryPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-10">
+        {/* Masonry — each tile keeps the image's natural height (no crop, no bars). */}
+        <div className="columns-2 gap-4 sm:gap-5 lg:columns-3 lg:gap-6 [column-fill:_balance]">
           {galleryImages.map((image, index) => (
-            <motion.button
+            <button
               key={image.src}
               type="button"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.15 }}
-              transition={{ delay: index * 0.1, duration: 0.65 }}
               onClick={() => setSelectedImage(index)}
-              className="group relative overflow-hidden rounded-[24px] bg-[#f1f1ed] p-3 text-left focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-4 md:rounded-[32px] md:p-5"
+              className="group relative mb-4 block w-full break-inside-avoid overflow-hidden rounded-[16px] bg-[#f1f1ed] focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:mb-5 md:rounded-[20px]"
               aria-label={`Open ${image.alt}`}
             >
-              <div className="relative aspect-[3/4] overflow-hidden rounded-[18px] bg-[#111] md:rounded-[24px]">
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  sizes="(max-width: 639px) 100vw, 50vw"
-                  className="object-contain transition-transform duration-700 ease-out group-hover:scale-[1.025]"
-                  priority={index === 0}
-                />
-                <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
-                <span className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform duration-300 group-hover:scale-110 md:right-5 md:top-5">
-                  <Expand className="h-5 w-5" aria-hidden="true" />
-                </span>
-              </div>
-              <div className="flex items-center justify-between px-2 pb-2 pt-5 md:px-3 md:pt-6">
-                <p className="text-lg font-medium">Prime Promenade</p>
-                <span className="text-sm text-black/45">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-              </div>
-            </motion.button>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={image.src}
+                alt={image.alt}
+                loading={index < 4 ? "eager" : "lazy"}
+                className="block h-auto w-full transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/15" />
+              <span className="absolute right-3 top-3 flex h-9 w-9 scale-90 items-center justify-center rounded-full bg-white text-black shadow-lg opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100 md:h-10 md:w-10">
+                <Expand className="h-4 w-4 md:h-5 md:w-5" aria-hidden="true" />
+              </span>
+            </button>
           ))}
         </div>
       </section>

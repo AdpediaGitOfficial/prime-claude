@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 body {
-  font-family: "Poppins", sans-serif;
+  /* Use the Instrument Sans font actually loaded in layout.tsx (via next/font).
+     The previous "Poppins" was never imported, so it silently fell back. */
+  font-family: var(--font-instrument-sans), sans-serif;
 }
 
 /* Hide scrollbars utility used by mobile carousels */
@@ -78,43 +80,39 @@ body {
 }
 
 .img-mosaic {
-  position: relative;
   width: 100%;
-  padding-top: 61.18%;
+  aspect-ratio: 1000 / 612;
+  grid-template-columns: 1.7fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 16px;
 }
 
 .img-mosaic .main-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 66.4%;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 0;
+  border-radius: 24px;
 }
 
 .img-mosaic .top-right {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 32.12%;
-  height: 50.09%;
+  grid-column: 2;
+  grid-row: 1;
   overflow: hidden;
-  border-radius: 30px;
+  border-radius: 24px;
 }
 
 .img-mosaic .bottom-right {
-  position: absolute;
-  top: 52.5%;
-  right: 0;
-  width: 43.25%;
-  height: 47.5%;
+  grid-column: 2;
+  grid-row: 2;
   overflow: hidden;
-  border-radius: 30px;
+  border-radius: 24px;
 }
 
 .img-mosaic .top-right img,
 .img-mosaic .bottom-right img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -158,6 +156,29 @@ body {
     .site-container {
       padding-left: var(--site-padding-x-lg);
       padding-right: var(--site-padding-x-lg);
+    }
+  }
+
+  /* Standard vertical section rhythm — one reusable step so sections don't drift.
+     64px (mobile) / 96px (md) / 120px (lg). Equivalent to the
+     `!py-16 md:!py-24 lg:!py-[120px]` pattern already used across the service pages;
+     pair with `site-container` for horizontal padding. */
+  .section-y {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+
+  @screen md {
+    .section-y {
+      padding-top: 96px;
+      padding-bottom: 96px;
+    }
+  }
+
+  @screen lg {
+    .section-y {
+      padding-top: 120px;
+      padding-bottom: 120px;
     }
   }
 }

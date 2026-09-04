@@ -31,7 +31,7 @@ export default function AboutPage() {
       </section>
 
       {/* Our Foundation */}
-      <section className="py-16 sm:py-20 lg:py-28 site-container">
+      <section className="section-y site-container">
         <MotionDiv className="flex flex-col items-center" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
       
           <MotionH2 className="text-3xl sm:text-5xl lg:text-[60px] font-normal leading-[1.2] text-center mb-5 sm:mb-8 max-w-3xl mx-auto" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.08 }}>Shaping the Future of Modern Commercial Living</MotionH2>
@@ -144,7 +144,7 @@ export default function AboutPage() {
       </section>
 
       {/* Prime Promenade */}
-      <section className="py-16 sm:py-20 lg:py-28 site-container">
+      <section className="section-y site-container">
 
         <div className="grid lg:grid-cols-2 gap-5 sm:gap-10 items-start mb-10 sm:mb-14">
           <MotionH2 className="text-3xl sm:text-5xl lg:text-[60px] font-normal leading-[1.2]">Prime Promenade</MotionH2>
@@ -204,7 +204,7 @@ export default function AboutPage() {
       </section>
 
       {/* Chairman's Message */}
-      <section className="py-16 sm:py-20 lg:py-28 site-container">
+      <section className="section-y site-container">
         <div className="grid lg:grid-cols-[465px_1fr] gap-10 sm:gap-16 lg:gap-24 items-start">
           {/* Left: photo floating above black rounded base */}
           <div className="relative flex-shrink-0 h-[460px] sm:h-[560px] lg:h-[641px]">
