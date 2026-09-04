@@ -5,7 +5,7 @@ import { FiSun, FiSunrise } from "react-icons/fi";
 import { FiMonitor, FiVolume2, FiMic, FiWifi } from "react-icons/fi";
 import { MdOutlineChair } from "react-icons/md";
 import { PiStarFourFill } from "react-icons/pi";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { apiCall, ENDPOINTS } from "@/utils/api";
 import { useFormSubmit } from "@/utils/useFormSubmit";
 import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
@@ -54,6 +54,13 @@ export default function ConferencePage() {
     return new Date(today.getFullYear(), today.getMonth(), 1);
   });
   const [selectedDateStr, setSelectedDateStr] = useState<string | null>(null);
+
+  // Current time, ticked every 30s so today's elapsed slots retire live.
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -139,11 +146,24 @@ export default function ConferencePage() {
   const firstDay = new Date(year, month, 1).getDay();
 
   const monthName = currentMonth.toLocaleString("default", { month: "long" });
-  const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const slotLabel = (slot: string | null) =>
     slot === "morning" ? "Morning · 11 AM – 2 PM" : slot === "evening" ? "Evening · 5 – 9 PM" : null;
+
+  // When today is the chosen date, a slot whose start time has passed can no
+  // longer be booked (no buffer). Morning starts 11:00 (660), Evening 17:00 (1020).
+  const todayStr = formatCalendarDate(now.getFullYear(), now.getMonth(), now.getDate());
+  const isTodaySelected = selectedDateStr === todayStr;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const slotStartMin: Record<string, number> = { morning: 660, evening: 1020 };
+  const isSlotPast = (slot: string) => isTodaySelected && nowMinutes >= slotStartMin[slot];
+
+  // Drop a selected slot once it elapses (or when switching to today after it passed).
+  useEffect(() => {
+    if (selectedSlot && isSlotPast(selectedSlot)) setSelectedSlot(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [now, selectedDateStr, selectedSlot]);
 
   // Generate grid array (null for empty prefix slots, numbers for actual days)
   const calendarDays = [];
@@ -395,11 +415,16 @@ export default function ConferencePage() {
 
               {/* Slots */}
               <div className="grid sm:grid-cols-2 gap-4 mt-8">
+                {(() => {
+                  const morningPast = isSlotPast("morning");
+                  return (
                 <button
                   type="button"
-                  onClick={() => setSelectedSlot("morning")}
+                  disabled={morningPast}
+                  aria-disabled={morningPast}
+                  onClick={() => !morningPast && setSelectedSlot("morning")}
                   aria-pressed={selectedSlot === "morning"}
-                  className={`bg-white rounded-[20px] p-3 md:p-4 flex items-center gap-4 text-left cursor-pointer transition-all border-2 ${selectedSlot === "morning" ? "border-[#00372f] shadow-md" : "border-black/10 hover:shadow-sm"}`}
+                  className={`bg-white rounded-[20px] p-3 md:p-4 flex items-center gap-4 text-left transition-all border-2 ${selectedSlot === "morning" ? "border-[#00372f] shadow-md cursor-pointer" : morningPast ? "border-black/10 opacity-50 cursor-not-allowed" : "border-black/10 hover:shadow-sm cursor-pointer"}`}
                 >
                   <div className="bg-[#e3e9e8] rounded-[16px] w-[60px] h-[60px] flex items-center justify-center flex-shrink-0">
                     <FiSun className="text-[#00372f] w-7 h-7" strokeWidth={1.5} />
@@ -411,15 +436,22 @@ export default function ConferencePage() {
                       </span>
                       <span className="text-lg font-medium text-black">Morning Slot</span>
                     </div>
-                    <span className="text-sm text-black/60 pl-[30px]">11:00 AM – 2:00 PM · 3 hours</span>
+                    <span className="text-sm text-black/60 pl-[30px]">{morningPast ? "Already passed for today" : "11:00 AM – 2:00 PM · 3 hours"}</span>
                   </div>
                 </button>
+                  );
+                })()}
 
+                {(() => {
+                  const eveningPast = isSlotPast("evening");
+                  return (
                 <button
                   type="button"
-                  onClick={() => setSelectedSlot("evening")}
+                  disabled={eveningPast}
+                  aria-disabled={eveningPast}
+                  onClick={() => !eveningPast && setSelectedSlot("evening")}
                   aria-pressed={selectedSlot === "evening"}
-                  className={`bg-white rounded-[20px] p-3 md:p-4 flex items-center gap-4 text-left cursor-pointer transition-all border-2 ${selectedSlot === "evening" ? "border-[#00372f] shadow-md" : "border-black/10 hover:shadow-sm"}`}
+                  className={`bg-white rounded-[20px] p-3 md:p-4 flex items-center gap-4 text-left transition-all border-2 ${selectedSlot === "evening" ? "border-[#00372f] shadow-md cursor-pointer" : eveningPast ? "border-black/10 opacity-50 cursor-not-allowed" : "border-black/10 hover:shadow-sm cursor-pointer"}`}
                 >
                   <div className="bg-[#e3e9e8] rounded-[16px] w-[60px] h-[60px] flex items-center justify-center flex-shrink-0">
                     <FiSunrise className="text-[#00372f] w-7 h-7" strokeWidth={1.5} />
@@ -431,9 +463,11 @@ export default function ConferencePage() {
                       </span>
                       <span className="text-lg font-medium text-black">Evening Slot</span>
                     </div>
-                    <span className="text-sm text-black/60 pl-[30px]">5:00 PM – 9:00 PM · 4 hours</span>
+                    <span className="text-sm text-black/60 pl-[30px]">{eveningPast ? "Already passed for today" : "5:00 PM – 9:00 PM · 4 hours"}</span>
                   </div>
                 </button>
+                  );
+                })()}
               </div>
             </div>
 
