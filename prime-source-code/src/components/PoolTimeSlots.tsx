@@ -129,22 +129,16 @@ export default function PoolTimeSlots({
         const isFull = free <= 0;
         // A slot is unbookable when its start has passed (today) or it is full.
         const disabled = isPast || isFull;
-        // Group shows Available / Fully booked (no "1 pool left").
-        const availText = isPast
-          ? "Unavailable"
-          : isFull
-          ? "Fully booked"
-          : groupPlan
-          ? "Available"
-          : free === 1
-          ? "1 pool left"
-          : "2 pools available";
+        // Any slot with at least one free pool is bookable → show a clear
+        // "Available" (the second, still-free pool takes the booking). Only a
+        // slot with both pools taken is "Fully booked". We deliberately do NOT
+        // surface "1 pool left": an overlapping-but-sellable slot must not read
+        // as booked, or it suppresses real bookings.
+        const availText = isPast ? "Unavailable" : isFull ? "Fully booked" : "Available";
         const availClass = isPast
           ? "text-black/40"
           : isFull
           ? "text-red-600"
-          : free === 1 && !groupPlan
-          ? "text-amber-600"
           : "text-emerald-600";
         return (
           <button
