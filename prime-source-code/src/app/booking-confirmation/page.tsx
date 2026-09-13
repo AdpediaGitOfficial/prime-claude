@@ -1,4 +1,7 @@
-export const metadata = { title: "Booking Confirmed – Prime Promenade" };
+export const metadata = {
+  title: "Booking Confirmed – Prime Promenade",
+  robots: { index: false, follow: false },
+};
 
 export default function BookingConfirmationPage() {
   return (

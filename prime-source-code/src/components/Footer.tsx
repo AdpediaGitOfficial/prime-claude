@@ -1,9 +1,37 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "../../public/LOGO/FOOTER-LOGO.svg"
-import { FaFacebookF, FaYoutube, FaInstagram, FaLinkedinIn, FaTwitter } from 'react-icons/fa';
+import { FaFacebookF, FaInstagram } from 'react-icons/fa';
+import { useState, useEffect } from "react";
+import { apiCall, ENDPOINTS } from "@/utils/api";
+import { safeUrl } from "@/utils/safeUrl";
+
+const DEFAULT_SOCIAL = {
+  facebook: "https://www.facebook.com/61588610401388/",
+  instagram: "https://www.instagram.com/prime_promenade",
+};
 
 export default function Footer() {
+  // Social links from site settings (fallback to defaults if unreachable).
+  const [social, setSocial] = useState(DEFAULT_SOCIAL);
+  useEffect(() => {
+    let active = true;
+    apiCall(ENDPOINTS.SITE_SETTINGS)
+      .then((data) => {
+        if (!active || !data || typeof data !== "object") return;
+        const s = (data as { social?: Partial<typeof DEFAULT_SOCIAL> }).social;
+        if (s) setSocial({ ...DEFAULT_SOCIAL, ...s });
+      })
+      .catch(() => {
+        /* keep defaults */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="mt-20 mx-4 lg:mx-10 bg-white rounded-[30px] p-8 lg:px-12 lg:py-10" style={{ backdropFilter: "blur(75px)" }}>
       <div className="flex flex-col lg:flex-row items-start justify-between gap-10">
@@ -13,20 +41,11 @@ export default function Footer() {
             A world-class lifestyle destination uniting fitness, wellness, business, and curated experiences under one iconic roof.
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" aria-label="Facebook" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
+            <a href={safeUrl(social.facebook)} aria-label="Facebook" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
               <FaFacebookF size={20} />
             </a>
-            <a href="#" aria-label="YouTube" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
-              <FaYoutube size={20} />
-            </a>
-            <a href="#" aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
+            <a href={safeUrl(social.instagram)} aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
               <FaInstagram size={20} />
-            </a>
-            <a href="#" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
-              <FaLinkedinIn size={20} />
-            </a>
-            <a href="#" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer" className="text-black/60 hover:text-black transition-colors">
-              <FaTwitter size={20} />
             </a>
           </div>
         </div>

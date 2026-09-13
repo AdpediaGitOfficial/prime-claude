@@ -9,6 +9,15 @@ import {
 } from "@/components/MotionWrappers";
 import { PiSparkleFill } from "react-icons/pi";
 import { apiCall, ENDPOINTS } from "@/utils/api";
+import { useFormSubmit } from "@/utils/useFormSubmit";
+import {
+  sanitizeName,
+  sanitizePhone,
+  isValidName,
+  isValidPhone,
+  NAME_ERROR,
+  PHONE_ERROR,
+} from "@/utils/validation";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 
 type GymMembershipForm = {
@@ -61,43 +70,53 @@ function CheckIconSm() {
 
 export default function GymPage() {
   const [formData, setFormData] = useState<GymMembershipForm>(initialFormData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
-  const [submitError, setSubmitError] = useState("");
+  const { isSubmitting, submitMessage, submitError, setSubmitError, runSubmit } =
+    useFormSubmit();
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
 
+    const nextValue =
+      name === "fullName"
+        ? sanitizeName(value)
+        : name === "phone"
+        ? sanitizePhone(value)
+        : value;
+
     setFormData((current) => ({
       ...current,
-      [name]: value,
+      [name]: nextValue,
     }));
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitError("");
-    setSubmitMessage("");
 
-    try {
-      setIsSubmitting(true);
-      await apiCall(ENDPOINTS.GYM_MEMBERSHIPS, {
-        method: "POST",
-        body: JSON.stringify({
-          ...formData,
-          age: Number(formData.age),
-        }),
-      });
-
-      setSubmitMessage("Membership request sent successfully.");
-      setFormData(initialFormData);
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Failed to send membership request.");
-    } finally {
-      setIsSubmitting(false);
+    if (!isValidName(formData.fullName)) {
+      setSubmitError(NAME_ERROR);
+      return;
     }
+    if (!isValidPhone(formData.phone)) {
+      setSubmitError(PHONE_ERROR);
+      return;
+    }
+
+    runSubmit(
+      async () => {
+        await apiCall(ENDPOINTS.GYM_MEMBERSHIPS, {
+          method: "POST",
+          body: JSON.stringify({
+            ...formData,
+            age: Number(formData.age),
+          }),
+        });
+        setFormData(initialFormData);
+      },
+      "Membership request sent successfully.",
+      "Failed to send membership request."
+    );
   };
 
   return (
@@ -144,7 +163,7 @@ export default function GymPage() {
       </section>
 
       {/* ═══ ABOUT OUR GYM ═══ */}
-      <section className="site-container pt-[60px]">
+      <section className="site-container section-y">
         {/* 1. Changed items-center to items-stretch so the columns match heights */}
         <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-stretch">
           {/* Image LEFT */}
@@ -214,6 +233,26 @@ export default function GymPage() {
                 </div>
                 <MotionP className="text-base sm:text-lg md:text-xl leading-[1.35]">
                 Dedicated oxygen zone
+                </MotionP>
+              </div>
+
+                  <div className="flex items-start gap-4 md:gap-6">
+                <div className="flex-shrink-0 mt-1">
+                  <PiSparkleFill className="text-[#6CB443] text-2xl md:text-[32px]" />
+                </div>
+                <MotionP className="text-base sm:text-lg md:text-xl leading-[1.35]">
+                CrossFit
+                <span className="block text-sm md:text-base text-black/50 mt-0.5">(Dedicated area for Kid&apos;s Gym, Zumba, Yoga)</span>
+                </MotionP>
+              </div>
+
+                  <div className="flex items-start gap-4 md:gap-6">
+                <div className="flex-shrink-0 mt-1">
+                  <PiSparkleFill className="text-[#6CB443] text-2xl md:text-[32px]" />
+                </div>
+                <MotionP className="text-base sm:text-lg md:text-xl leading-[1.35]">
+                Physiotherapy with Hydrotherapy
+                <span className="block text-sm md:text-base text-black/50 mt-0.5">(Coming Soon)</span>
                 </MotionP>
               </div>
 
@@ -360,268 +399,9 @@ export default function GymPage() {
         </div>
       </section>
 
-      {/* ═══ MEMBERSHIP PACKAGES ═══ */}
-      {/* <section className="site-container py-[120px]">
-        <MotionH2
-          className="text-3xl md:text-[40px] font-normal leading-[1.2] mb-2 md:mb-3"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.06 }}
-        >
-          Membership Packages
-        </MotionH2>
-        <MotionP
-          className="text-base sm:text-lg md:text-xl leading-[1.35] mb-8 md:mb-12"
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.12 }}
-        >
-          Choose the plan that fits your fitness journey
-        </MotionP>
-
-        <div className="grid lg:grid-cols-2 gap-6 md:gap-8">
-
-          <div
-            className="rounded-[24px] md:rounded-[30px] p-6 sm:p-8 lg:p-10 flex flex-col"
-            style={{ background: "rgba(108,190,70,0.15)" }}
-          >
-            <h3 className="text-2xl md:text-[30px] font-medium leading-[1.2] mb-2">
-              Standard Membership
-            </h3>
-            <p className="text-base md:text-xl leading-[1.35] mb-6 md:mb-8 text-black/70">
-              Perfect for getting started
-            </p>
-
-            <div className="flex flex-col gap-4 md:gap-5 mb-8 md:mb-10 flex-1">
-              <div className="flex items-center gap-3">
-                <CheckIconSm />
-                <p className="text-base md:text-lg lg:text-xl leading-[1.35]">
-                  Access to gym equipment
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckIconSm />
-                <p className="text-base md:text-lg lg:text-xl leading-[1.35]">
-                  Standard workout hours
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckIconSm />
-                <p className="text-base md:text-lg lg:text-xl leading-[1.35]">
-                  Locker facility
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckIconSm />
-                <p className="text-base md:text-lg lg:text-xl leading-[1.35]">
-                  Monthly membership
-                </p>
-              </div>
-            </div>
-
-            <button className="mt-auto bg-black text-white rounded-[24px] md:rounded-[30px] w-full flex items-center justify-center capitalize font-medium text-lg md:text-2xl leading-[1.2] h-14 md:h-[70px] transition-transform active:scale-95">
-              Get Started
-            </button>
-          </div>
-
-       
-          <div
-            className="rounded-[24px] md:rounded-[30px] p-6 sm:p-8 lg:p-10 relative flex flex-col"
-            style={{ background: "rgba(108,190,70,0.25)" }}
-          >
-       
-            <div className="absolute top-5 right-5 sm:top-6 sm:right-6 lg:top-8 lg:right-8 bg-[#6cbe46] rounded-[16px] md:rounded-[20px] px-3 py-1.5 sm:px-5 sm:py-2 flex items-center justify-center">
-              <span className="text-white font-medium text-xs sm:text-sm md:text-xl capitalize leading-[1.2]">
-                Premium
-              </span>
-            </div>
-
-            <h3 className="text-2xl md:text-[30px] font-medium leading-[1.2] mb-2 pr-20 sm:pr-24 lg:pr-0">
-              Platinum Membership
-            </h3>
-            <p className="text-base md:text-xl leading-[1.35] mb-6 md:mb-8 text-black/70">
-              Experience the ultimate fitness lifestyle
-            </p>
-
-            <div className="flex flex-col gap-4 md:gap-5 mb-8 md:mb-10 flex-1">
-              <div className="flex items-center gap-3">
-                <CheckIconSm />
-                <p className="text-base md:text-lg lg:text-xl leading-[1.35]">
-                  Full gym access
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckIconSm />
-                <p className="text-base md:text-lg lg:text-xl leading-[1.35]">
-                  Priority entry
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckIconSm />
-                <p className="text-base md:text-lg lg:text-xl leading-[1.35]">
-                  Extended hours access
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckIconSm />
-                <p className="text-base md:text-lg lg:text-xl leading-[1.35]">
-                  Personal locker
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckIconSm />
-                <p className="text-base md:text-lg lg:text-xl leading-[1.35]">
-                  Exclusive swimming pool access
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckIconSm />
-                <p className="text-base md:text-lg lg:text-xl leading-[1.35]">
-                  Priority booking
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckIconSm />
-                <p className="text-base md:text-lg lg:text-xl leading-[1.35]">
-                  Premium member recognition
-                </p>
-              </div>
-            </div>
-
-            <button className="mt-auto bg-black text-white rounded-[24px] md:rounded-[30px] w-full flex items-center justify-center capitalize font-medium text-lg md:text-2xl leading-[1.2] h-14 md:h-[70px] transition-transform active:scale-95">
-              Join Premium
-            </button>
-          </div>
-        </div>
-      </section> */}
-
-   
-      {/* <section className="site-container">
-        <div
-          className="rounded-[30px] py-10 md:py-16 px-4 sm:px-8 lg:px-16"
-          style={{ background: "#e2f2da" }}
-        >
-          <MotionDiv
-            className="text-center mb-8 md:mb-10"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <MotionH2 className="text-3xl md:text-[40px] font-normal leading-[1.2] mb-3 md:mb-4">
-              Gym Timings
-            </MotionH2>
-            <MotionP className="text-base sm:text-lg md:text-xl leading-[1.35]">
-              We&apos;re open when you need us most
-            </MotionP>
-          </MotionDiv>
-
-          <div className="flex flex-col lg:flex-row flex-wrap justify-center items-center gap-6 lg:gap-[60px] mb-8">
-      
-            <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center w-full max-w-[589px] min-h-[120px] md:min-h-[197px] p-2 md:p-0 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex-shrink-0 rounded-[16px] md:rounded-[21px] flex items-center justify-center bg-[#e2f2da] w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] md:w-[152px] md:h-[155px] m-2 sm:m-3 md:m-[21px]">
-                <div className="rounded-full bg-[#6cbe46] flex items-center justify-center w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[60px] md:h-[60px]">
-                  <svg
-                    className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="flex flex-col gap-1 sm:gap-2 md:gap-4 pr-3 md:pr-4 min-w-0 py-2">
-                <p className="text-lg sm:text-xl md:text-[26px] lg:text-[30px] font-medium leading-[1.2]">
-                  Morning Session
-                </p>
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-[1.4] text-gray-800">
-                  6:00 AM – 11:00 AM
-                </p>
-                <p className="text-sm sm:text-base md:text-lg leading-[1.4] text-black/60">
-                  Start your day with energy
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center w-full max-w-[589px] min-h-[120px] md:min-h-[197px] p-2 md:p-0 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex-shrink-0 rounded-[16px] md:rounded-[21px] flex items-center justify-center bg-[#e2f2da] w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] md:w-[152px] md:h-[155px] m-2 sm:m-3 md:m-[21px]">
-                <div className="rounded-full bg-[#6cbe46] flex items-center justify-center w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[60px] md:h-[60px]">
-                  <svg
-                    className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="flex flex-col gap-1 sm:gap-2 md:gap-4 pr-3 md:pr-4 min-w-0 py-2">
-                <p className="text-lg sm:text-xl md:text-[26px] lg:text-[30px] font-medium leading-[1.2]">
-                  Evening Session
-                </p>
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-[1.4] text-gray-800">
-                  4:00 PM – 9:00 PM
-                </p>
-                <p className="text-sm sm:text-base md:text-lg leading-[1.4] text-black/60">
-                  Wind down after work
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center w-full max-w-[589px] min-h-[120px] md:min-h-[197px] p-2 md:p-0 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex-shrink-0 rounded-[16px] md:rounded-[21px] flex items-center justify-center bg-[#e2f2da] w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] md:w-[152px] md:h-[155px] m-2 sm:m-3 md:m-[21px]">
-                <div className="rounded-full bg-[#6cbe46] flex items-center justify-center w-[40px] h-[40px] sm:w-[48px] sm:h-[48px] md:w-[60px] md:h-[60px]">
-                  <svg
-                    className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0-6v2m0 16v2m8-10h-2M4 12H2m15.364 6.364l-1.414-1.414M6.343 6.343L4.929 4.929m12.728 0l-1.414 1.414M6.343 17.657l-1.414 1.414"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="flex flex-col gap-1 sm:gap-2 md:gap-4 pr-3 md:pr-4 min-w-0 py-2">
-                <p className="text-lg sm:text-xl md:text-[26px] lg:text-[30px] font-medium leading-[1.2]">
-                  Full Day Session
-                </p>
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl leading-[1.4] text-gray-800">
-                  6:00 AM – 11:00 PM
-                </p>
-                <p className="text-sm sm:text-base md:text-lg leading-[1.4] text-black/60">
-                  Extended access for members
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-sm sm:text-base md:text-xl leading-[1.35] text-center text-black px-4">
-            * Platinum members enjoy extended hours and flexible access
-          </p>
-        </div>
-      </section> */}
 
       {/* ═══ JOIN US TODAY ═══ */}
-      <section className="site-container pt-[30px] md:pt-0 pb-[60px]">
+      <section className="site-container section-y">
         <MotionDiv
           className="text-center mb-8 md:mb-10"
           initial={{ opacity: 0 }}
@@ -670,12 +450,13 @@ export default function GymPage() {
               {/* Row 1: Full Name + Phone Number */}
               <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
                 <div>
-                  <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">
+                  <label htmlFor="gym-fullName" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">
                     full name*
-                  </p>
+                  </label>
                   <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-20">
                     <input
                       type="text"
+                      id="gym-fullName"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
@@ -686,16 +467,19 @@ export default function GymPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">
+                  <label htmlFor="gym-phone" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">
                     phone number*
-                  </p>
+                  </label>
                   <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-20">
                     <input
                       type="tel"
+                      id="gym-phone"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
+                      inputMode="numeric"
+                      maxLength={10}
                       placeholder="Enter phone number"
                       className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none placeholder:capitalize"
                     />
@@ -706,28 +490,29 @@ export default function GymPage() {
               {/* Row 2: Email + Age */}
               <div className="grid sm:grid-cols-2 gap-5 md:gap-6">
                 <div>
-                  <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">
-                    email address*
-                  </p>
+                  <label htmlFor="gym-email" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">
+                    email address
+                  </label>
                   <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-20">
                     <input
                       type="email"
+                      id="gym-email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      required
-                      placeholder="your@email.com"
+                      placeholder="your@email.com (optional)"
                       className="w-full bg-transparent text-base md:text-lg text-black/60 font-light outline-none"
                     />
                   </div>
                 </div>
                 <div>
-                  <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">
+                  <label htmlFor="gym-age" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">
                     age*
-                  </p>
+                  </label>
                   <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 sm:h-16 md:h-20">
                     <input
                       type="number"
+                      id="gym-age"
                       name="age"
                       value={formData.age}
                       onChange={handleInputChange}
@@ -742,11 +527,12 @@ export default function GymPage() {
 
               {/* Row 4: Message */}
               <div>
-                <p className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3">
+                <label htmlFor="gym-message" className="text-base md:text-xl capitalize leading-[1.35] mb-2 md:mb-3 block">
                   message
-                </p>
+                </label>
                 <div className="bg-white rounded-[24px] md:rounded-[33px] flex items-start px-5 md:px-6 py-4 md:py-5 min-h-[100px] sm:min-h-[120px] md:min-h-[159px]">
                   <textarea
+                    id="gym-message"
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}

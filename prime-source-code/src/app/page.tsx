@@ -1,156 +1,47 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import AnimatedText from "@/components/AnimatedText";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { apiCall, ENDPOINTS, assetUrl } from "@/utils/api";
 import {
   MotionSpan,
   MotionH2,
   MotionP,
   MotionDiv,
 } from "@/components/MotionWrappers";
-import StackCard from "@/components/UI/StackCard";
 import ServiceCarousel from "@/components/UI/ServiceCarousel";
 import HomeLogoSlider from "@/components/UI/HomeLogoSlider";
+import EveryLevelSlider from "@/components/UI/EveryLevelSlider";
+
+const DEFAULT_HERO = "/ASSETS/banner-main.jpg";
 
 export default function HomePage() {
-  const [isPosterOpen, setIsPosterOpen] = useState(false);
-  const [activePoster, setActivePoster] = useState(0);
-  const posters = [
-    {
-      src: "/POSTER/popup-graphics.jpeg",
-      alt: "Prime Promenade announcement",
-    },
-    {
-      src: "/POSTER/popup-image.jpeg",
-      alt: "Prime Promenade featured announcement",
-    },
-  ];
-
+  // Hero image from the "home-hero" banner (falls back to the default).
+  const [heroImg, setHeroImg] = useState<string>(DEFAULT_HERO);
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setIsPosterOpen(true);
-    }, 2000);
-
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!isPosterOpen) return;
-
-    const previousOverflow = document.body.style.overflow;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsPosterOpen(false);
-    };
-
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
-
+    let active = true;
+    apiCall(`${ENDPOINTS.BANNERS}?location=home-hero`)
+      .then((rows) => {
+        if (!active || !Array.isArray(rows)) return;
+        const withImage = rows.find((b) => b && b.imagePath);
+        if (withImage) setHeroImg(assetUrl(withImage.imagePath));
+      })
+      .catch(() => {
+        /* keep default hero */
+      });
     return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
+      active = false;
     };
-  }, [isPosterOpen]);
-
-  useEffect(() => {
-    if (!isPosterOpen) return;
-
-    const slider = window.setInterval(() => {
-      setActivePoster((current) => (current + 1) % posters.length);
-    }, 3000);
-
-    return () => window.clearInterval(slider);
-  }, [isPosterOpen, posters.length]);
+  }, []);
 
   return (
     <main className="bg-white text-black">
-      {isPosterOpen && (
-        <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Prime Promenade announcement"
-          onClick={() => setIsPosterOpen(false)}
-        >
-          <div
-            className="relative max-h-[calc(100dvh-2rem)] w-full max-w-[min(90vw,480px)] overflow-hidden rounded-2xl bg-white shadow-2xl"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="relative h-[min(82dvh,680px)] w-full overflow-hidden bg-black">
-              <div
-                className="flex h-full transition-transform duration-700 ease-in-out"
-                style={{ transform: `translateX(-${activePoster * 100}%)` }}
-              >
-                {posters.map((poster) => (
-                  <div
-                    key={poster.src}
-                    className="h-full w-full shrink-0"
-                  >
-                    <img
-                      src={poster.src}
-                      alt={poster.alt}
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setActivePoster(
-                    (current) => (current - 1 + posters.length) % posters.length
-                  )
-                }
-                className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-2xl text-white transition-colors hover:bg-black/85 focus:outline-none focus:ring-2 focus:ring-white"
-                aria-label="Previous announcement"
-              >
-                <span aria-hidden="true">&#8249;</span>
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setActivePoster((current) => (current + 1) % posters.length)
-                }
-                className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-2xl text-white transition-colors hover:bg-black/85 focus:outline-none focus:ring-2 focus:ring-white"
-                aria-label="Next announcement"
-              >
-                <span aria-hidden="true">&#8250;</span>
-              </button>
-
-              <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
-                {posters.map((poster, index) => (
-                  <button
-                    key={poster.src}
-                    type="button"
-                    onClick={() => setActivePoster(index)}
-                    className={`h-2.5 rounded-full transition-all ${
-                      activePoster === index
-                        ? "w-7 bg-white"
-                        : "w-2.5 bg-white/50 hover:bg-white/75"
-                    }`}
-                    aria-label={`Show announcement ${index + 1}`}
-                    aria-current={activePoster === index ? "true" : undefined}
-                  />
-                ))}
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsPosterOpen(false)}
-              className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-black/75 text-2xl leading-none text-white shadow-lg transition-colors hover:bg-black focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/50"
-              aria-label="Close announcement"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Hero */}
       <section className="relative w-full h-[450px] md:h-screen md:min-h-[600px] overflow-hidden">
         <img
-          src="/ASSETS/banner-main.jpg"
+          src={heroImg}
           alt="Prime Promenade"
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -193,10 +84,11 @@ export default function HomePage() {
         </div>
       </section>
       <HomeLogoSlider />
+      <EveryLevelSlider />
 
 
       {/* Four Floors of Unmatched Excellence */}
-      <section className="py-20 lg:py-28 site-container">
+      <section className="section-y site-container">
         {/* Image Grid: 3 columns (2:1:1) */}
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] gap-5 items-start">
           {/* Col 1: Large tall image */}
@@ -305,7 +197,7 @@ export default function HomePage() {
       </section>
 
 
-      <section className="py-12 md:py-16 site-container">
+      <section className="py-12 md:py-16 lg:py-20 site-container">
         <div className="bg-[#111] rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl border border-white/5 relative">
           {/* Prime X logo in top-right */}
             <img
@@ -361,7 +253,7 @@ export default function HomePage() {
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
                 {[
                   "Bowling Alley",
-                  "Cricket Pitch",
+                  "Shooting Range",
                   "Race Grid F1 Simulator",
                   "Flight Simulator",
                   "PS5 Lounge",
@@ -406,10 +298,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <StackCard />
 
    
-      <section className="py-20 lg:py-28 site-container">
+      <section className="section-y site-container">
         <MotionH2
           className="text-3xl font-normal leading-[1.2] text-center mb-5"
           initial={{ opacity: 0, y: 20 }}

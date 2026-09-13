@@ -3,6 +3,38 @@
 import Banner from "../../../public/ASSETS/contact-banner-1.webp";
 import { FiMapPin, FiPhone, FiMail, FiClock } from "react-icons/fi";
 import { motion } from "framer-motion";
+import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
+import { apiCall, ENDPOINTS } from "@/utils/api";
+import { useFormSubmit } from "@/utils/useFormSubmit";
+import { sanitizeName, sanitizePhone, isValidName, isValidPhone, NAME_ERROR, PHONE_ERROR } from "@/utils/validation";
+
+type ContactForm = {
+  fullName: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+};
+
+const initialFormData: ContactForm = {
+  fullName: "",
+  email: "",
+  phone: "",
+  subject: "",
+  message: "",
+};
+
+// Department phone numbers — kept in sync with the site footer / "Visit Us"
+// block by reading the same SITE_SETTINGS.contact source (admin-editable).
+const DEFAULT_CONTACT = {
+  generalEnquiry: "+91- 90707 99 700",
+  primePharma: "+91- 90707 99 770",
+  arenaBooking: "+91- 90707 99 079",
+  oxygymBooking: "+91- 90707 99 709",
+  email: "info@primepromenade.com",
+};
+
+const telHref = (v: string) => `tel:${v.replace(/[^\d+]/g, "")}`;
 
 const containerVariants = {
   hidden: {},
@@ -15,6 +47,64 @@ const fadeUp = {
 };
 
 export default function ContactClient() {
+  const [formData, setFormData] = useState<ContactForm>(initialFormData);
+  const { isSubmitting, submitMessage, submitError, setSubmitError, runSubmit } = useFormSubmit();
+
+  // Pull the department phone numbers from site settings so the contact page
+  // always matches the footer / "Visit Us" block (falls back to defaults).
+  const [contact, setContact] = useState(DEFAULT_CONTACT);
+  useEffect(() => {
+    let active = true;
+    apiCall(ENDPOINTS.SITE_SETTINGS)
+      .then((data) => {
+        if (!active || !data || typeof data !== "object") return;
+        const c = (data as { contact?: Partial<typeof DEFAULT_CONTACT> }).contact;
+        if (c) setContact({ ...DEFAULT_CONTACT, ...c });
+      })
+      .catch(() => {
+        /* keep defaults */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleInputChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = event.target;
+    const nextValue =
+      name === "fullName"
+        ? sanitizeName(value)
+        : name === "phone"
+        ? sanitizePhone(value)
+        : value;
+    setFormData((current) => ({ ...current, [name]: nextValue }));
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!isValidName(formData.fullName)) {
+      setSubmitError(NAME_ERROR);
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      setSubmitError(PHONE_ERROR);
+      return;
+    }
+    runSubmit(
+      async () => {
+        await apiCall(ENDPOINTS.CONTACT_ENQUIRIES, {
+          method: "POST",
+          body: JSON.stringify(formData),
+        });
+        setFormData(initialFormData);
+      },
+      "Message sent — we'll get back to you soon.",
+      "Failed to send message. Please try again."
+    );
+  };
+
   return (
     <div className="bg-white text-black overflow-x-hidden">
       {/* ═══ HERO (Section 1 - Odd) ═══ */}
@@ -107,40 +197,28 @@ export default function ContactClient() {
             </p>
             <div className="text-[13px] leading-[1.35] flex flex-col gap-1">
               <a
-                href="tel:+919562837777"
+                href={telHref(contact.generalEnquiry)}
                 className="text-black hover:text-[#604b9e] hover:underline transition-colors"
               >
-                +91- 956 283 7777
+                General Enquiry: {contact.generalEnquiry}
               </a>
               <a
-                href="tel:18001212365"
+                href={telHref(contact.primePharma)}
                 className="text-black hover:text-[#604b9e] hover:underline transition-colors"
               >
-                Toll Free: 1800 1212 365
+                Prime Pharma: {contact.primePharma}
               </a>
               <a
-                href="tel:+919070799700"
+                href={telHref(contact.arenaBooking)}
                 className="text-black hover:text-[#604b9e] hover:underline transition-colors"
               >
-                General Enquiry: +91- 90707 99 700
+                Primex Arena Booking: {contact.arenaBooking}
               </a>
               <a
-                href="tel:+919070799770"
+                href={telHref(contact.oxygymBooking)}
                 className="text-black hover:text-[#604b9e] hover:underline transition-colors"
               >
-                Prime Pharma: +91- 90707 99 770
-              </a>
-              <a
-                href="tel:+919070799079"
-                className="text-black hover:text-[#604b9e] hover:underline transition-colors"
-              >
-                Primex Arena Booking: +91- 90707 99 079
-              </a>
-              <a
-                href="tel:+919070799709"
-                className="text-black hover:text-[#604b9e] hover:underline transition-colors"
-              >
-                OXYGYM Booking: +91- 90707 99 709
+                OXYGYM Booking: {contact.oxygymBooking}
               </a>
             </div>
           </motion.div>
@@ -190,8 +268,7 @@ export default function ContactClient() {
               Working Hours
             </p>
             <p className="text-[13px] leading-[1.35] text-black">
-              Monday - Friday:
-              <br className="md:hidden" /> 9:00 AM - 10:00 PM
+              9:00 AM - 10:00 PM
             </p>
           </motion.div>
         </motion.div>
@@ -225,7 +302,7 @@ export default function ContactClient() {
           variants={fadeUp}
           className="bg-white rounded-[24px] md:rounded-[30px] shadow-[0px_0px_81.6px_0px_rgba(0,0,0,0.1)] p-6 sm:p-8 lg:p-12 xl:p-16"
         >
-          <form className="flex flex-col gap-6 md:gap-8">
+          <form className="flex flex-col gap-6 md:gap-8" onSubmit={handleSubmit}>
             {/* Row 1: Full Name + Email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
               <div className="flex flex-col gap-2 md:gap-3">
@@ -238,6 +315,10 @@ export default function ContactClient() {
                 >
                   <input
                     type="text"
+                    name="fullName"
+                    required
+                    value={formData.fullName}
+                    onChange={handleInputChange}
                     placeholder="Enter full name"
                     className="w-full bg-transparent text-base md:text-lg text-black/80 font-light outline-none placeholder:text-black/40"
                   />
@@ -245,7 +326,7 @@ export default function ContactClient() {
               </div>
               <div className="flex flex-col gap-2 md:gap-3">
                 <label className="text-base md:text-xl capitalize leading-[1.35]">
-                  Email Address*
+                  Email Address
                 </label>
                 <div
                   className="rounded-[24px] md:rounded-[33px] flex items-center px-5 md:px-6 h-14 md:h-[80px]"
@@ -253,7 +334,10 @@ export default function ContactClient() {
                 >
                   <input
                     type="email"
-                    placeholder="your@email.com"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="your@email.com (optional)"
                     className="w-full bg-transparent text-base md:text-lg text-black/80 font-light outline-none placeholder:text-black/40"
                   />
                 </div>
@@ -272,6 +356,12 @@ export default function ContactClient() {
                 >
                   <input
                     type="tel"
+                    name="phone"
+                    required
+                    inputMode="numeric"
+                    maxLength={10}
+                    value={formData.phone}
+                    onChange={handleInputChange}
                     placeholder="Enter full phone number"
                     className="w-full bg-transparent text-base md:text-lg text-black/80 font-light outline-none placeholder:text-black/40"
                   />
@@ -287,6 +377,9 @@ export default function ContactClient() {
                 >
                   <input
                     type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
                     placeholder="Enter subject"
                     className="w-full bg-transparent text-base md:text-lg text-black/80 font-light outline-none placeholder:text-black/40"
                   />
@@ -305,18 +398,34 @@ export default function ContactClient() {
               >
                 <textarea
                   rows={4}
+                  name="message"
+                  required
+                  value={formData.message}
+                  onChange={handleInputChange}
                   placeholder="Any special requirements and needs"
                   className="w-full bg-transparent text-base md:text-lg text-black/80 font-light outline-none resize-none placeholder:not-italic placeholder:text-black/40"
                 ></textarea>
               </div>
             </div>
 
+            {submitMessage && (
+              <p className="text-base text-green-700 bg-green-50 rounded-2xl px-5 py-3">
+                {submitMessage}
+              </p>
+            )}
+            {submitError && (
+              <p className="text-base text-red-700 bg-red-50 rounded-2xl px-5 py-3">
+                {submitError}
+              </p>
+            )}
+
             {/* Submit */}
             <button
               type="submit"
-              className="bg-black text-white rounded-[24px] md:rounded-[30px] w-full flex items-center justify-center capitalize font-medium text-lg md:text-2xl leading-[1.2] transition-transform active:scale-95 h-14 md:h-[70px]"
+              disabled={isSubmitting}
+              className="bg-black text-white rounded-[24px] md:rounded-[30px] w-full flex items-center justify-center capitalize font-medium text-lg md:text-2xl leading-[1.2] transition-transform active:scale-95 h-14 md:h-[70px] disabled:opacity-60"
             >
-              Send Message
+              {isSubmitting ? "Sending…" : "Send Message"}
             </button>
           </form>
         </motion.div>

@@ -1,0 +1,363 @@
+// Prime Promenade — Prisma schema
+// PostgreSQL + Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Enums
+// ─────────────────────────────────────────────────────────────
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  STAFF
+}
+
+/// Lifecycle for reservations that occupy a slot (pool, hall, spa).
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+/// Lifecycle for enquiries / leads (gym, vendor, course, contact).
+enum LeadStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+  ARCHIVED
+}
+
+enum ListingType {
+  POOL
+  HALL
+  SPA_SERVICE
+  GYM_PLAN
+  VENDOR_COUNTER
+  COURSE
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Auth & system
+// ─────────────────────────────────────────────────────────────
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         AdminRole @default(ADMIN)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  loginEvents   LoginEvent[]
+
+  @@map("admin_users")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  admin     AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminId   String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([adminId])
+  @@map("refresh_tokens")
+}
+
+model OtpVerification {
+  id         String    @id @default(cuid())
+  phone      String
+  codeHash   String
+  purpose    String    @default("pool_booking")
+  expiresAt  DateTime
+  consumedAt DateTime?
+  attempts   Int       @default(0)
+  createdAt  DateTime  @default(now())
+
+  @@index([phone, purpose])
+  @@map("otp_verifications")
+}
+
+model AuditLog {
+  id         String     @id @default(cuid())
+  admin      AdminUser? @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  adminId    String?
+  action     String
+  entity     String
+  entityId   String?
+  meta       Json?
+  createdAt  DateTime   @default(now())
+
+  @@index([entity])
+  @@index([adminId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+/// One row per admin login attempt (success or failure), for the SUPER_ADMIN
+/// login-tracking view. Failures keep the typed email but no account link.
+model LoginEvent {
+  id        String     @id @default(cuid())
+  admin     AdminUser? @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  adminId   String?
+  email     String
+  success   Boolean
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime   @default(now())
+
+  @@index([adminId])
+  @@index([createdAt])
+  @@map("login_events")
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Bookings (occupy a slot)
+// ─────────────────────────────────────────────────────────────
+
+/// Pool booking created via POST /api/bookings/create-verified (OTP verified).
+model PoolBooking {
+  id          String        @id @default(cuid())
+  reference   String        @unique @default(dbgenerated("('POOL-' || lpad(nextval('pool_booking_ref_seq'::regclass)::text, 5, '0'))"))
+  guestName   String
+  phone       String
+  email       String?
+  poolId      Int? // physical pool: 1 = small (≤8), 2 = group (≤12)
+  poolType    String // selected plan name (Solo / Duo / Session / Group ...)
+  date        String // "YYYY-MM-DD" as sent by the frontend
+  timeSlot    String // "10:00 AM - 11:30 AM"
+  addons      String[]      @default([]) // ["Jacuzzi", "Sauna Bath"]
+  totalAmount Int           @default(0)
+  otpVerified Boolean       @default(true)
+  status      BookingStatus @default(CONFIRMED)
+  source      String        @default("website")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([date])
+  @@index([status])
+  @@map("pool_bookings")
+}
+
+/// Conference / hall booking — POST /hall-bookings ; GET returns booked dates.
+model HallBooking {
+  id                     String        @id @default(cuid())
+  reference              String        @unique @default(dbgenerated("('HALL-' || lpad(nextval('hall_booking_ref_seq'::regclass)::text, 5, '0'))"))
+  fullName               String
+  phone                  String
+  email                  String
+  organisationName       String?
+  eventType              String?
+  attendance             Int           @default(0)
+  date                   String // "YYYY-MM-DD"
+  timeSlot               String // "Morning Slot" / "Evening Slot"
+  additionalRequirements String?
+  termsAccepted          Boolean       @default(false)
+  status                 BookingStatus @default(PENDING)
+  source                 String        @default("website")
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  @@index([date])
+  @@index([status])
+  @@map("hall_bookings")
+}
+
+/// Spa / salon appointment — POST /spa-bookings.
+model SpaBooking {
+  id              String        @id @default(cuid())
+  reference       String        @unique @default(dbgenerated("('SPA-' || lpad(nextval('spa_booking_ref_seq'::regclass)::text, 5, '0'))"))
+  fullName        String
+  email           String
+  phone           String
+  selectedService String
+  date            String
+  preferredTime   String
+  message         String?
+  status          BookingStatus @default(PENDING)
+  source          String        @default("website")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([date])
+  @@index([status])
+  @@map("spa_bookings")
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Enquiries / leads
+// ─────────────────────────────────────────────────────────────
+
+/// Gym membership enquiry — POST /gym-memberships.
+model GymMembership {
+  id        String     @id @default(cuid())
+  fullName  String
+  phone     String
+  email     String
+  age       Int?
+  message   String?
+  status    LeadStatus @default(NEW)
+  source    String     @default("website")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([status])
+  @@map("gym_memberships")
+}
+
+/// Vendor counter enquiry — POST /vendor-invites (invite page + counter panel).
+model VendorInvite {
+  id                     String     @id @default(cuid())
+  fullName               String
+  phone                  String
+  email                  String
+  organisationName       String?
+  vendorType             String?
+  counters               String[]   @default([]) // ["Counter 01", "Counter 05"]
+  preferredDuration      String?
+  additionalRequirements String?
+  termsAccepted          Boolean    @default(false)
+  status                 LeadStatus @default(NEW)
+  source                 String     @default("website")
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
+
+  @@index([status])
+  @@map("vendor_invites")
+}
+
+/// Study-centre course registration — POST /course-registrations.
+model CourseRegistration {
+  id        String     @id @default(cuid())
+  reference String     @unique @default(dbgenerated("('ENR-' || lpad(nextval('course_registration_ref_seq'::regclass)::text, 5, '0'))"))
+  fullName  String
+  email     String
+  phone     String
+  course    String
+  message   String?
+  status    LeadStatus @default(NEW)
+  source    String     @default("website")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([status])
+  @@map("course_registrations")
+}
+
+/// Contact form submission — POST /contact-enquiries.
+model ContactEnquiry {
+  id        String     @id @default(cuid())
+  fullName  String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  status    LeadStatus @default(NEW)
+  source    String     @default("website")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([status])
+  @@map("contact_enquiries")
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Content management (CMS)
+// ─────────────────────────────────────────────────────────────
+
+model Page {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  metaTitle       String?
+  metaDescription String?
+  content         Json     @default("{}")
+  isPublished     Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("pages")
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  location  String // "home-hero", "pool-hero", ...
+  title     String?
+  subtitle  String?
+  imagePath String?
+  ctaLabel  String?
+  ctaHref   String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([location])
+  @@map("banners")
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  title     String?
+  imagePath String
+  category  String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@map("gallery_images")
+}
+
+/// Flexible key/value store for global site content (contact details, socials).
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  group     String   @default("general")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+/// Bookable listings + availability (pool plans, spa services, vendor counters,
+/// gym plans, courses). Vendor counters (type=VENDOR_COUNTER) drive the live
+/// available/booked state on the /vendor page.
+model Listing {
+  id           String      @id @default(cuid())
+  type         ListingType
+  name         String
+  code         String? // e.g. "COUNTER-01"
+  description  String?
+  price        Int?
+  durationLabel String?
+  capacity     Int?
+  isAvailable  Boolean     @default(true)
+  isActive     Boolean     @default(true)
+  order        Int         @default(0)
+  metadata     Json        @default("{}")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@unique([type, code])
+  @@index([type])
+  @@map("listings")
+}

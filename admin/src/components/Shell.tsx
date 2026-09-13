@@ -1,0 +1,187 @@
+"use client";
+
+import { useEffect, useState, type ReactNode } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth";
+import BrandLogo from "@/components/BrandLogo";
+
+type NavSection = {
+  group: string;
+  items: Array<{ href: string; label: string; icon: string }>;
+  superAdminOnly?: boolean;
+};
+
+const NAV: NavSection[] = [
+  { group: "Overview", items: [{ href: "/", label: "Dashboard", icon: "▤" }] },
+  {
+    group: "Manage",
+    items: [
+      { href: "/bookings", label: "Bookings", icon: "▦" },
+      { href: "/pool-calendar", label: "Pool Calendar", icon: "◷" },
+      { href: "/hall", label: "Hall Bookings", icon: "▤" },
+      { href: "/enquiries", label: "Enquiries", icon: "✉" },
+      { href: "/enrollments", label: "Enrollments", icon: "🎓" },
+      { href: "/counters", label: "Vendor Counters", icon: "▣" },
+    ],
+  },
+  {
+    group: "Catalog",
+    items: [
+      { href: "/pool", label: "Pool", icon: "🌊" },
+      { href: "/spa", label: "Spa", icon: "🌿" },
+      { href: "/courses", label: "Courses", icon: "🎓" },
+      { href: "/gym", label: "Gym", icon: "🏋" },
+    ],
+  },
+  {
+    group: "Website",
+    items: [
+      { href: "/content", label: "Content & Settings", icon: "◨" },
+      { href: "/gallery", label: "Gallery", icon: "🖼" },
+      { href: "/popup", label: "Pop-up", icon: "📣" },
+    ],
+  },
+  {
+    group: "Admin",
+    superAdminOnly: true,
+    items: [
+      { href: "/users", label: "Users", icon: "👥" },
+      { href: "/activity", label: "Activity Log", icon: "🕑" },
+    ],
+  },
+];
+
+const TITLES: Record<string, [string, string]> = {
+  "/": ["Dashboard", "Bookings & enquiries at a glance"],
+  "/bookings": ["Bookings", "Pool & spa reservations"],
+  "/pool-calendar": ["Pool Calendar", "Both pools' availability & offline blocking"],
+  "/hall": ["Hall Bookings", "Regal Hall (conference) booking requests"],
+  "/enquiries": ["Enquiries", "Vendor & contact leads"],
+  "/enrollments": ["Enrollments", "Course enrollments from the study centre"],
+  "/counters": ["Vendor Counters", "Control live availability on the /vendor page"],
+  "/pool": ["Pool Packages", "Manage swimming pool packages & pricing"],
+  "/spa": ["Spa Services", "Manage the spa & salon service list"],
+  "/courses": ["Courses", "Course details & enrollments"],
+  "/gym": ["Gym Enquiries", "Manage gym membership enquiries"],
+  "/content": ["Website", "Content, banners & settings"],
+  "/gallery": ["Gallery", "Event gallery images shown on the site"],
+  "/popup": ["Pop-up", "Announcement pop-up shown to visitors"],
+  "/users": ["Users", "Admin accounts & password resets"],
+  "/activity": ["Activity Log", "Admin login history & action audit"],
+};
+
+function ThemeToggle() {
+  const [theme, setTheme] = useState<string | null>(null);
+  useEffect(() => {
+    const saved = localStorage.getItem("pp_admin_theme");
+    if (saved) {
+      document.documentElement.setAttribute("data-theme", saved);
+      setTheme(saved);
+    }
+  }, []);
+  const toggle = () => {
+    const current =
+      document.documentElement.getAttribute("data-theme") ||
+      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const next = current === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("pp_admin_theme", next);
+    setTheme(next);
+  };
+  return (
+    <button className="icon-btn" onClick={toggle} title="Toggle theme" aria-label="Toggle theme">
+      ◐
+    </button>
+  );
+}
+
+export default function Shell({ children }: { children: ReactNode }) {
+  const { admin, loading, signOut } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !admin) router.replace("/login");
+  }, [loading, admin, router]);
+
+  if (loading || !admin) {
+    return (
+      <div className="center-load" style={{ minHeight: "100vh" }}>
+        <div className="spinner" />
+      </div>
+    );
+  }
+
+  const [title, sub] = TITLES[pathname] ?? ["Admin", ""];
+  const initials = admin.name
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  return (
+    <div className="app">
+      <aside>
+        <div className="brand-row" style={{ flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
+          <BrandLogo height={30} />
+          <div className="brand-sub">Admin</div>
+        </div>
+
+        {NAV.filter((section) => !section.superAdminOnly || admin.role === "SUPER_ADMIN").map((section) => (
+          <div key={section.group}>
+            <div className="nav-label">{section.group}</div>
+            {section.items.map((item) => {
+              const active = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`nav-item${active ? " active" : ""}`}
+                >
+                  <span className="ic">{item.icon}</span> {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+
+        <div className="nav-spacer" />
+        <div className="nav-foot">
+          <div className="avatar">{initials}</div>
+          <div style={{ minWidth: 0 }}>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 650,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {admin.name}
+            </div>
+            <div className="brand-sub">{admin.role.replace(/_/g, " ").toLowerCase()}</div>
+          </div>
+          <button className="logout" onClick={() => void signOut()} title="Sign out" aria-label="Sign out">
+            ⎋
+          </button>
+        </div>
+      </aside>
+
+      <main>
+        <div className="topbar">
+          <div>
+            <h1>{title}</h1>
+            <div className="sub">{sub}</div>
+          </div>
+          <div className="top-actions">
+            <ThemeToggle />
+          </div>
+        </div>
+        <div className="content">{children}</div>
+      </main>
+    </div>
+  );
+}

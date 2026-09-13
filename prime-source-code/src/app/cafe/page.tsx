@@ -16,7 +16,7 @@ const page = () => {
         {/* --- Hero Banner Section --- */}
         <section className="relative w-full overflow-hidden h-[450px] md:h-screen lg:min-h-[100vh] site-container">
           <img
-            src="/ASSETS/cafe-BANNER.jpeg"
+            src="/ASSETS/cafe.jpg"
             alt="cafe"
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -64,7 +64,7 @@ const page = () => {
         
 
         {/* --- About Café Section (Screenshot Design) --- */}
-        <section className="py-20 lg:py-28 site-container bg-white">
+        <section className="section-y site-container bg-white">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Column: Image Grid Layout */}
             <MotionDiv
@@ -77,7 +77,7 @@ const page = () => {
               {/* Single feature image (kept only the first image) */}
               <div className="relative rounded-[20px] md:rounded-[24px] overflow-hidden h-full w-full group">
                 <Image
-                  src="/ASSETS/about-image-1.jpeg"
+                  src="/ASSETS/cafe-abut-2.jpg"
                   fill
                   alt="Cafe Experience"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -227,7 +227,7 @@ const page = () => {
         </section>
 
         {/* --- Moments / Gallery Section (added last) --- */}
-       <section className="py-20 lg:py-28 site-container">
+       <section className="section-y site-container">
         <div className="bg-[#FEF6E8] rounded-[24px] p-6 md:p-10">
     
 

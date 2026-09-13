@@ -1,11 +1,45 @@
 "use client"
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Footer from "./Footer";
+import { apiCall, ENDPOINTS } from "@/utils/api";
+
+const DEFAULT_CONTACT = {
+  generalEnquiry: "+91- 90707 99 700",
+  primePharma: "+91- 90707 99 770",
+  arenaBooking: "+91- 90707 99 079",
+  oxygymBooking: "+91- 90707 99 709",
+  email: "info@primepromenade.com",
+};
+
+const PHONES: { key: keyof typeof DEFAULT_CONTACT; label: string }[] = [
+  { key: "generalEnquiry", label: "General Enquiry" },
+  { key: "primePharma", label: "Prime Pharma" },
+  { key: "arenaBooking", label: "Primex Arena Booking" },
+  { key: "oxygymBooking", label: "OXYGYM Booking" },
+];
+
+const telHref = (v: string) => `tel:${v.replace(/[^\d+]/g, "")}`;
 
 export default function ContactSection() {
-  
+  // Contact details from site settings (fallback to defaults if unreachable).
+  const [contact, setContact] = useState(DEFAULT_CONTACT);
+  useEffect(() => {
+    let active = true;
+    apiCall(ENDPOINTS.SITE_SETTINGS)
+      .then((data) => {
+        if (!active || !data || typeof data !== "object") return;
+        const c = (data as { contact?: Partial<typeof DEFAULT_CONTACT> }).contact;
+        if (c) setContact({ ...DEFAULT_CONTACT, ...c });
+      })
+      .catch(() => {
+        /* keep defaults */
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <section className="bg-[black] pt-20 lg:pt-28 pb-0">
@@ -40,15 +74,16 @@ export default function ContactSection() {
 
             <div className="flex flex-col gap-3 text-white">
               <div className="space-y-2">
-                <a href="tel:+919070799700" aria-label="Call General Enquiry" className="block text-base text-white hover:text-white/90">+91- 90707 99 700 <span className="text-white/60">: General Enquiry</span></a>
-                <a href="tel:+919070799770" aria-label="Call Prime Pharma" className="block text-base text-white hover:text-white/90">+91- 90707 99 770 <span className="text-white/60">: Prime Pharma</span></a>
-                <a href="tel:+919070799079" aria-label="Call Primex Arena Booking" className="block text-base text-white hover:text-white/90">+91- 90707 99 079 <span className="text-white/60">: Primex Arena Booking</span></a>
-                <a href="tel:+919070799709" aria-label="Call OXYGYM Booking" className="block text-base text-white hover:text-white/90">+91- 90707 99 709 <span className="text-white/60">: OXYGYM Booking</span></a>
+                {PHONES.map((p) => (
+                  <a key={p.key} href={telHref(contact[p.key])} aria-label={`Call ${p.label}`} className="block text-base text-white hover:text-white/90">
+                    {contact[p.key]} <span className="text-white/60">: {p.label}</span>
+                  </a>
+                ))}
               </div>
 
               <div className="pt-4 border-t border-white/10">
                 <p className="text-sm text-white/60 mb-1">Email:</p>
-                <a href="mailto:info@primepromenade.com" className="text-base text-white/80 hover:text-white">info@primepromenade.com</a>
+                <a href={`mailto:${contact.email}`} className="text-base text-white/80 hover:text-white">{contact.email}</a>
               </div>
             </div>
           </motion.div>
