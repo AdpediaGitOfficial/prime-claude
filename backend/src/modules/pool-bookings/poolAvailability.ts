@@ -57,6 +57,35 @@ const overlaps = (a: Interval, b: Interval) => a.start < b.end && a.end > b.star
 const poolBusy = (ivs: Interval[], win: Interval) => ivs.some((iv) => overlaps(iv, win));
 
 /**
+ * Reject a customer booking a time they already hold. Two *different* guests may
+ * share a slot (one per pool), but the SAME phone must not book an overlapping
+ * time on the same date — otherwise one person silently consumes both pools
+ * (accidental duplicate / double-submit). Not applied to admin/offline blocks.
+ * @throws 409 if the phone already has an overlapping active booking.
+ */
+export async function ensureNoDuplicateBooking(
+  phone: string,
+  date: string,
+  timeSlot: string,
+): Promise<void> {
+  const win = parseSlot(timeSlot);
+  if (!win || !phone) return;
+  const existing = await prisma.poolBooking.findMany({
+    where: { phone, date, status: { in: [...OCCUPYING_STATUSES] } },
+    select: { timeSlot: true },
+  });
+  const clash = existing.some((b) => {
+    const iv = parseSlot(b.timeSlot);
+    return iv ? overlaps(iv, win) : false;
+  });
+  if (clash) {
+    throw AppError.conflict(
+      "You already have a booking for this time. Please choose a different slot.",
+    );
+  }
+}
+
+/**
  * Current date (yyyy-mm-dd) and minute-of-day in the business timezone
  * (Asia/Kolkata). Used to reject a slot whose start has already passed today —
  * the UI must never be trusted, so the server enforces it too.

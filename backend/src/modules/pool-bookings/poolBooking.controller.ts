@@ -3,7 +3,7 @@ import { prisma } from "../../config/prisma";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { sendSuccess } from "../../utils/apiResponse";
 import { verifyOtp } from "../otp/otp.service";
-import { assignPool, occupiedByPool, parseSlot } from "./poolAvailability";
+import { assignPool, occupiedByPool, parseSlot, ensureNoDuplicateBooking } from "./poolAvailability";
 import { AppError } from "../../utils/AppError";
 
 /**
@@ -17,6 +17,7 @@ export const createVerifiedPoolBooking = asyncHandler(async (req: Request, res: 
   };
 
   await verifyOtp(phone, otp, "pool_booking");
+  await ensureNoDuplicateBooking(phone, date, timeSlot);
   const poolId = await assignPool(date, timeSlot, poolType);
 
   const booking = await prisma.poolBooking.create({
@@ -40,6 +41,7 @@ export const createDirectPoolBooking = asyncHandler(async (req: Request, res: Re
     date: string; timeSlot: string; addons: string[]; totalAmount: number;
   };
 
+  await ensureNoDuplicateBooking(phone, date, timeSlot);
   const poolId = await assignPool(date, timeSlot, poolType);
 
   const booking = await prisma.poolBooking.create({
