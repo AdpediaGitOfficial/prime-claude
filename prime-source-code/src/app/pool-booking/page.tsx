@@ -467,7 +467,7 @@ export default function PoolBookingPage() {
                 {selectedPlan ? "Times reflect your plan's session length." : "Select a plan above to see time slots for its duration."}
               </p>
               <PoolTimeSlots
-                durationMinutes={selectedPlan?.durationMinutes ?? 90}
+                durationMinutes={selectedPlan?.durationMinutes ?? 60}
                 pool1={pool1}
                 pool2={pool2}
                 groupPlan={selectedPool === "group"}
