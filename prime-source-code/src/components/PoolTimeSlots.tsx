@@ -129,10 +129,11 @@ export default function PoolTimeSlots({
         const isFull = free <= 0;
         // A slot is unbookable when its start has passed (today) or it is full.
         const disabled = isPast || isFull;
-        // Show how many pools remain, but keep every bookable state GREEN —
-        // "1 pool left" is still available, so it must not read as amber/scarce
-        // (that suppressed bookings). Only both-pools-taken is red "Fully
-        // booked". Group plans use the whole pool, so they show just "Available".
+        // Show how many pools remain. "2 pools available" is green; "1 pool
+        // left" is orange so the customer notices the last spot (still bookable,
+        // not a "booked" red). Both pools taken → red "Fully booked". Group
+        // plans use the whole pool, so they show just "Available" (green).
+        const oneLeft = free === 1 && !groupPlan;
         const availText = isPast
           ? "Unavailable"
           : isFull
@@ -146,6 +147,8 @@ export default function PoolTimeSlots({
           ? "text-black/40"
           : isFull
           ? "text-red-600"
+          : oneLeft
+          ? "text-orange-500"
           : "text-emerald-600";
         return (
           <button
