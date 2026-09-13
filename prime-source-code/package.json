@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node -r ./scripts/exfat-readlink-fix.cjs ./node_modules/next/dist/bin/next build",
+    "build": "node scripts/next-build.cjs",
     "start": "next start"
   },
   "dependencies": {
@@ -12,7 +12,7 @@
     "framer-motion": "^12.38.0",
     "gsap": "^3.14.2",
     "lucide-react": "^0.577.0",
-    "next": "^15.3.3",
+    "next": "^16.3.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-icons": "^5.6.0",
