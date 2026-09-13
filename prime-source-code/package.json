@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node -r ./scripts/exfat-readlink-fix.cjs ./node_modules/next/dist/bin/next build",
+    "build": "node scripts/next-build.cjs",
     "start": "next start"
   },
   "dependencies": {
